@@ -51,10 +51,14 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-300;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-500;
+  }
+
+  html {
+    @apply transition-colors duration-500;
   }
 }
 
@@ -62,14 +66,44 @@
   0%,
   100% {
     opacity: 0.3;
+    transform: scale(0.8);
   }
   50% {
     opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
   }
 }
 
 .animate-twinkle {
   animation: twinkle 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
 }
 
 /* Custom scrollbar */
@@ -84,10 +118,20 @@
 ::-webkit-scrollbar-thumb {
   background: rgba(156, 163, 175, 0.5);
   border-radius: 4px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
 }
 
 /* Prose styling for README preview */
@@ -108,7 +152,7 @@
 }
 
 .prose p {
-  @apply mb-3 text-foreground/80;
+  @apply mb-3 text-foreground/80 leading-relaxed;
 }
 
 .prose ul,
@@ -117,15 +161,15 @@
 }
 
 .prose li {
-  @apply mb-1;
+  @apply mb-1 text-foreground/80;
 }
 
 .prose code {
-  @apply bg-muted px-1 py-0.5 rounded text-sm font-mono;
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono text-foreground;
 }
 
 .prose pre {
-  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4;
+  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4 text-foreground;
 }
 
 .prose blockquote {
@@ -133,5 +177,30 @@
 }
 
 .prose a {
-  @apply text-primary hover:underline;
+  @apply text-primary hover:underline transition-colors;
+}
+
+.prose strong {
+  @apply font-semibold text-foreground;
+}
+
+.prose em {
+  @apply italic text-foreground/90;
+}
+
+/* Enhanced button hover effects */
+.btn-gradient {
+  @apply bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 active:scale-95;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
+}
+
+/* Theme transition for all elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }

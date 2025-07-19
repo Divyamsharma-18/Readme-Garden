@@ -33,10 +33,12 @@ export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState("preview")
+  const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
   useEffect(() => {
+    setMounted(true)
     // Check usage count from localStorage
     const count = localStorage.getItem("readme-usage-count")
     const authStatus = localStorage.getItem("readme-auth-status")
@@ -139,49 +141,180 @@ export default function HomePage() {
     URL.revokeObjectURL(url)
   }
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
+
+  if (!mounted) {
+    return null
+  }
+
   return (
-    <div
-      className={`min-h-screen transition-all duration-500 ${
-        theme === "dark"
-          ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-          : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
-      }`}
-    >
+    <div className="min-h-screen transition-all duration-700 relative overflow-hidden">
+      {/* Dynamic Background */}
+      <div
+        className={`fixed inset-0 transition-all duration-700 ${
+          theme === "dark"
+            ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+            : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
+        }`}
+      />
+
       {/* Nature Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {theme === "light" ? (
           <>
             {/* Sun */}
-            <div className="absolute top-10 right-10 w-20 h-20 bg-yellow-300 rounded-full opacity-20 animate-pulse" />
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 0.3 }}
+              transition={{ duration: 1 }}
+              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-lg"
+            />
+
             {/* Clouds */}
-            <div className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full opacity-30" />
-            <div className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full opacity-25" />
+            <motion.div
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 0.4 }}
+              transition={{ duration: 2, delay: 0.5 }}
+              className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full shadow-sm"
+            />
+            <motion.div
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 0.3 }}
+              transition={{ duration: 2, delay: 1 }}
+              className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full shadow-sm"
+            />
+
             {/* Trees */}
-            <div className="absolute bottom-0 left-10 w-4 h-32 bg-amber-800 opacity-20" />
-            <div className="absolute bottom-32 left-8 w-16 h-16 bg-green-400 rounded-full opacity-30" />
-            <div className="absolute bottom-0 right-20 w-6 h-40 bg-amber-700 opacity-15" />
-            <div className="absolute bottom-40 right-16 w-20 h-20 bg-green-500 rounded-full opacity-25" />
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 0.25 }}
+              transition={{ duration: 1.5, delay: 0.3 }}
+              className="absolute bottom-0 left-10"
+            >
+              <div className="w-4 h-32 bg-amber-800 rounded-t-sm" />
+              <div className="absolute -top-8 -left-6 w-16 h-16 bg-green-500 rounded-full" />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 0.2 }}
+              transition={{ duration: 1.5, delay: 0.7 }}
+              className="absolute bottom-0 right-20"
+            >
+              <div className="w-6 h-40 bg-amber-700 rounded-t-sm" />
+              <div className="absolute -top-10 -left-7 w-20 h-20 bg-green-600 rounded-full" />
+            </motion.div>
+
             {/* Flowers */}
-            <div className="absolute bottom-10 left-1/3 w-3 h-3 bg-pink-400 rounded-full opacity-40" />
-            <div className="absolute bottom-16 left-1/2 w-2 h-2 bg-purple-400 rounded-full opacity-35" />
-            <div className="absolute bottom-12 right-1/4 w-4 h-4 bg-yellow-400 rounded-full opacity-30" />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 1.5 }}
+              className="absolute bottom-10 left-1/3 w-4 h-4 bg-pink-400 rounded-full shadow-sm"
+            />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 1.8 }}
+              className="absolute bottom-16 left-1/2 w-3 h-3 bg-purple-400 rounded-full shadow-sm"
+            />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 2.1 }}
+              className="absolute bottom-12 right-1/4 w-5 h-5 bg-yellow-400 rounded-full shadow-sm"
+            />
+
+            {/* River */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 2, delay: 1 }}
+              className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 opacity-30"
+            />
           </>
         ) : (
           <>
             {/* Moon */}
-            <div className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full opacity-30" />
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 0.4 }}
+              transition={{ duration: 1 }}
+              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-lg"
+            />
+
             {/* Stars */}
-            <div className="absolute top-20 left-1/4 w-1 h-1 bg-white rounded-full opacity-60 animate-twinkle" />
-            <div className="absolute top-32 right-1/3 w-1 h-1 bg-white rounded-full opacity-50 animate-twinkle" />
-            <div className="absolute top-40 left-1/2 w-1 h-1 bg-white rounded-full opacity-70 animate-twinkle" />
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.5, 1, 0.5] }}
+                transition={{
+                  duration: 2,
+                  delay: i * 0.3,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+                className="absolute w-1 h-1 bg-white rounded-full"
+                style={{
+                  left: `${20 + i * 10}%`,
+                  top: `${10 + (i % 3) * 15}%`,
+                }}
+              />
+            ))}
+
             {/* Dark Trees */}
-            <div className="absolute bottom-0 left-10 w-4 h-32 bg-gray-800 opacity-40" />
-            <div className="absolute bottom-32 left-8 w-16 h-16 bg-gray-700 rounded-full opacity-30" />
-            <div className="absolute bottom-0 right-20 w-6 h-40 bg-gray-800 opacity-35" />
-            <div className="absolute bottom-40 right-16 w-20 h-20 bg-gray-700 rounded-full opacity-25" />
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 0.4 }}
+              transition={{ duration: 1.5, delay: 0.3 }}
+              className="absolute bottom-0 left-10"
+            >
+              <div className="w-4 h-32 bg-gray-800 rounded-t-sm" />
+              <div className="absolute -top-8 -left-6 w-16 h-16 bg-gray-700 rounded-full" />
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 0.35 }}
+              transition={{ duration: 1.5, delay: 0.7 }}
+              className="absolute bottom-0 right-20"
+            >
+              <div className="w-6 h-40 bg-gray-800 rounded-t-sm" />
+              <div className="absolute -top-10 -left-7 w-20 h-20 bg-gray-700 rounded-full" />
+            </motion.div>
+
             {/* Fireflies */}
-            <div className="absolute bottom-20 left-1/3 w-2 h-2 bg-yellow-300 rounded-full opacity-60 animate-pulse" />
-            <div className="absolute bottom-32 right-1/4 w-1 h-1 bg-green-300 rounded-full opacity-50 animate-pulse" />
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{
+                  opacity: [0.3, 1, 0.3],
+                  scale: [0.8, 1.2, 0.8],
+                }}
+                transition={{
+                  duration: 2,
+                  delay: i * 0.5,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+                className="absolute w-2 h-2 bg-yellow-300 rounded-full shadow-lg"
+                style={{
+                  left: `${30 + i * 15}%`,
+                  bottom: `${20 + (i % 2) * 20}%`,
+                }}
+              />
+            ))}
+
+            {/* Night River */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 2, delay: 1 }}
+              className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600 opacity-20"
+            />
           </>
         )}
       </div>
@@ -194,7 +327,7 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-3"
           >
-            <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl">
+            <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl shadow-lg">
               <Github className="w-8 h-8 text-white" />
             </div>
             <div>
@@ -206,19 +339,19 @@ export default function HomePage() {
           </motion.div>
 
           <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="px-3 py-1">
+            <Badge variant="secondary" className="px-3 py-1 shadow-sm">
               {isAuthenticated ? "∞ Uses" : `${1 - usageCount} Free Uses Left`}
             </Badge>
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full"
+              onClick={toggleTheme}
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             {!isAuthenticated && (
-              <Button onClick={() => setShowAuthModal(true)} className="rounded-full">
+              <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm">
                 Sign In
               </Button>
             )}
@@ -231,7 +364,7 @@ export default function HomePage() {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-0 shadow-xl">
+            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-purple-500" />
@@ -271,7 +404,7 @@ export default function HomePage() {
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !repoUrl || !selectedVibe}
-                  className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-3"
+                  className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
                 >
                   {isGenerating ? (
                     <>
@@ -291,7 +424,7 @@ export default function HomePage() {
 
           {/* Output Section */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-0 shadow-xl h-full">
+            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Your README</CardTitle>
@@ -317,8 +450,8 @@ export default function HomePage() {
                       <TabsTrigger value="code">Markdown</TabsTrigger>
                     </TabsList>
                     <TabsContent value="preview" className="mt-4">
-                      <div className="prose dark:prose-invert max-w-none">
-                        <div dangerouslySetInnerHTML={{ __html: generatedReadme }} />
+                      <div className="prose dark:prose-invert max-w-none max-h-96 overflow-y-auto">
+                        <div dangerouslySetInnerHTML={{ __html: generatedReadme.replace(/\n/g, "<br>") }} />
                       </div>
                     </TabsContent>
                     <TabsContent value="code" className="mt-4">
@@ -331,7 +464,7 @@ export default function HomePage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="absolute top-2 right-2 bg-transparent"
+                          className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm"
                           onClick={() => handleRewrite(generatedReadme)}
                         >
                           <RefreshCw className="w-3 h-3 mr-1" />
