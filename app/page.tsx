@@ -66,15 +66,29 @@ export default function HomePage() {
     setIsGenerating(true)
 
     try {
+      console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe)
+
       const response = await fetch("/api/generate-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoUrl, vibe: selectedVibe }),
       })
 
-      if (!response.ok) throw new Error("Failed to generate README")
+      console.log("Response status:", response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("API Error:", errorData)
+        throw new Error(errorData.error || "Failed to generate README")
+      }
 
       const data = await response.json()
+      console.log("Generated README length:", data.readme?.length)
+
+      if (!data.readme) {
+        throw new Error("No README content received")
+      }
+
       setGeneratedReadme(data.readme)
 
       // Update usage count
@@ -87,9 +101,10 @@ export default function HomePage() {
         description: "Your beautiful README is ready!",
       })
     } catch (error) {
+      console.error("Generation error:", error)
       toast({
         title: "Generation Failed",
-        description: "Something went wrong. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
