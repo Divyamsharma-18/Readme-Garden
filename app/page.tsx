@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import LoadingAnimation from "@/components/loading-animation"
 import AuthModal from "@/components/auth-modal"
 import { Textarea } from "@/components/ui/textarea"
+import Image from "next/image"
 
 const vibeOptions = [
   { value: "professional", label: "🎯 Professional", description: "Clean, corporate, and to-the-point" },
@@ -149,104 +150,170 @@ export default function HomePage() {
     return null
   }
 
+  const isDark = theme === "dark"
+
   return (
     <div className="min-h-screen transition-all duration-700 relative overflow-hidden">
       {/* Dynamic Background */}
       <div
         className={`fixed inset-0 transition-all duration-700 ${
-          theme === "dark"
+          isDark
             ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
             : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
         }`}
       />
 
-      {/* Nature Background Elements */}
+      {/* Nature Background Elements with Images */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {theme === "light" ? (
+        {!isDark ? (
           <>
             {/* Sun */}
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.3 }}
+              animate={{ scale: 1, opacity: 0.8 }}
               transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-lg"
+              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-2xl"
+              style={{
+                boxShadow: "0 0 50px rgba(251, 191, 36, 0.6)",
+              }}
             />
 
-            {/* Clouds */}
+            {/* Day Clouds */}
             <motion.div
               initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.4 }}
+              animate={{ x: 0, opacity: 0.7 }}
               transition={{ duration: 2, delay: 0.5 }}
-              className="absolute top-20 left-1/4 w-32 h-16 bg-white rounded-full shadow-sm"
-            />
+              className="absolute top-20 left-1/4 w-32 h-16 overflow-hidden rounded-full"
+            >
+              <Image
+                src="/images/day-clouds.png"
+                alt="Day clouds"
+                width={128}
+                height={64}
+                className="object-cover w-full h-full opacity-80"
+              />
+            </motion.div>
             <motion.div
               initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.3 }}
+              animate={{ x: 0, opacity: 0.6 }}
               transition={{ duration: 2, delay: 1 }}
-              className="absolute top-32 right-1/3 w-24 h-12 bg-white rounded-full shadow-sm"
-            />
+              className="absolute top-32 right-1/3 w-24 h-12 overflow-hidden rounded-full"
+            >
+              <Image
+                src="/images/day-clouds.png"
+                alt="Day clouds"
+                width={96}
+                height={48}
+                className="object-cover w-full h-full opacity-70"
+              />
+            </motion.div>
 
-            {/* Trees */}
+            {/* Day Trees */}
             <motion.div
               initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.25 }}
+              animate={{ y: 0, opacity: 0.8 }}
               transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10"
+              className="absolute bottom-0 left-10 w-16 h-32"
             >
-              <div className="w-4 h-32 bg-amber-800 rounded-t-sm" />
-              <div className="absolute -top-8 -left-6 w-16 h-16 bg-green-500 rounded-full" />
+              <Image
+                src="/images/day-tree-1.png"
+                alt="Day tree"
+                width={64}
+                height={128}
+                className="object-cover w-full h-full"
+              />
             </motion.div>
 
             <motion.div
               initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.2 }}
+              animate={{ y: 0, opacity: 0.7 }}
               transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20"
+              className="absolute bottom-0 right-20 w-20 h-40"
             >
-              <div className="w-6 h-40 bg-amber-700 rounded-t-sm" />
-              <div className="absolute -top-10 -left-7 w-20 h-20 bg-green-600 rounded-full" />
+              <Image
+                src="/images/day-tree-2.png"
+                alt="Day tree"
+                width={80}
+                height={160}
+                className="object-cover w-full h-full"
+              />
             </motion.div>
 
-            {/* Flowers */}
+            {/* Day Flowers */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 1.5 }}
-              className="absolute bottom-10 left-1/3 w-4 h-4 bg-pink-400 rounded-full shadow-sm"
-            />
+              className="absolute bottom-10 left-1/3 w-8 h-8 rounded-full overflow-hidden"
+            >
+              <Image
+                src="/images/day-flowers.png"
+                alt="Day flowers"
+                width={32}
+                height={32}
+                className="object-cover w-full h-full"
+              />
+            </motion.div>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 1.8 }}
-              className="absolute bottom-16 left-1/2 w-3 h-3 bg-purple-400 rounded-full shadow-sm"
-            />
+              className="absolute bottom-16 left-1/2 w-6 h-6 rounded-full overflow-hidden"
+            >
+              <Image
+                src="/images/day-flowers.png"
+                alt="Day flowers"
+                width={24}
+                height={24}
+                className="object-cover w-full h-full"
+              />
+            </motion.div>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 2.1 }}
-              className="absolute bottom-12 right-1/4 w-5 h-5 bg-yellow-400 rounded-full shadow-sm"
-            />
+              className="absolute bottom-12 right-1/4 w-10 h-10 rounded-full overflow-hidden"
+            >
+              <Image
+                src="/images/day-flowers.png"
+                alt="Day flowers"
+                width={40}
+                height={40}
+                className="object-cover w-full h-full"
+              />
+            </motion.div>
 
-            {/* River */}
+            {/* Day River */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 2, delay: 1 }}
-              className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 opacity-30"
-            />
+              className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden"
+            >
+              <Image
+                src="/images/day-river.png"
+                alt="Day river"
+                width={800}
+                height={48}
+                className="object-cover w-full h-full opacity-60"
+              />
+            </motion.div>
           </>
         ) : (
           <>
             {/* Moon */}
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.4 }}
+              animate={{ scale: 1, opacity: 0.9 }}
               transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-lg"
+              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-2xl"
+              style={{
+                boxShadow: "0 0 40px rgba(229, 231, 235, 0.8)",
+              }}
             />
 
             {/* Stars */}
-            {[...Array(8)].map((_, i) => (
+            {[...Array(12)].map((_, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0 }}
@@ -259,40 +326,82 @@ export default function HomePage() {
                 }}
                 className="absolute w-1 h-1 bg-white rounded-full"
                 style={{
-                  left: `${20 + i * 10}%`,
-                  top: `${10 + (i % 3) * 15}%`,
+                  left: `${15 + i * 7}%`,
+                  top: `${8 + (i % 4) * 12}%`,
                 }}
               />
             ))}
 
-            {/* Dark Trees */}
+            {/* Night Clouds */}
+            <motion.div
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 0.4 }}
+              transition={{ duration: 2, delay: 0.5 }}
+              className="absolute top-20 left-1/4 w-32 h-16 overflow-hidden rounded-full"
+            >
+              <Image
+                src="/images/night-clouds.png"
+                alt="Night clouds"
+                width={128}
+                height={64}
+                className="object-cover w-full h-full opacity-60"
+              />
+            </motion.div>
+
+            {/* Night Trees */}
             <motion.div
               initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.4 }}
+              animate={{ y: 0, opacity: 0.7 }}
               transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10"
+              className="absolute bottom-0 left-10 w-16 h-32"
             >
-              <div className="w-4 h-32 bg-gray-800 rounded-t-sm" />
-              <div className="absolute -top-8 -left-6 w-16 h-16 bg-gray-700 rounded-full" />
+              <Image
+                src="/images/night-tree-1.png"
+                alt="Night tree"
+                width={64}
+                height={128}
+                className="object-cover w-full h-full"
+              />
             </motion.div>
 
             <motion.div
               initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.35 }}
+              animate={{ y: 0, opacity: 0.6 }}
               transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20"
+              className="absolute bottom-0 right-20 w-20 h-40"
             >
-              <div className="w-6 h-40 bg-gray-800 rounded-t-sm" />
-              <div className="absolute -top-10 -left-7 w-20 h-20 bg-gray-700 rounded-full" />
+              <Image
+                src="/images/night-tree-2.png"
+                alt="Night tree"
+                width={80}
+                height={160}
+                className="object-cover w-full h-full"
+              />
+            </motion.div>
+
+            {/* Night Flowers */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 1.5 }}
+              className="absolute bottom-10 left-1/3 w-8 h-8 rounded-full overflow-hidden"
+            >
+              <Image
+                src="/images/night-flowers.png"
+                alt="Night flowers"
+                width={32}
+                height={32}
+                className="object-cover w-full h-full opacity-70"
+              />
             </motion.div>
 
             {/* Fireflies */}
-            {[...Array(5)].map((_, i) => (
+            {[...Array(6)].map((_, i) => (
               <motion.div
                 key={i}
                 animate={{
                   opacity: [0.3, 1, 0.3],
-                  scale: [0.8, 1.2, 0.8],
+                  scale: [0.8, 1.4, 0.8],
                 }}
                 transition={{
                   duration: 2,
@@ -302,8 +411,9 @@ export default function HomePage() {
                 }}
                 className="absolute w-2 h-2 bg-yellow-300 rounded-full shadow-lg"
                 style={{
-                  left: `${30 + i * 15}%`,
-                  bottom: `${20 + (i % 2) * 20}%`,
+                  left: `${25 + i * 12}%`,
+                  bottom: `${15 + (i % 3) * 15}%`,
+                  boxShadow: "0 0 10px rgba(253, 224, 71, 0.8)",
                 }}
               />
             ))}
@@ -313,8 +423,16 @@ export default function HomePage() {
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 2, delay: 1 }}
-              className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600 opacity-20"
-            />
+              className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden"
+            >
+              <Image
+                src="/images/night-river.png"
+                alt="Night river"
+                width={800}
+                height={48}
+                className="object-cover w-full h-full opacity-50"
+              />
+            </motion.div>
           </>
         )}
       </div>
@@ -348,7 +466,7 @@ export default function HomePage() {
               onClick={toggleTheme}
               className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent"
             >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             {!isAuthenticated && (
               <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm">
