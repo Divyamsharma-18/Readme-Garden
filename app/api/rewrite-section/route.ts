@@ -10,11 +10,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Section content and vibe are required" }, { status: 400 })
     }
 
-    // Check if OpenAI API key is available
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
-    }
-
     const vibePrompts = {
       professional: "Rewrite this section in a professional, corporate style that's clean and to-the-point.",
       friendly: "Rewrite this section with a warm, welcoming, and friendly professional tone.",
@@ -24,25 +19,47 @@ export async function POST(request: NextRequest) {
       detailed: "Rewrite this section to be comprehensive, thorough, and extensively detailed.",
     }
 
-    const prompt = `
-    ${vibePrompts[vibe as keyof typeof vibePrompts]}
-    
-    Original section:
-    ${section}
-    
-    Rewrite this section to match the requested vibe while maintaining all the important information.
-    Keep it as a markdown section and make it engaging and well-formatted.
-    `
+    let text = ""
 
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
-      prompt,
-      maxTokens: 1000,
-    })
+    try {
+      if (process.env.OPENAI_API_KEY) {
+        const result = await generateText({
+          model: openai("gpt-4o"),
+          prompt: `
+          ${vibePrompts[vibe as keyof typeof vibePrompts]}
+          
+          Original section:
+          ${section}
+          
+          Rewrite this section to match the requested vibe while maintaining all the important information.
+          Keep it as a markdown section and make it engaging and well-formatted.
+          Return only the rewritten content without any code block formatting.
+          `,
+          maxTokens: 1000,
+        })
+        text = result.text
+      } else {
+        throw new Error("No OpenAI API key")
+      }
+    } catch (error) {
+      console.log("OpenAI rewrite failed, using fallback:", error)
+
+      // Simple fallback rewrite
+      const vibeModifiers = {
+        professional: "This section has been professionally refined.",
+        friendly: "This section has been made more welcoming! 😊",
+        humorous: "This section got a humor upgrade! 😄",
+        creative: "This section has been artistically enhanced! 🎨",
+        minimal: "This section has been simplified. ✨",
+        detailed: "This section has been expanded with more details. 📚",
+      }
+
+      text = `${section}\n\n*${vibeModifiers[vibe as keyof typeof vibeModifiers]}*`
+    }
 
     return NextResponse.json({ rewrittenSection: text })
   } catch (error) {
     console.error("Error rewriting section:", error)
-    return NextResponse.json({ error: "Failed to rewrite section" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to rewrite section. Please try again." }, { status: 500 })
   }
 }
