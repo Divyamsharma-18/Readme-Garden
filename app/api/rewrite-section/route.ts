@@ -10,6 +10,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Section content and vibe are required" }, { status: 400 })
     }
 
+    // Check if OpenAI API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
+    }
+
     const vibePrompts = {
       professional: "Rewrite this section in a professional, corporate style that's clean and to-the-point.",
       friendly: "Rewrite this section with a warm, welcoming, and friendly professional tone.",
