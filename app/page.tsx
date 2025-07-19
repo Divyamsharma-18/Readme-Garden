@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2 } from "lucide-react"
+import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,6 +31,7 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
   const [usageCount, setUsageCount] = useState(0)
+  const [dailyUsageCount, setDailyUsageCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState("preview")
@@ -43,9 +44,30 @@ export default function HomePage() {
     // Check usage count from localStorage
     const count = localStorage.getItem("readme-usage-count")
     const authStatus = localStorage.getItem("readme-auth-status")
+    const today = new Date().toDateString()
+    const lastUsageDate = localStorage.getItem("readme-last-usage-date")
+    const dailyCount = localStorage.getItem("readme-daily-usage-count")
+
     setUsageCount(count ? Number.parseInt(count) : 0)
     setIsAuthenticated(authStatus === "true")
+
+    // Reset daily count if it's a new day
+    if (lastUsageDate !== today) {
+      setDailyUsageCount(0)
+      localStorage.setItem("readme-daily-usage-count", "0")
+      localStorage.setItem("readme-last-usage-date", today)
+    } else {
+      setDailyUsageCount(dailyCount ? Number.parseInt(dailyCount) : 0)
+    }
   }, [])
+
+  const getRemainingUses = () => {
+    if (!isAuthenticated) {
+      return Math.max(0, 1 - usageCount)
+    } else {
+      return Math.max(0, 5 - dailyUsageCount)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!repoUrl || !selectedVibe) {
@@ -58,9 +80,19 @@ export default function HomePage() {
     }
 
     // Check usage limits
-    if (usageCount >= 1 && !isAuthenticated) {
-      setShowAuthModal(true)
-      return
+    const remainingUses = getRemainingUses()
+    if (remainingUses <= 0) {
+      if (!isAuthenticated) {
+        setShowAuthModal(true)
+        return
+      } else {
+        toast({
+          title: "Daily Limit Reached",
+          description: "You've used all 5 generations for today. Come back tomorrow!",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
     setIsGenerating(true)
@@ -91,10 +123,17 @@ export default function HomePage() {
 
       setGeneratedReadme(data.readme)
 
-      // Update usage count
-      const newCount = usageCount + 1
-      setUsageCount(newCount)
-      localStorage.setItem("readme-usage-count", newCount.toString())
+      // Update usage counts
+      if (!isAuthenticated) {
+        const newCount = usageCount + 1
+        setUsageCount(newCount)
+        localStorage.setItem("readme-usage-count", newCount.toString())
+      } else {
+        const newDailyCount = dailyUsageCount + 1
+        setDailyUsageCount(newDailyCount)
+        localStorage.setItem("readme-daily-usage-count", newDailyCount.toString())
+        localStorage.setItem("readme-last-usage-date", new Date().toDateString())
+      }
 
       toast({
         title: "README Generated! 🎉",
@@ -112,28 +151,36 @@ export default function HomePage() {
     }
   }
 
-  const handleRewrite = async (section: string) => {
+  const handleRewrite = async () => {
+    if (!generatedReadme || !selectedVibe) {
+      toast({
+        title: "Nothing to Rewrite",
+        description: "Please generate a README first.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
       const response = await fetch("/api/rewrite-section", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, vibe: selectedVibe }),
+        body: JSON.stringify({ section: generatedReadme, vibe: selectedVibe }),
       })
 
-      if (!response.ok) throw new Error("Failed to rewrite section")
+      if (!response.ok) throw new Error("Failed to rewrite README")
 
       const data = await response.json()
-      // Update the specific section in the README
-      setGeneratedReadme((prev) => prev.replace(section, data.rewrittenSection))
+      setGeneratedReadme(data.rewrittenSection)
 
       toast({
-        title: "Section Rewritten! ✨",
-        description: "The section has been refreshed with AI magic!",
+        title: "README Rewritten! ✨",
+        description: "Your README has been refreshed with AI magic!",
       })
     } catch (error) {
       toast({
         title: "Rewrite Failed",
-        description: "Couldn't rewrite the section. Please try again.",
+        description: "Couldn't rewrite the README. Please try again.",
         variant: "destructive",
       })
     }
@@ -157,6 +204,10 @@ export default function HomePage() {
     URL.revokeObjectURL(url)
   }
 
+  const handleStarOnGitHub = () => {
+    window.open("https://github.com/your-username/readme-garden", "_blank")
+  }
+
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
@@ -166,6 +217,7 @@ export default function HomePage() {
   }
 
   const isDark = theme === "dark"
+  const remainingUses = getRemainingUses()
 
   return (
     <div className="min-h-screen transition-all duration-700 relative overflow-hidden">
@@ -473,8 +525,19 @@ export default function HomePage() {
 
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="px-3 py-1 shadow-sm">
-              {isAuthenticated ? "∞ Uses" : `${1 - usageCount} Free Uses Left`}
+              {isAuthenticated
+                ? `${remainingUses}/5 Uses Today`
+                : `${remainingUses} Free Use${remainingUses !== 1 ? "s" : ""} Left`}
             </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleStarOnGitHub}
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent"
+            >
+              <Star className="w-4 h-4 mr-1" />
+              Star on GitHub
+            </Button>
             <Button
               variant="outline"
               size="icon"
@@ -536,7 +599,7 @@ export default function HomePage() {
 
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || !repoUrl || !selectedVibe}
+                  disabled={isGenerating || !repoUrl || !selectedVibe || remainingUses <= 0}
                   className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
                 >
                   {isGenerating ? (
@@ -563,6 +626,10 @@ export default function HomePage() {
                   <CardTitle>Your README</CardTitle>
                   {generatedReadme && (
                     <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={handleRewrite}>
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        AI Rewrite
+                      </Button>
                       <Button variant="outline" size="sm" onClick={copyToClipboard}>
                         <Copy className="w-4 h-4 mr-1" />
                         Copy
@@ -594,15 +661,6 @@ export default function HomePage() {
                           onChange={(e) => setGeneratedReadme(e.target.value)}
                           className="min-h-[400px] font-mono text-sm"
                         />
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm"
-                          onClick={() => handleRewrite(generatedReadme)}
-                        >
-                          <RefreshCw className="w-3 h-3 mr-1" />
-                          AI Rewrite
-                        </Button>
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -631,6 +689,10 @@ export default function HomePage() {
           setIsAuthenticated(true)
           localStorage.setItem("readme-auth-status", "true")
           setShowAuthModal(false)
+          // Reset daily usage for new user
+          setDailyUsageCount(0)
+          localStorage.setItem("readme-daily-usage-count", "0")
+          localStorage.setItem("readme-last-usage-date", new Date().toDateString())
         }}
       />
     </div>
