@@ -10,6 +10,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Repository URL and vibe are required" }, { status: 400 })
     }
 
+    // Check if OpenAI API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
+    }
+
     // Extract repo info from URL
     const urlParts = repoUrl.replace("https://github.com/", "").split("/")
     const owner = urlParts[0]
