@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { repoUrl, vibe, liveDemoUrl } = await request.json() // Receive liveDemoUrl
+    const { repoUrl, vibe, liveDemoUrl } = await request.json()
 
     if (!repoUrl || !vibe) {
       return NextResponse.json({ error: "Repository URL and vibe are required" }, { status: 400 })
@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
 
     let contents = []
     let languages = { JavaScript: 100 }
+    let existingReadmeContent = ""
+    let packageJsonContent: Record<string, any> = {}
 
     // Try to fetch repository information from GitHub API (optional)
     try {
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
       if (repoResponse.ok) {
         repoData = await repoResponse.json()
 
-        // Fetch contents
+        // Fetch contents (top-level files/folders)
         const contentsResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`)
         if (contentsResponse.ok) {
           contents = await contentsResponse.json()
@@ -51,6 +53,30 @@ export async function POST(request: NextRequest) {
         const languagesResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/languages`)
         if (languagesResponse.ok) {
           languages = await languagesResponse.json()
+        }
+
+        // Attempt to fetch existing README.md content
+        const readmeFile = contents.find((item: any) => item.name.toLowerCase() === "readme.md" && item.type === "file")
+        if (readmeFile && readmeFile.download_url) {
+          const readmeResponse = await fetch(readmeFile.download_url)
+          if (readmeResponse.ok) {
+            existingReadmeContent = await readmeResponse.text()
+          }
+        }
+
+        // Attempt to fetch package.json content
+        const packageJsonFile = contents.find(
+          (item: any) => item.name.toLowerCase() === "package.json" && item.type === "file",
+        )
+        if (packageJsonFile && packageJsonFile.download_url) {
+          const packageJsonResponse = await fetch(packageJsonFile.download_url)
+          if (packageJsonResponse.ok) {
+            try {
+              packageJsonContent = await packageJsonResponse.json()
+            } catch (parseError) {
+              console.warn("Failed to parse package.json:", parseError)
+            }
+          }
         }
       }
     } catch (error) {
@@ -120,11 +146,34 @@ export async function POST(request: NextRequest) {
       - Educational emojis (📚, 📖, 🔍, 📋, 📊)`,
     }
 
-    const liveDemoSection = liveDemoUrl
+    const liveDemoSectionPrompt = liveDemoUrl
       ? `
-    Live Demo: ${liveDemoUrl}
+    A live demo of this project is available at: ${liveDemoUrl}.
+    Craft a compelling "Live Demo" or "See it in Action" section. Assume the live demo showcases the project's core functionality.
     `
       : ""
+
+    const existingReadmeContext = existingReadmeContent
+      ? `
+    Existing README.md content (for context, do not copy directly, rewrite based on vibe):
+    \`\`\`markdown
+    ${existingReadmeContent}
+    \`\`\`
+    `
+      : ""
+
+    const packageJsonContext =
+      Object.keys(packageJsonContent).length > 0
+        ? `
+    Additional project details from package.json:
+    - Project Name (from package.json): ${packageJsonContent.name || "N/A"}
+    - Version: ${packageJsonContent.version || "N/A"}
+    - Keywords: ${packageJsonContent.keywords?.join(", ") || "N/A"}
+    - Scripts: ${Object.keys(packageJsonContent.scripts || {}).join(", ") || "N/A"}
+    - Dependencies: ${Object.keys(packageJsonContent.dependencies || {}).join(", ") || "N/A"}
+    - Dev Dependencies: ${Object.keys(packageJsonContent.devDependencies || {}).join(", ") || "N/A"}
+    `
+        : ""
 
     const prompt = `
     ${vibePrompts[vibe as keyof typeof vibePrompts]}
@@ -140,23 +189,27 @@ export async function POST(request: NextRequest) {
     - Last Updated: ${new Date(repoData.updated_at).toLocaleDateString()}
     - Homepage: ${repoData.homepage || "None"}
     - Topics: ${repoData.topics?.join(", ") || "None"}
-    ${liveDemoSection}
+    - License: ${repoData.license?.name || "Not specified"}
     
     Project Structure (top-level files/folders):
     ${contents.length > 0 ? contents.map((item: any) => `- ${item.name} (${item.type})`).join("\n") : "- Standard project structure"}
     
+    ${existingReadmeContext}
+    ${packageJsonContext}
+    ${liveDemoSectionPrompt}
+    
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
     Include these sections (adapt style to vibe):
-    1. Project title and compelling description (synthesize from repo info)
-    2. Key features and highlights (infer from repo info and common project features)
+    1. Project title and compelling description (synthesize from all provided repo info, including existing README and package.json)
+    2. Key features and highlights (infer from repo info, existing README, and common project features)
     3. Installation/setup instructions
     4. Usage examples and code snippets
     5. Configuration options (if applicable)
     6. Contributing guidelines
     7. License and legal information
     8. Support and contact information
-    ${liveDemoUrl ? "9. Live Demo section with the provided URL" : ""}
+    ${liveDemoUrl ? "9. Live Demo section with the provided URL and a description based on the project's purpose." : ""}
     
     IMPORTANT: Make this README distinctly ${vibe} in tone, structure, and content. 
     Use appropriate formatting, emojis, and language that clearly differentiates it from other vibes.
@@ -182,7 +235,14 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI generation failed, using fallback:", error)
 
       // Enhanced fallback README generation with distinct vibes
-      text = generateEnhancedFallbackReadme(repoData, vibe, languages, liveDemoUrl)
+      text = generateEnhancedFallbackReadme(
+        repoData,
+        vibe,
+        languages,
+        liveDemoUrl,
+        existingReadmeContent,
+        packageJsonContent,
+      )
     }
 
     return NextResponse.json({ readme: text })
@@ -192,8 +252,25 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateEnhancedFallbackReadme(repoData: any, vibe: string, languages: any, liveDemoUrl?: string) {
+function generateEnhancedFallbackReadme(
+  repoData: any,
+  vibe: string,
+  languages: any,
+  liveDemoUrl?: string,
+  existingReadmeContent?: string,
+  packageJsonContent?: Record<string, any>,
+) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
+  const inferredDescription =
+    existingReadmeContent ||
+    repoData.description ||
+    packageJsonContent?.description ||
+    "A project built with passion and purpose."
+  const inferredFeatures =
+    packageJsonContent?.keywords?.length > 0
+      ? `Key features include: ${packageJsonContent.keywords.join(", ")}.`
+      : "It offers a range of functionalities to solve common problems."
+
   const liveDemoSection = liveDemoUrl
     ? `
 ## Live Demo 🚀
@@ -207,7 +284,7 @@ Experience the project live here: [${repoData.name} Live](${liveDemoUrl})
 
 ## Executive Summary
 
-${repoData.description || "A professional software solution designed to meet enterprise requirements."}
+${inferredDescription} ${inferredFeatures}
 
 ## Technical Specifications
 
@@ -255,7 +332,7 @@ Hey there, fellow developer! Thanks for stopping by our little corner of GitHub.
 
 ## What's This All About? 😊
 
-${repoData.description || "This is a friendly project that we've built with love and care. We hope you'll find it useful!"}
+${inferredDescription} We hope you'll find it useful! ${inferredFeatures}
 
 We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
 ${liveDemoSection}
@@ -304,7 +381,7 @@ Made with ❤️ by our amazing community`,
 
 ## What Does This Thing Do? 🤔
 
-${repoData.description || "It does stuff. Really cool stuff. The kind of stuff that makes other code jealous."}
+${inferredDescription} ${inferredFeatures}
 
 Built with ${primaryLanguage} because we're rebels like that. 🔥
 ${liveDemoSection}
@@ -357,7 +434,7 @@ They're not bugs, they're *undocumented features*. But if you find any "features
 
 🎨 **A Digital Masterpiece** 🎨
 
-${repoData.description || "This project is a canvas where technology and creativity dance together in perfect harmony."}
+${inferredDescription} ${inferredFeatures}
 
 ## 🌟 The Vision
 
@@ -411,7 +488,7 @@ We believe in the power of creative collaboration. Reach out and let's create so
 
     minimal: `# ${repoData.name}
 
-${repoData.description || "A simple, efficient solution."}
+${inferredDescription}
 ${liveDemoSection}
 ## Install
 
@@ -457,7 +534,7 @@ ${liveDemoUrl ? "11. [Live Demo](#live-demo)" : ""}
 
 ## Overview 🔍
 
-${repoData.description || "This project provides a comprehensive solution with extensive functionality and robust architecture."}
+${inferredDescription}
 
 ### Technical Details
 - **Primary Language**: ${primaryLanguage}
