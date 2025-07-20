@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
     let languages = { JavaScript: 100 }
     let existingReadmeContent = ""
     let packageJsonContent: Record<string, any> = {}
+    let liveDemoTitle: string | null = null
+    let liveDemoMetaDescription: string | null = null
 
     // Try to fetch repository information from GitHub API (optional)
     try {
@@ -81,6 +83,30 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.log("GitHub API fetch failed, using defaults:", error)
+    }
+
+    // Attempt to fetch and parse live demo URL for title and meta description
+    if (liveDemoUrl) {
+      try {
+        const liveDemoResponse = await fetch(liveDemoUrl)
+        if (liveDemoResponse.ok) {
+          const htmlContent = await liveDemoResponse.text()
+          // Extract title
+          const titleMatch = htmlContent.match(/<title>(.*?)<\/title>/i)
+          if (titleMatch && titleMatch[1]) {
+            liveDemoTitle = titleMatch[1].trim()
+          }
+          // Extract meta description
+          const metaDescriptionMatch = htmlContent.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i)
+          if (metaDescriptionMatch && metaDescriptionMatch[1]) {
+            liveDemoMetaDescription = metaDescriptionMatch[1].trim()
+          }
+        } else {
+          console.warn(`Failed to fetch live demo URL ${liveDemoUrl}: ${liveDemoResponse.status}`)
+        }
+      } catch (error) {
+        console.warn(`Error fetching or parsing live demo URL ${liveDemoUrl}:`, error)
+      }
     }
 
     // Generate README based on vibe with VERY different prompts
@@ -146,28 +172,31 @@ export async function POST(request: NextRequest) {
       - Educational emojis (📚, 📖, 🔍, 📋, 📊)`,
     }
 
-    const liveDemoSectionPrompt = liveDemoUrl
+    const liveDemoContext = liveDemoUrl
       ? `
-    A live demo of this project is available at: ${liveDemoUrl}.
-    Craft a compelling "Live Demo" or "See it in Action" section. Assume the live demo showcases the project's core functionality.
+    A live demo URL was provided: ${liveDemoUrl}.
+    ${liveDemoTitle ? `The live demo page title is: "${liveDemoTitle}".` : ""}
+    ${liveDemoMetaDescription ? `The live demo page meta description is: "${liveDemoMetaDescription}".` : ""}
+    Use this information to describe what the live demo showcases and integrate it into the README.
     `
       : ""
 
-    const existingReadmeContext = existingReadmeContent
+    const existingReadmeContextPrompt = existingReadmeContent
       ? `
-    Existing README.md content (for context, do not copy directly, rewrite based on vibe):
+    Existing README.md content from the repository (use this to understand the project's purpose, features, and existing documentation style, but rewrite it completely to match the chosen vibe):
     \`\`\`markdown
     ${existingReadmeContent}
     \`\`\`
     `
       : ""
 
-    const packageJsonContext =
+    const packageJsonContextPrompt =
       Object.keys(packageJsonContent).length > 0
         ? `
-    Additional project details from package.json:
+    Additional project details from package.json (use these to understand the project's core purpose, technologies, and features):
     - Project Name (from package.json): ${packageJsonContent.name || "N/A"}
     - Version: ${packageJsonContent.version || "N/A"}
+    - Description (from package.json): ${packageJsonContent.description || "N/A"}
     - Keywords: ${packageJsonContent.keywords?.join(", ") || "N/A"}
     - Scripts: ${Object.keys(packageJsonContent.scripts || {}).join(", ") || "N/A"}
     - Dependencies: ${Object.keys(packageJsonContent.dependencies || {}).join(", ") || "N/A"}
@@ -178,7 +207,9 @@ export async function POST(request: NextRequest) {
     const prompt = `
     ${vibePrompts[vibe as keyof typeof vibePrompts]}
     
-    Repository Information:
+    Here is all the information gathered about the project. Use ALL of it to understand the project's purpose, features, and what it's about.
+    
+    GitHub Repository Information:
     - Name: ${repoData.name}
     - Description: ${repoData.description || "No description provided"}
     - Primary Language: ${repoData.language || "Not specified"}
@@ -194,26 +225,26 @@ export async function POST(request: NextRequest) {
     Project Structure (top-level files/folders):
     ${contents.length > 0 ? contents.map((item: any) => `- ${item.name} (${item.type})`).join("\n") : "- Standard project structure"}
     
-    ${existingReadmeContext}
-    ${packageJsonContext}
-    ${liveDemoSectionPrompt}
+    ${existingReadmeContextPrompt}
+    ${packageJsonContextPrompt}
+    ${liveDemoContext}
     
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
+    **CRITICAL INSTRUCTION:** The most important part of this README is the initial "Project title and compelling description" section. You MUST synthesize all the provided information (GitHub repo data, existing README, package.json, and live demo details) to clearly and accurately explain **WHAT THIS PROJECT IS ABOUT**, its core purpose, and its key functionalities. This section should be the USP of the generated README.
+    
     Include these sections (adapt style to vibe):
-    1. Project title and compelling description (synthesize from all provided repo info, including existing README and package.json)
-    2. Key features and highlights (infer from repo info, existing README, and common project features)
+    1. Project title and compelling description (synthesize from ALL available info, focusing on "what it's about")
+    2. Key features and highlights (infer from all available info)
     3. Installation/setup instructions
     4. Usage examples and code snippets
     5. Configuration options (if applicable)
     6. Contributing guidelines
     7. License and legal information
     8. Support and contact information
-    ${liveDemoUrl ? "9. Live Demo section with the provided URL and a description based on the project's purpose." : ""}
+    ${liveDemoUrl ? "9. Live Demo section with the provided URL and a description based on the project's purpose and the scraped live demo content." : ""}
     
-    IMPORTANT: Make this README distinctly ${vibe} in tone, structure, and content. 
-    Use appropriate formatting, emojis, and language that clearly differentiates it from other vibes.
-    Return ONLY the markdown content without code block formatting.
+    IMPORTANT: Return ONLY the markdown content without code block formatting or any conversational text.
     `
 
     // Try with OpenAI first, fallback to mock generation if API key is missing
@@ -242,6 +273,8 @@ export async function POST(request: NextRequest) {
         liveDemoUrl,
         existingReadmeContent,
         packageJsonContent,
+        liveDemoTitle,
+        liveDemoMetaDescription,
       )
     }
 
@@ -259,13 +292,30 @@ function generateEnhancedFallbackReadme(
   liveDemoUrl?: string,
   existingReadmeContent?: string,
   packageJsonContent?: Record<string, any>,
+  liveDemoTitle?: string | null,
+  liveDemoMetaDescription?: string | null,
 ) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
-  const inferredDescription =
-    existingReadmeContent ||
-    repoData.description ||
-    packageJsonContent?.description ||
-    "A project built with passion and purpose."
+
+  // Synthesize description from all available sources
+  let synthesizedDescription = repoData.description || packageJsonContent?.description || ""
+  if (existingReadmeContent) {
+    // Take first paragraph or section from existing README
+    const existingReadmeFirstParagraph = existingReadmeContent.split("\n\n")[0]?.trim()
+    if (existingReadmeFirstParagraph && existingReadmeFirstParagraph.length > 50) {
+      synthesizedDescription = existingReadmeFirstParagraph
+    }
+  }
+  if (liveDemoMetaDescription) {
+    synthesizedDescription = liveDemoMetaDescription
+  } else if (liveDemoTitle) {
+    synthesizedDescription = `This project is about "${liveDemoTitle}". ${synthesizedDescription}`
+  }
+
+  if (!synthesizedDescription) {
+    synthesizedDescription = "A project built with passion and purpose, designed to solve a specific problem."
+  }
+
   const inferredFeatures =
     packageJsonContent?.keywords?.length > 0
       ? `Key features include: ${packageJsonContent.keywords.join(", ")}.`
@@ -275,7 +325,8 @@ function generateEnhancedFallbackReadme(
     ? `
 ## Live Demo 🚀
 
-Experience the project live here: [${repoData.name} Live](${liveDemoUrl})
+Experience the project live here: [${liveDemoTitle || repoData.name + " Live"}](${liveDemoUrl})
+${liveDemoMetaDescription ? `\n> ${liveDemoMetaDescription}` : ""}
 `
     : ""
 
@@ -284,7 +335,7 @@ Experience the project live here: [${repoData.name} Live](${liveDemoUrl})
 
 ## Executive Summary
 
-${inferredDescription} ${inferredFeatures}
+${synthesizedDescription} ${inferredFeatures}
 
 ## Technical Specifications
 
@@ -332,7 +383,7 @@ Hey there, fellow developer! Thanks for stopping by our little corner of GitHub.
 
 ## What's This All About? 😊
 
-${inferredDescription} We hope you'll find it useful! ${inferredFeatures}
+${synthesizedDescription} We hope you'll find it useful! ${inferredFeatures}
 
 We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
 ${liveDemoSection}
@@ -381,7 +432,7 @@ Made with ❤️ by our amazing community`,
 
 ## What Does This Thing Do? 🤔
 
-${inferredDescription} ${inferredFeatures}
+${synthesizedDescription} ${inferredFeatures}
 
 Built with ${primaryLanguage} because we're rebels like that. 🔥
 ${liveDemoSection}
@@ -434,7 +485,7 @@ They're not bugs, they're *undocumented features*. But if you find any "features
 
 🎨 **A Digital Masterpiece** 🎨
 
-${inferredDescription} ${inferredFeatures}
+${synthesizedDescription} ${inferredFeatures}
 
 ## 🌟 The Vision
 
@@ -488,7 +539,7 @@ We believe in the power of creative collaboration. Reach out and let's create so
 
     minimal: `# ${repoData.name}
 
-${inferredDescription}
+${synthesizedDescription}
 ${liveDemoSection}
 ## Install
 
@@ -534,7 +585,7 @@ ${liveDemoUrl ? "11. [Live Demo](#live-demo)" : ""}
 
 ## Overview 🔍
 
-${inferredDescription}
+${synthesizedDescription}
 
 ### Technical Details
 - **Primary Language**: ${primaryLanguage}
