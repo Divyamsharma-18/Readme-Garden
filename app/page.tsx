@@ -190,7 +190,7 @@ export default function HomePage() {
       const response = await fetch("/api/rewrite-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe }),
+        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe, repoUrl }), // Pass repoUrl for rewrite context
       })
 
       if (!response.ok) {
