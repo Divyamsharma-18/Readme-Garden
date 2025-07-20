@@ -442,7 +442,6 @@ npm test
 npm run test:integration
 
 # Generate a detailed test coverage report
-npm run test:coverage
 \`\`\`
 
 ### Test Structure
@@ -452,7 +451,7 @@ npm run test:coverage
 
 ## Troubleshooting Guide 🔧
 
-### Common Issues and Solutions
+### Common Issues
 
 **Issue 1: Installation fails with dependency errors**
 - **Solution**: Verify your Node.js and npm versions against the prerequisites. Try clearing your npm cache (\`npm cache clean --force\`) and reinstalling dependencies.
