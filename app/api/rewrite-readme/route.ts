@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, vibe } = await request.json()
+    const { content, vibe, repoUrl } = await request.json() // Receive repoUrl here
 
     if (!content || !vibe) {
       return NextResponse.json({ error: "Content and vibe are required" }, { status: 400 })
@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
           Original README content to be completely rewritten:
           ${content}
           
+          ${repoUrl ? `The original repository URL was: ${repoUrl}. Use this for installation instructions.` : ""}
+
           IMPORTANT: Create a COMPLETELY NEW VERSION of this README. Do NOT just modify or append to the original. Write it from scratch, ensuring it strongly reflects the ${vibe} style in tone, structure, and formatting. All original important information must be retained but presented in a fresh, new way.
           Return ONLY the rewritten README content in markdown format, without any additional text or code block formatting around it.
           `,
@@ -50,7 +52,7 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
 
       // Enhanced fallback rewrite that actually changes the content
-      rewrittenReadme = enhancedFallbackRewrite(content, vibe)
+      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl) // Pass repoUrl to fallback
     }
 
     return NextResponse.json({ rewrittenReadme })
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function enhancedFallbackRewrite(originalContent: string, vibe: string) {
+function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?: string) {
   // Extract key information from original content
   const lines = originalContent.split("\n")
   const titleLine = lines.find((line) => line.startsWith("#"))
@@ -83,6 +85,18 @@ Experience the project live here: [${projectName} Live](${liveDemoUrl})
 `
     : ""
 
+  // Determine the clone URL for fallback
+  let cloneUrl = "<repository-url>" // Default placeholder
+  if (repoUrl) {
+    cloneUrl = repoUrl
+  } else {
+    // Try to infer from original content if repoUrl wasn't passed
+    const gitCloneMatch = originalContent.match(/git clone\s+(https?:\/\/github\.com\/[^\s]+)/)
+    if (gitCloneMatch && gitCloneMatch[1]) {
+      cloneUrl = gitCloneMatch[1]
+    }
+  }
+
   const vibeRewrites = {
     professional: `# ${projectName}
 
@@ -101,7 +115,7 @@ ${liveDemoSection}
 To set up the project, follow these steps:
 
 \`\`\`bash
-git clone <repository-url>
+git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 npm install --production
 \`\`\`
@@ -132,7 +146,7 @@ Ready to dive in? Here's how to get our project up and running on your machine:
 
 \`\`\`bash
 # First, let's get the code onto your computer
-git clone <repository-url>
+git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
 # Now, install all the necessary bits and bobs (grab a coffee while this runs!)
@@ -167,7 +181,7 @@ Prepare yourself, for the ancient texts (and a few commands) await!
 
 \`\`\`bash
 # Step 1: Summon the code from the digital realm
-git clone <repository-url>
+git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
 # Step 2: Feed the hungry dependencies (they're very particular about their snacks)
@@ -219,7 +233,7 @@ Prepare to embark on a journey of creation. The installation is but the first mo
 
 \`\`\`bash
 # 🎼 First Movement: The Acquisition of the Sacred Texts
-git clone <repository-url>
+git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
 # 🎵 Second Movement: The Preparation of the Canvas and Tools
@@ -256,7 +270,7 @@ ${liveDemoSection}
 To get started, clone the repository and install dependencies:
 
 \`\`\`bash
-git clone <repository-url>
+git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 npm install
 \`\`\`
@@ -331,7 +345,7 @@ Before proceeding with the installation, ensure the following software is instal
 1. **Repository Acquisition**
    Initiate the process by cloning the project repository from GitHub:
    \`\`\`bash
-   git clone <repository-url>
+   git clone ${cloneUrl}
    cd ${projectName.toLowerCase()}
    \`\`\`
 
@@ -442,6 +456,7 @@ npm test
 npm run test:integration
 
 # Generate a detailed test coverage report
+npm run test:coverage
 \`\`\`
 
 ### Test Structure
