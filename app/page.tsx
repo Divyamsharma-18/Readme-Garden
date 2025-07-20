@@ -15,6 +15,7 @@ import LoadingAnimation from "@/components/loading-animation"
 import AuthModal from "@/components/auth-modal"
 import { Textarea } from "@/components/ui/textarea"
 import Image from "next/image"
+import UserProfile from "@/components/user-profile"
 
 const vibeOptions = [
   { value: "professional", label: "🎯 Professional", description: "Clean, corporate, and to-the-point" },
@@ -29,11 +30,13 @@ export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
   const [selectedVibe, setSelectedVibe] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
   const [usageCount, setUsageCount] = useState(0)
   const [dailyUsageCount, setDailyUsageCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userData, setUserData] = useState({ username: "User", email: "user@example.com" })
   const [activeTab, setActiveTab] = useState("preview")
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -47,9 +50,18 @@ export default function HomePage() {
     const today = new Date().toDateString()
     const lastUsageDate = localStorage.getItem("readme-last-usage-date")
     const dailyCount = localStorage.getItem("readme-daily-usage-count")
+    const savedUserData = localStorage.getItem("readme-user-data")
 
     setUsageCount(count ? Number.parseInt(count) : 0)
     setIsAuthenticated(authStatus === "true")
+
+    if (savedUserData) {
+      try {
+        setUserData(JSON.parse(savedUserData))
+      } catch (e) {
+        console.error("Error parsing user data", e)
+      }
+    }
 
     // Reset daily count if it's a new day
     if (lastUsageDate !== today) {
@@ -161,21 +173,30 @@ export default function HomePage() {
       return
     }
 
+    setIsRewriting(true)
+
     try {
-      const response = await fetch("/api/rewrite-section", {
+      toast({
+        title: "Rewriting README...",
+        description: "Creating a fresh version with the same vibe.",
+      })
+
+      const response = await fetch("/api/rewrite-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section: generatedReadme, vibe: selectedVibe }),
+        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe }),
       })
 
       if (!response.ok) throw new Error("Failed to rewrite README")
 
       const data = await response.json()
-      setGeneratedReadme(data.rewrittenSection)
+
+      // Completely replace the content
+      setGeneratedReadme(data.rewrittenReadme)
 
       toast({
         title: "README Rewritten! ✨",
-        description: "Your README has been refreshed with AI magic!",
+        description: "Your README has been completely refreshed!",
       })
     } catch (error) {
       toast({
@@ -183,6 +204,8 @@ export default function HomePage() {
         description: "Couldn't rewrite the README. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsRewriting(false)
     }
   }
 
@@ -206,6 +229,24 @@ export default function HomePage() {
 
   const handleStarOnGitHub = () => {
     window.open("https://github.com/your-username/readme-garden", "_blank")
+  }
+
+  const handleLogin = (userData: { username: string; email: string }) => {
+    setIsAuthenticated(true)
+    setUserData(userData)
+    localStorage.setItem("readme-auth-status", "true")
+    localStorage.setItem("readme-user-data", JSON.stringify(userData))
+    setShowAuthModal(false)
+    // Reset daily usage for new user
+    setDailyUsageCount(0)
+    localStorage.setItem("readme-daily-usage-count", "0")
+    localStorage.setItem("readme-last-usage-date", new Date().toDateString())
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    localStorage.removeItem("readme-auth-status")
+    localStorage.removeItem("readme-user-data")
   }
 
   const toggleTheme = () => {
@@ -546,7 +587,9 @@ export default function HomePage() {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
+            ) : (
               <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm">
                 Sign In
               </Button>
@@ -626,8 +669,18 @@ export default function HomePage() {
                   <CardTitle>Your README</CardTitle>
                   {generatedReadme && (
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={handleRewrite}>
-                        <RefreshCw className="w-3 h-3 mr-1" />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRewrite}
+                        disabled={isRewriting}
+                        className="flex items-center bg-transparent"
+                      >
+                        {isRewriting ? (
+                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3 mr-1" />
+                        )}
                         AI Rewrite
                       </Button>
                       <Button variant="outline" size="sm" onClick={copyToClipboard}>
@@ -679,22 +732,10 @@ export default function HomePage() {
       </main>
 
       {/* Loading Animation Overlay */}
-      <AnimatePresence>{isGenerating && <LoadingAnimation />}</AnimatePresence>
+      <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
 
       {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
-          setIsAuthenticated(true)
-          localStorage.setItem("readme-auth-status", "true")
-          setShowAuthModal(false)
-          // Reset daily usage for new user
-          setDailyUsageCount(0)
-          localStorage.setItem("readme-daily-usage-count", "0")
-          localStorage.setItem("readme-last-usage-date", new Date().toDateString())
-        }}
-      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
     </div>
   )
 }
