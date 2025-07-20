@@ -33,6 +33,7 @@ const vibeOptions = [
 
 export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
+  const [liveDemoUrl, setLiveDemoUrl] = useState("") // New state for live demo URL
   const [selectedVibe, setSelectedVibe] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
@@ -115,12 +116,12 @@ export default function HomePage() {
     setIsGenerating(true)
 
     try {
-      console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe)
+      console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe, "live demo:", liveDemoUrl)
 
       const response = await fetch("/api/generate-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl, vibe: selectedVibe }),
+        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl }), // Pass liveDemoUrl
       })
 
       console.log("Response status:", response.status)
@@ -627,6 +628,18 @@ export default function HomePage() {
                     placeholder="https://github.com/username/repository"
                     value={repoUrl}
                     onChange={(e) => setRepoUrl(e.target.value)}
+                    className="rounded-xl"
+                  />
+                </div>
+
+                {/* New Live Demo URL Input */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Live Demo URL (Optional)</label>
+                  <Input
+                    type="url"
+                    placeholder="https://your-live-demo.vercel.app"
+                    value={liveDemoUrl}
+                    onChange={(e) => setLiveDemoUrl(e.target.value)}
                     className="rounded-xl"
                   />
                 </div>
