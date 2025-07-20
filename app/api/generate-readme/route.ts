@@ -275,6 +275,8 @@ export async function POST(request: NextRequest) {
         packageJsonContent,
         liveDemoTitle,
         liveDemoMetaDescription,
+        owner, // Pass owner to fallback
+        repoUrl, // Pass full repoUrl to fallback
       )
     }
 
@@ -294,6 +296,8 @@ function generateEnhancedFallbackReadme(
   packageJsonContent?: Record<string, any>,
   liveDemoTitle?: string | null,
   liveDemoMetaDescription?: string | null,
+  owner?: string, // Added owner parameter
+  fullRepoUrl?: string, // Added fullRepoUrl parameter
 ) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
 
@@ -330,6 +334,9 @@ ${liveDemoMetaDescription ? `\n> ${liveDemoMetaDescription}` : ""}
 `
     : ""
 
+  // Use the actual repo URL if available, otherwise fallback to a generic placeholder
+  const cloneUrl = fullRepoUrl || `https://github.com/${owner || "user"}/${repoData.name}.git`
+
   const vibeTemplates = {
     professional: `# ${repoData.name}
 
@@ -346,7 +353,7 @@ ${liveDemoSection}
 ## Installation Requirements
 
 \`\`\`bash
-git clone https://github.com/user/${repoData.name}.git
+git clone ${cloneUrl}
 cd ${repoData.name}
 npm install --production
 \`\`\`
@@ -391,7 +398,7 @@ ${liveDemoSection}
 
 \`\`\`bash
 # First, let's get the code
-git clone https://github.com/user/${repoData.name}.git
+git clone ${cloneUrl}
 cd ${repoData.name}
 
 # Now install the dependencies (grab a coffee while this runs!)
@@ -440,7 +447,7 @@ ${liveDemoSection}
 
 \`\`\`bash
 # Step 1: Summon the code
-git clone https://github.com/user/${repoData.name}.git
+git clone ${cloneUrl}
 cd ${repoData.name}
 
 # Step 2: Feed the dependencies (they're hungry)
@@ -499,7 +506,7 @@ ${liveDemoSection}
 
 \`\`\`bash
 # 🎼 First Movement: Acquisition
-git clone https://github.com/user/${repoData.name}.git
+git clone ${cloneUrl}
 cd ${repoData.name}
 
 # 🎵 Second Movement: Preparation
@@ -544,7 +551,7 @@ ${liveDemoSection}
 ## Install
 
 \`\`\`bash
-git clone https://github.com/user/${repoData.name}.git
+git clone ${cloneUrl}
 cd ${repoData.name}
 npm install
 \`\`\`
@@ -620,7 +627,7 @@ ${liveDemoSection}
 
 1. **Clone the Repository**
    \`\`\`bash
-   git clone https://github.com/user/${repoData.name}.git
+   git clone ${cloneUrl}
    cd ${repoData.name}
    \`\`\`
 
