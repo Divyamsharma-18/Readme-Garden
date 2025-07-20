@@ -17,6 +17,11 @@ import { Textarea } from "@/components/ui/textarea"
 import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 
+// Markdown rendering imports
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import rehypeHighlight from "rehype-highlight" // For syntax highlighting
+
 const vibeOptions = [
   { value: "professional", label: "🎯 Professional", description: "Clean, corporate, and to-the-point" },
   { value: "friendly", label: "😊 Friendly Professional", description: "Professional with a warm touch" },
@@ -187,7 +192,11 @@ export default function HomePage() {
         body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe }),
       })
 
-      if (!response.ok) throw new Error("Failed to rewrite README")
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("API Rewrite Error:", errorData)
+        throw new Error(errorData.error || "Failed to rewrite README")
+      }
 
       const data = await response.json()
 
@@ -199,9 +208,10 @@ export default function HomePage() {
         description: "Your README has been completely refreshed!",
       })
     } catch (error) {
+      console.error("Rewrite error:", error)
       toast({
         title: "Rewrite Failed",
-        description: "Couldn't rewrite the README. Please try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -228,7 +238,7 @@ export default function HomePage() {
   }
 
   const handleStarOnGitHub = () => {
-    window.open("https://github.com/your-username/readme-garden", "_blank")
+    window.open("https://github.com/your-username/readme-garden", "_blank") // TODO: Replace with actual repo URL
   }
 
   const handleLogin = (userData: { username: string; email: string }) => {
@@ -704,7 +714,10 @@ export default function HomePage() {
                     </TabsList>
                     <TabsContent value="preview" className="mt-4">
                       <div className="prose dark:prose-invert max-w-none max-h-96 overflow-y-auto">
-                        <div dangerouslySetInnerHTML={{ __html: generatedReadme.replace(/\n/g, "<br>") }} />
+                        {/* Use ReactMarkdown for proper rendering */}
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+                          {generatedReadme}
+                        </ReactMarkdown>
                       </div>
                     </TabsContent>
                     <TabsContent value="code" className="mt-4">
