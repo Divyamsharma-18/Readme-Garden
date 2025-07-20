@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Mail, Lock, User, Github, Chrome } from "lucide-react"
+import { X, User, Github, Chrome } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (userData: { username: string; email: string }) => void
 }
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
@@ -26,20 +26,21 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/auth/${type}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
-      })
+      // Simulate authentication
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      if (!response.ok) throw new Error(`${type} failed`)
+      // Create user data
+      const userData = {
+        username: type === "signin" ? email.split("@")[0] : name,
+        email: email,
+      }
 
       toast({
         title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
-        description: "You now have unlimited README generations!",
+        description: "You now have 5 README generations per day!",
       })
 
-      onSuccess()
+      onSuccess(userData)
     } catch (error) {
       toast({
         title: "Authentication Failed",
@@ -56,14 +57,20 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     try {
       // Simulate social auth
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Create user data based on provider
+      const userData = {
+        username: provider === "github" ? "github_user" : "google_user",
+        email: `${provider}_user@example.com`,
+      }
 
       toast({
         title: "Welcome! 🎉",
         description: "Successfully signed in with " + provider,
       })
 
-      onSuccess()
+      onSuccess(userData)
     } catch (error) {
       toast({
         title: "Authentication Failed",
@@ -104,7 +111,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     </div>
                     <span>Join README Garden</span>
                   </div>
-                  <p className="text-sm font-normal text-muted-foreground">Unlock unlimited README generations</p>
+                  <p className="text-sm font-normal text-muted-foreground">Get 5 README generations per day</p>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -123,7 +130,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="rounded-xl"
-                          icon={<Mail className="w-4 h-4" />}
                         />
                       </div>
                       <div>
@@ -133,7 +139,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           className="rounded-xl"
-                          icon={<Lock className="w-4 h-4" />}
                         />
                       </div>
                       <Button
@@ -155,7 +160,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           className="rounded-xl"
-                          icon={<User className="w-4 h-4" />}
                         />
                       </div>
                       <div>
@@ -165,7 +169,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="rounded-xl"
-                          icon={<Mail className="w-4 h-4" />}
                         />
                       </div>
                       <div>
@@ -175,7 +178,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           className="rounded-xl"
-                          icon={<Lock className="w-4 h-4" />}
                         />
                       </div>
                       <Button
