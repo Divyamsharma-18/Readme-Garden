@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { repoUrl, vibe } = await request.json()
+    const { repoUrl, vibe, liveDemoUrl } = await request.json() // Receive liveDemoUrl
 
     if (!repoUrl || !vibe) {
       return NextResponse.json({ error: "Repository URL and vibe are required" }, { status: 400 })
@@ -120,6 +120,12 @@ export async function POST(request: NextRequest) {
       - Educational emojis (📚, 📖, 🔍, 📋, 📊)`,
     }
 
+    const liveDemoSection = liveDemoUrl
+      ? `
+    Live Demo: ${liveDemoUrl}
+    `
+      : ""
+
     const prompt = `
     ${vibePrompts[vibe as keyof typeof vibePrompts]}
     
@@ -134,22 +140,23 @@ export async function POST(request: NextRequest) {
     - Last Updated: ${new Date(repoData.updated_at).toLocaleDateString()}
     - Homepage: ${repoData.homepage || "None"}
     - Topics: ${repoData.topics?.join(", ") || "None"}
-    - License: ${repoData.license?.name || "Not specified"}
+    ${liveDemoSection}
     
-    Project Structure:
+    Project Structure (top-level files/folders):
     ${contents.length > 0 ? contents.map((item: any) => `- ${item.name} (${item.type})`).join("\n") : "- Standard project structure"}
     
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
     Include these sections (adapt style to vibe):
-    1. Project title and compelling description
-    2. Key features and highlights
+    1. Project title and compelling description (synthesize from repo info)
+    2. Key features and highlights (infer from repo info and common project features)
     3. Installation/setup instructions
     4. Usage examples and code snippets
     5. Configuration options (if applicable)
     6. Contributing guidelines
     7. License and legal information
     8. Support and contact information
+    ${liveDemoUrl ? "9. Live Demo section with the provided URL" : ""}
     
     IMPORTANT: Make this README distinctly ${vibe} in tone, structure, and content. 
     Use appropriate formatting, emojis, and language that clearly differentiates it from other vibes.
@@ -175,7 +182,7 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI generation failed, using fallback:", error)
 
       // Enhanced fallback README generation with distinct vibes
-      text = generateEnhancedFallbackReadme(repoData, vibe, languages)
+      text = generateEnhancedFallbackReadme(repoData, vibe, languages, liveDemoUrl)
     }
 
     return NextResponse.json({ readme: text })
@@ -185,8 +192,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateEnhancedFallbackReadme(repoData: any, vibe: string, languages: any) {
+function generateEnhancedFallbackReadme(repoData: any, vibe: string, languages: any, liveDemoUrl?: string) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
+  const liveDemoSection = liveDemoUrl
+    ? `
+## Live Demo 🚀
+
+Experience the project live here: [${repoData.name} Live](${liveDemoUrl})
+`
+    : ""
 
   const vibeTemplates = {
     professional: `# ${repoData.name}
@@ -200,7 +214,7 @@ ${repoData.description || "A professional software solution designed to meet ent
 - **Primary Technology**: ${primaryLanguage}
 - **Repository Status**: Active Development
 - **License**: ${repoData.license?.name || "MIT License"}
-
+${liveDemoSection}
 ## Installation Requirements
 
 \`\`\`bash
@@ -244,7 +258,7 @@ Hey there, fellow developer! Thanks for stopping by our little corner of GitHub.
 ${repoData.description || "This is a friendly project that we've built with love and care. We hope you'll find it useful!"}
 
 We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
-
+${liveDemoSection}
 ## Getting Started (Don't Worry, It's Easy!) 🚀
 
 \`\`\`bash
@@ -293,7 +307,7 @@ Made with ❤️ by our amazing community`,
 ${repoData.description || "It does stuff. Really cool stuff. The kind of stuff that makes other code jealous."}
 
 Built with ${primaryLanguage} because we're rebels like that. 🔥
-
+${liveDemoSection}
 ## Installation (AKA "The Ritual") 🧙‍♂️
 
 \`\`\`bash
@@ -352,7 +366,7 @@ Crafted with ${primaryLanguage}, this project represents the intersection of:
 - 🎯 Purpose  
 - 🚀 Excellence
 - 🌈 Creativity
-
+${liveDemoSection}
 ## 🎭 Installation Symphony
 
 \`\`\`bash
@@ -398,7 +412,7 @@ We believe in the power of creative collaboration. Reach out and let's create so
     minimal: `# ${repoData.name}
 
 ${repoData.description || "A simple, efficient solution."}
-
+${liveDemoSection}
 ## Install
 
 \`\`\`bash
@@ -439,6 +453,7 @@ ${repoData.license?.name || "MIT"}`,
 8. [Testing](#testing)
 9. [Troubleshooting](#troubleshooting)
 10. [License](#license)
+${liveDemoUrl ? "11. [Live Demo](#live-demo)" : ""}
 
 ## Overview 🔍
 
@@ -449,7 +464,7 @@ ${repoData.description || "This project provides a comprehensive solution with e
 - **Architecture**: Modular design pattern
 - **Compatibility**: Cross-platform support
 - **Performance**: Optimized for production use
-
+${liveDemoSection}
 ## Features 🌟
 
 ### Core Functionality
