@@ -577,7 +577,7 @@ export default function HomePage() {
           </motion.div>
 
           <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="px-3 py-1 shadow-sm">
+            <Badge variant="secondary" className="px-3 py-1 shadow-sm hidden sm:flex">
               {isAuthenticated
                 ? `${remainingUses}/5 Uses Today`
                 : `${remainingUses} Free Use${remainingUses !== 1 ? "s" : ""} Left`}
@@ -586,7 +586,7 @@ export default function HomePage() {
               variant="outline"
               size="sm"
               onClick={handleStarOnGitHub}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent"
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent hidden sm:flex"
             >
               <Star className="w-4 h-4 mr-1" />
               Star on GitHub
