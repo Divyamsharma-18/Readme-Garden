@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, Star } from "lucide-react"
+import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, Star, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -582,14 +582,24 @@ export default function HomePage() {
                 ? `${remainingUses}/5 Uses Today`
                 : `${remainingUses} Free Use${remainingUses !== 1 ? "s" : ""} Left`}
             </Badge>
+            {/* Star on GitHub Button - Large Screen */}
             <Button
               variant="outline"
               size="sm"
               onClick={handleStarOnGitHub}
               className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent hidden sm:flex"
             >
-              <Star className="w-4 h-4 mr-1" />
+              <Star className="w-4 h-4 mr-1 text-yellow-500" />
               Star on GitHub
+            </Button>
+            {/* Star on GitHub Button - Small Screen (icon only) */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleStarOnGitHub}
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent sm:hidden"
+            >
+              <Star className="w-4 h-4 text-yellow-500" />
             </Button>
             <Button
               variant="outline"
@@ -602,9 +612,16 @@ export default function HomePage() {
             {isAuthenticated ? (
               <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
             ) : (
-              <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm">
-                Sign In
-              </Button>
+              <>
+                {/* Sign In Button - Large Screen */}
+                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden sm:flex">
+                  Sign In
+                </Button>
+                {/* Sign In Button - Small Screen (icon only) */}
+                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm sm:hidden" size="icon">
+                  <User className="w-4 h-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>
