@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
+import { primaryLanguage } from "path-to-primary-language-module" // Declare or import the primaryLanguage variable
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
           ${projectPurpose ? `The user provided this project purpose: "${projectPurpose}". Incorporate this as the core description.` : ""}
 
           IMPORTANT: Create a COMPLETELY NEW VERSION of this README. Do NOT just modify or append to the original. Write it from scratch, ensuring it strongly reflects the ${vibe} style in tone, structure, and formatting. All original important information must be retained but presented in a fresh, new way.
-          Do NOT include a dedicated "What is this project about?" or "Overview" section. Instead, integrate a very brief, one-line tagline or description directly under the main project title if appropriate.
+          The project's core purpose/description (the first main section after the title) MUST be highly compelling, benefit-oriented, and 'sell' the project, elaborating on its value based on the provided content and the chosen vibe.
           Return ONLY the rewritten README content in markdown format, without any additional text or code block formatting around it.
           `,
           maxTokens: 2500,
@@ -75,7 +76,7 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
         .trim()
     : "Project"
 
-  // Attempt to extract a brief tagline from the original content
+  // Attempt to extract a brief tagline from the original content or use projectPurpose
   let briefTagline = projectPurpose || ""
   if (!briefTagline) {
     const firstParagraphMatch = originalContent.match(/#+\s*.*?\n\n([^\n]+)/)
@@ -84,6 +85,36 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
     } else {
       briefTagline = "A simple, efficient solution designed for clarity and directness."
     }
+  }
+
+  // Enhance the description with "selling" language for fallback
+  let compellingDescription = briefTagline
+  if (briefTagline.length > 0) {
+    switch (vibe) {
+      case "professional":
+        compellingDescription = `Unlock the full potential of your workflow with this robust solution. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This cutting-edge solution")}.`
+        break
+      case "friendly":
+        compellingDescription = `Get ready to simplify your life and boost your productivity! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This friendly tool")}.`
+        break
+      case "humorous":
+        compellingDescription = `Tired of the same old problems? This project is here to save the day (and maybe make you chuckle)! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This hilarious yet powerful tool")}.`
+        break
+      case "creative":
+        compellingDescription = `Dive into a world where innovation meets artistry. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This visionary creation")}.`
+        break
+      case "minimal":
+        compellingDescription = `Achieve more with less. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This streamlined solution")}.`
+        break
+      case "detailed":
+        compellingDescription = `Explore the depths of comprehensive functionality. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This meticulously crafted system")}.`
+        break
+      default:
+        compellingDescription = `Discover the power of this innovative project. ${briefTagline}.`
+    }
+  } else {
+    compellingDescription =
+      "This project is designed to empower your development journey, offering innovative solutions and seamless integration."
   }
 
   // Attempt to extract a live demo URL if present in the original content
@@ -113,10 +144,11 @@ Experience the project live here: [${projectName} Live](${liveDemoUrl})
   const vibeRewrites = {
     professional: `# ${projectName}
 
-${briefTagline}
+${compellingDescription}
 
 ## Technical Specifications
 
+- **Primary Language**: ${primaryLanguage}
 - **Architecture**: Modern, scalable design ensuring high performance and maintainability.
 - **Implementation**: Industry-standard practices for secure and efficient operation.
 - **Compatibility**: Engineered for cross-platform support, ensuring broad applicability.
@@ -145,7 +177,7 @@ All contributions must adhere to established coding standards, undergo rigorous 
 
     friendly: `# Welcome to ${projectName}! 👋
 
-${briefTagline} We hope you'll find it useful!
+${compellingDescription} We hope you'll find it useful!
 
 ## Getting Started (It's Super Easy!) 🚀
 
@@ -168,9 +200,18 @@ We've made this as simple as possible. Just follow along with our examples, and 
 
 ## Want to Help Out? We'd Love That! 💝
 
-We'd absolutely love your help! Our community is super welcoming and we're always here to support each other.
+We're always excited to welcome new contributors! Here's how you can join our friendly community:
 
-Feel free to reach out anytime - we're here for you! 🤗
+1. Fork this repo (you've got this!)
+2. Create your feature branch
+3. Make your awesome changes
+4. Share it with us via a pull request
+
+Don't be shy - we're here to help if you get stuck! 
+
+## Questions? We're Here for You! 🤗
+
+Feel free to reach out anytime - we love hearing from our users!
 
 Made with ❤️ by our amazing community`,
 
@@ -178,7 +219,7 @@ Made with ❤️ by our amazing community`,
 
 *Because boring code is so last century and we like a little pizzazz!* 😎
 
-${briefTagline}
+${compellingDescription}
 
 ## Installation (AKA "The Ancient Ritual") 🧙‍♂️
 
@@ -220,7 +261,7 @@ They're not bugs, they're *undocumented features* that add character. But if you
     creative: `# ✨ ${projectName} ✨
 *Where Code Meets Art, and Dreams Take Flight*
 
-${briefTagline}
+${compellingDescription}
 
 ## 🌟 The Vision Unfolds
 
@@ -266,7 +307,7 @@ We believe in the profound power of creative collaboration. Reach out and let's 
 
     minimal: `# ${projectName}
 
-${briefTagline}
+${compellingDescription}
 ${liveDemoSection}
 ## Install
 
@@ -311,9 +352,10 @@ ${liveDemoUrl ? "11. [Live Demonstration](#live-demonstration)" : ""}
 
 ## Overview 🔍
 
-${briefTagline}
+${compellingDescription}
 
 ### Technical Details
+- **Primary Language**: ${primaryLanguage}
 - **Architecture**: Modular design pattern
 - **Compatibility**: Cross-platform support
 - **Performance**: Optimized for production use
@@ -334,7 +376,7 @@ ${liveDemoSection}
 - **Mobile-responsive design, ensuring optimal user experience on all devices.**
 - **Internationalization support for global deployment.**
 
-## Installation Guide 📦
+## Installation 📦
 
 ### Prerequisites
 Before proceeding with the installation, ensure the following software is installed on your system:
@@ -344,7 +386,7 @@ Before proceeding with the installation, ensure the following software is instal
 
 ### Step-by-Step Installation Process
 
-1. **Clone the Repository**
+1. **Repository Acquisition**
    Initiate the process by cloning the project repository from GitHub:
    \`\`\`bash
    git clone ${cloneUrl}
@@ -355,18 +397,15 @@ Before proceeding with the installation, ensure the following software is instal
    Install all required project dependencies using npm:
    \`\`\`bash
    npm install
-   npm audit fix # Recommended for security updates
    \`\`\`
 
-3. **Environment Configuration**
-   Copy the example environment file and configure your specific settings:
+3. **Environment Setup**
    \`\`\`bash
    cp .env.example .env
-   # Open .env and configure necessary environment variables (e.g., API keys, database URLs)
+   # Edit .env with your configuration
    \`\`\`
 
 4. **Project Build**
-   Compile the project for production deployment:
    \`\`\`bash
    npm run build
    \`\`\`
@@ -379,8 +418,7 @@ A typical basic configuration might look like this:
 {
   "name": "${projectName}",
   "version": "1.0.0",
-  "environment": "production",
-  "port": 3000
+  "environment": "production"
 }
 \`\`\`
 
@@ -410,8 +448,8 @@ Illustrative examples for more complex scenarios, including asynchronous operati
 \`\`\`javascript
 // Define custom configuration for the instance
 const config = {
-  option1: 'customValue1',
-  option2: 'customValue2'
+  option1: 'value1',
+  option2: 'value2'
 }
 
 const instance = new ${projectName}(config)
@@ -419,7 +457,7 @@ const instance = new ${projectName}(config)
 // Asynchronous operation example
 async function advancedExample() {
   try {
-    const processedData = await instance.processAsyncData()
+    const processedData = await instance.processAsync()
     console.log('Processed Data:', processedData)
     return processedData
   } catch (error) {
@@ -432,32 +470,32 @@ advancedExample()
 
 ## Contributing Guidelines 🤝
 
-We highly value community contributions! Please review our comprehensive contributing guidelines before submitting any changes.
+We welcome contributions! Please read our detailed contributing guidelines.
 
-### Development Workflow
+### Development Setup
 1. Fork the repository: Create a personal fork of the project.
 2. Create a feature branch: Branch off from \`main\` for new features or bug fixes.
 3. Implement changes with tests: Ensure all new code is thoroughly tested.
 4. Submit a pull request: Provide a detailed description of your changes.
 
-### Code Quality Standards
+### Code Standards
 - Adhere strictly to ESLint and Prettier configurations.
 - Maintain comprehensive test coverage for all new and modified features.
 - Update relevant documentation to reflect changes.
 - Utilize conventional commits for clear commit history.
 
-## Testing Procedures 🧪
+## Testing 🧪
 
 ### Running Tests
 Execute the following commands to run the various test suites:
 \`\`\`bash
-# Run all unit tests
+# Unit tests
 npm test
 
-# Execute integration tests
+# Integration tests
 npm run test:integration
 
-# Generate a detailed test coverage report
+# Coverage report
 npm run test:coverage
 \`\`\`
 
@@ -466,7 +504,7 @@ npm run test:coverage
 - **Integration Tests**: Found in \`/tests/integration\`, verifying interactions between components.
 - **End-to-End Tests**: Reside in \`/tests/e2e\`, simulating full user workflows.
 
-## Troubleshooting Guide 🔧
+## Troubleshooting 🔧
 
 ### Common Issues
 
