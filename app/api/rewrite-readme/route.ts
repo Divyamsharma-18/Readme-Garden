@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import { primaryLanguage } from "path-to-primary-language-module" // Declare or import the primaryLanguage variable
 
 export async function POST(request: NextRequest) {
   try {
@@ -117,6 +116,13 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
       "This project is designed to empower your development journey, offering innovative solutions and seamless integration."
   }
 
+  // Attempt to extract primary language from original content
+  let primaryLanguage = "JavaScript" // Default
+  const primaryLanguageMatch = originalContent.match(/Primary Language:\s*(.*?)\n/)
+  if (primaryLanguageMatch && primaryLanguageMatch[1]) {
+    primaryLanguage = primaryLanguageMatch[1].trim()
+  }
+
   // Attempt to extract a live demo URL if present in the original content
   const liveDemoMatch = originalContent.match(/\[.*? Live\]$$(https?:\/\/[^\s]+)$$/)
   const liveDemoUrl = liveDemoMatch ? liveDemoMatch[1] : undefined
@@ -148,7 +154,7 @@ ${compellingDescription}
 
 ## Technical Specifications
 
-- **Primary Language**: ${primaryLanguage}
+- **Primary Technology**: ${primaryLanguage}
 - **Architecture**: Modern, scalable design ensuring high performance and maintainability.
 - **Implementation**: Industry-standard practices for secure and efficient operation.
 - **Compatibility**: Engineered for cross-platform support, ensuring broad applicability.
@@ -386,7 +392,7 @@ Before proceeding with the installation, ensure the following software is instal
 
 ### Step-by-Step Installation Process
 
-1. **Repository Acquisition**
+1. **Clone the Repository**
    Initiate the process by cloning the project repository from GitHub:
    \`\`\`bash
    git clone ${cloneUrl}
@@ -470,9 +476,9 @@ advancedExample()
 
 ## Contributing Guidelines 🤝
 
-We welcome contributions! Please read our detailed contributing guidelines.
+We highly value community contributions! Please review our comprehensive contributing guidelines before submitting any changes.
 
-### Development Setup
+### Development Workflow
 1. Fork the repository: Create a personal fork of the project.
 2. Create a feature branch: Branch off from \`main\` for new features or bug fixes.
 3. Implement changes with tests: Ensure all new code is thoroughly tested.
@@ -484,18 +490,18 @@ We welcome contributions! Please read our detailed contributing guidelines.
 - Update relevant documentation to reflect changes.
 - Utilize conventional commits for clear commit history.
 
-## Testing 🧪
+## Testing Procedures 🧪
 
 ### Running Tests
 Execute the following commands to run the various test suites:
 \`\`\`bash
-# Unit tests
+# Run all unit tests
 npm test
 
-# Integration tests
+# Execute integration tests
 npm run test:integration
 
-# Coverage report
+# Generate a detailed test coverage report
 npm run test:coverage
 \`\`\`
 
