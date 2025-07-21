@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, vibe, repoUrl } = await request.json() // Receive repoUrl here
+    const { content, vibe, repoUrl, projectPurpose } = await request.json() // Receive projectPurpose here
 
     if (!content || !vibe) {
       return NextResponse.json({ error: "Content and vibe are required" }, { status: 400 })
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
           ${content}
           
           ${repoUrl ? `The original repository URL was: ${repoUrl}. Use this for installation instructions.` : ""}
+          ${projectPurpose ? `The user provided this project purpose: "${projectPurpose}". Incorporate this as the core description.` : ""}
 
           IMPORTANT: Create a COMPLETELY NEW VERSION of this README. Do NOT just modify or append to the original. Write it from scratch, ensuring it strongly reflects the ${vibe} style in tone, structure, and formatting. All original important information must be retained but presented in a fresh, new way.
           Do NOT include a dedicated "What is this project about?" or "Overview" section. Instead, integrate a very brief, one-line tagline or description directly under the main project title if appropriate.
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
 
       // Enhanced fallback rewrite that actually changes the content
-      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl) // Pass repoUrl to fallback
+      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl, projectPurpose) // Pass repoUrl to fallback
     }
 
     return NextResponse.json({ rewrittenReadme })
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?: string) {
+function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?: string, projectPurpose?: string) {
   // Extract key information from original content
   const lines = originalContent.split("\n")
   const titleLine = lines.find((line) => line.startsWith("#"))
@@ -75,13 +76,14 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
     : "Project"
 
   // Attempt to extract a brief tagline from the original content
-  let briefTagline = ""
-  const firstParagraphMatch = originalContent.match(/#+\s*.*?\n\n([^\n]+)/)
-  if (firstParagraphMatch && firstParagraphMatch[1]) {
-    briefTagline = firstParagraphMatch[1].trim()
-  } else {
-    // Fallback to a generic tagline if no clear first paragraph
-    briefTagline = "A project built with passion and purpose."
+  let briefTagline = projectPurpose || ""
+  if (!briefTagline) {
+    const firstParagraphMatch = originalContent.match(/#+\s*.*?\n\n([^\n]+)/)
+    if (firstParagraphMatch && firstParagraphMatch[1]) {
+      briefTagline = firstParagraphMatch[1].trim()
+    } else {
+      briefTagline = "A simple, efficient solution designed for clarity and directness."
+    }
   }
 
   // Attempt to extract a live demo URL if present in the original content
