@@ -196,13 +196,17 @@ export async function POST(request: NextRequest) {
     Additional project details from package.json (use these to understand the project's core purpose, technologies, and features):
     - Project Name (from package.json): ${packageJsonContent.name || "N/A"}
     - Version: ${packageJsonContent.version || "N/A"}
-    - Description (from package.json): ${packageJsonContent.description || "N/A"}
+    - Description (from packageJsonContent): ${packageJsonContent.description || "N/A"}
     - Keywords: ${packageJsonContent.keywords?.join(", ") || "N/A"}
     - Scripts: ${Object.keys(packageJsonContent.scripts || {}).join(", ") || "N/A"}
     - Dependencies: ${Object.keys(packageJsonContent.dependencies || {}).join(", ") || "N/A"}
     - Dev Dependencies: ${Object.keys(packageJsonContent.devDependencies || {}).join(", ") || "N/A"}
     `
         : ""
+
+    const projectPurposeContext = projectPurpose
+      ? `The user explicitly provided this project purpose: "${projectPurpose}". **Prioritize this information heavily.**`
+      : ""
 
     const prompt = `
     ${vibePrompts[vibe as keyof typeof vibePrompts]}
@@ -228,11 +232,12 @@ export async function POST(request: NextRequest) {
     ${existingReadmeContextPrompt}
     ${packageJsonContextPrompt}
     ${liveDemoContext}
+    ${projectPurposeContext}
     
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
     Include these sections (adapt style to vibe):
-    1. Project title and a compelling description (prioritize user-provided 'projectPurpose' if available, otherwise synthesize from ALL other available info, focusing on "what it's about")
+    1. Project title and a compelling description. **This description MUST be highly persuasive, benefit-oriented, and 'sell' the project to a potential user or contributor. Elaborate on the core purpose (prioritizing the user-provided 'projectPurpose' if available) to highlight its unique value proposition and how it solves problems or provides benefits.**
     2. Key features and highlights (infer from all available info)
     3. Installation/setup instructions
     4. Usage examples and code snippets
@@ -301,12 +306,51 @@ function generateEnhancedFallbackReadme(
 ) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
 
-  // Use repoData.description or packageJsonContent.description for a brief tagline
-  const briefTagline =
-    projectPurpose ||
-    repoData.description ||
-    packageJsonContent?.description ||
-    "A project built with passion and purpose."
+  // Synthesize a compelling description, prioritizing user input
+  let synthesizedDescription = projectPurpose || repoData.description || packageJsonContent?.description || ""
+  if (!synthesizedDescription) {
+    if (existingReadmeContent) {
+      const existingReadmeFirstParagraph = existingReadmeContent.split("\n\n")[0]?.trim()
+      if (existingReadmeFirstParagraph && existingReadmeFirstParagraph.length > 50) {
+        synthesizedDescription = existingReadmeFirstParagraph
+      }
+    }
+  }
+  if (liveDemoMetaDescription) {
+    synthesizedDescription = liveDemoMetaDescription
+  } else if (liveDemoTitle) {
+    synthesizedDescription = `This project is about "${liveDemoTitle}". ${synthesizedDescription}`
+  }
+
+  // Enhance the description with "selling" language for fallback
+  let compellingDescription = synthesizedDescription
+  if (synthesizedDescription.length > 0) {
+    switch (vibe) {
+      case "professional":
+        compellingDescription = `Unlock the full potential of your workflow with this robust solution. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This cutting-edge solution")}.`
+        break
+      case "friendly":
+        compellingDescription = `Get ready to simplify your life and boost your productivity! ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This friendly tool")}.`
+        break
+      case "humorous":
+        compellingDescription = `Tired of the same old problems? This project is here to save the day (and maybe make you chuckle)! ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This hilarious yet powerful tool")}.`
+        break
+      case "creative":
+        compellingDescription = `Dive into a world where innovation meets artistry. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This visionary creation")}.`
+        break
+      case "minimal":
+        compellingDescription = `Achieve more with less. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This streamlined solution")}.`
+        break
+      case "detailed":
+        compellingDescription = `Explore the depths of comprehensive functionality. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This meticulously crafted system")}.`
+        break
+      default:
+        compellingDescription = `Discover the power of this innovative project. ${synthesizedDescription}.`
+    }
+  } else {
+    compellingDescription =
+      "This project is designed to empower your development journey, offering innovative solutions and seamless integration."
+  }
 
   const inferredFeatures =
     packageJsonContent?.keywords?.length > 0
@@ -328,7 +372,7 @@ ${liveDemoMetaDescription ? `\n> ${liveDemoMetaDescription}` : ""}
   const vibeTemplates = {
     professional: `# ${repoData.name}
 
-${briefTagline}
+${compellingDescription}
 
 ## Technical Specifications
 
@@ -372,7 +416,7 @@ For technical support, please contact the development team through official chan
 
     friendly: `# Welcome to ${repoData.name}! 👋
 
-${briefTagline} We hope you'll find it useful! ${inferredFeatures}
+${compellingDescription} We hope you'll find it useful! ${inferredFeatures}
 
 We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
 ${liveDemoSection}
@@ -421,7 +465,7 @@ Made with ❤️ by our amazing community`,
 
 ## What Does This Thing Do? 🤔
 
-${briefTagline} ${inferredFeatures}
+${compellingDescription} ${inferredFeatures}
 
 Built with ${primaryLanguage} because we're rebels like that. 🔥
 ${liveDemoSection}
@@ -474,7 +518,7 @@ They're not bugs, they're *undocumented features*. But if you find any "features
 
 🎨 **A Digital Masterpiece** 🎨
 
-${briefTagline} ${inferredFeatures}
+${compellingDescription} ${inferredFeatures}
 
 ## 🌟 The Vision
 
@@ -528,7 +572,7 @@ We believe in the power of creative collaboration. Reach out and let's create so
 
     minimal: `# ${repoData.name}
 
-${briefTagline}
+${compellingDescription}
 ${liveDemoSection}
 ## Install
 
@@ -570,11 +614,11 @@ ${repoData.license?.name || "MIT"}`,
 8. [Testing](#testing)
 9. [Troubleshooting](#troubleshooting)
 10. [License](#license)
-${liveDemoUrl ? "11. [Live Demo](#live-demo)" : ""}
+${liveDemoUrl ? "11. [Live Demonstration](#live-demonstration)" : ""}
 
 ## Overview 🔍
 
-${briefTagline}
+${compellingDescription}
 
 ### Technical Details
 - **Primary Language**: ${primaryLanguage}
@@ -648,8 +692,9 @@ ${liveDemoSection}
 
 ## Usage Examples 💡
 
-### Basic Usage
-\`\`\`${primaryLanguage.toLowerCase()}
+### Basic Implementation
+A fundamental example demonstrating the core functionality:
+\`\`\`javascript
 const ${repoData.name} = require('./${repoData.name}')
 
 // Initialize with default settings
@@ -661,7 +706,8 @@ console.log('Result:', result)
 \`\`\`
 
 ### Advanced Usage
-\`\`\`${primaryLanguage.toLowerCase()}
+Illustrative examples for more complex scenarios, including asynchronous operations:
+\`\`\`javascript
 // Custom configuration
 const config = {
   option1: 'value1',
@@ -732,9 +778,9 @@ npm run test:coverage
 - Solution: Verify environment configuration
 
 ### Getting Help
-- Check the FAQ section
-- Search existing issues
-- Create a new issue with detailed information
+- Consult the project's FAQ section for common questions.
+- Search existing issues on the GitHub repository for similar problems.
+- If your issue persists, create a new issue with detailed information and steps to reproduce.
 
 ## License 📄
 
