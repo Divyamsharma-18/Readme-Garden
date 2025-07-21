@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { repoUrl, vibe, liveDemoUrl } = await request.json()
+    const { repoUrl, vibe, liveDemoUrl, projectPurpose } = await request.json()
 
     if (!repoUrl || !vibe) {
       return NextResponse.json({ error: "Repository URL and vibe are required" }, { status: 400 })
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
     Include these sections (adapt style to vibe):
-    1. Project title and a very brief, concise tagline or one-liner description (if available from repo data or package.json).
+    1. Project title and a compelling description (prioritize user-provided 'projectPurpose' if available, otherwise synthesize from ALL other available info, focusing on "what it's about")
     2. Key features and highlights (infer from all available info)
     3. Installation/setup instructions
     4. Usage examples and code snippets
@@ -275,6 +275,7 @@ export async function POST(request: NextRequest) {
         liveDemoMetaDescription,
         owner, // Pass owner to fallback
         repoUrl, // Pass full repoUrl to fallback
+        projectPurpose,
       )
     }
 
@@ -296,12 +297,16 @@ function generateEnhancedFallbackReadme(
   liveDemoMetaDescription?: string | null,
   owner?: string, // Added owner parameter
   fullRepoUrl?: string, // Added fullRepoUrl parameter
+  projectPurpose?: string, // Added projectPurpose parameter
 ) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
 
   // Use repoData.description or packageJsonContent.description for a brief tagline
   const briefTagline =
-    repoData.description || packageJsonContent?.description || "A project built with passion and purpose."
+    projectPurpose ||
+    repoData.description ||
+    packageJsonContent?.description ||
+    "A project built with passion and purpose."
 
   const inferredFeatures =
     packageJsonContent?.keywords?.length > 0
