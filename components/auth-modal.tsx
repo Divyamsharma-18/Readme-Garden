@@ -54,7 +54,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   const handleSocialAuth = async (provider: "github" | "google") => {
     setIsLoading(true)
-
+    console.log(
+      `Simulating social login with ${provider}. For real authentication, integrate with Auth.js (NextAuth.js) or a similar OAuth solution.`,
+    )
     try {
       // Simulate social auth
       await new Promise((resolve) => setTimeout(resolve, 1000))
