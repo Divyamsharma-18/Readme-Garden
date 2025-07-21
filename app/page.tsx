@@ -34,6 +34,7 @@ const vibeOptions = [
 export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
   const [liveDemoUrl, setLiveDemoUrl] = useState("") // New state for live demo URL
+  const [projectPurpose, setProjectPurpose] = useState("")
   const [selectedVibe, setSelectedVibe] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
@@ -121,7 +122,7 @@ export default function HomePage() {
       const response = await fetch("/api/generate-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl }), // Pass liveDemoUrl
+        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }), // Pass projectPurpose
       })
 
       console.log("Response status:", response.status)
@@ -642,6 +643,20 @@ export default function HomePage() {
                     onChange={(e) => setLiveDemoUrl(e.target.value)}
                     className="rounded-xl"
                   />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Project Purpose / Description (Optional)</label>
+                  <Textarea
+                    placeholder="e.g., A tool to generate beautiful GitHub READMEs using AI."
+                    value={projectPurpose}
+                    onChange={(e) => setProjectPurpose(e.target.value)}
+                    rows={4}
+                    className="rounded-xl"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Provide a brief, compelling description of what your project does or the problem it solves.
+                  </p>
                 </div>
 
                 <div>
