@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
 
     const existingReadmeContextPrompt = existingReadmeContent
       ? `
-    Existing README.md content from the repository (use this to understand the project's purpose, features, and existing documentation style, but rewrite it completely to match the chosen vibe):
+    Existing README.md content from the repository (use this to understand the project's existing documentation style, but rewrite it completely to match the chosen vibe):
     \`\`\`markdown
     ${existingReadmeContent}
     \`\`\`
@@ -231,10 +231,8 @@ export async function POST(request: NextRequest) {
     
     Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
     
-    **CRITICAL INSTRUCTION:** The most important part of this README is the initial "Project title and compelling description" section. You MUST synthesize all the provided information (GitHub repo data, existing README, package.json, and live demo details) to clearly and accurately explain **WHAT THIS PROJECT IS ABOUT**, its core purpose, and its key functionalities. This section should be the USP of the generated README.
-    
     Include these sections (adapt style to vibe):
-    1. Project title and compelling description (synthesize from ALL available info, focusing on "what it's about")
+    1. Project title and a very brief, concise tagline or one-liner description (if available from repo data or package.json).
     2. Key features and highlights (infer from all available info)
     3. Installation/setup instructions
     4. Usage examples and code snippets
@@ -301,24 +299,9 @@ function generateEnhancedFallbackReadme(
 ) {
   const primaryLanguage = Object.keys(languages)[0] || "JavaScript"
 
-  // Synthesize description from all available sources
-  let synthesizedDescription = repoData.description || packageJsonContent?.description || ""
-  if (existingReadmeContent) {
-    // Take first paragraph or section from existing README
-    const existingReadmeFirstParagraph = existingReadmeContent.split("\n\n")[0]?.trim()
-    if (existingReadmeFirstParagraph && existingReadmeFirstParagraph.length > 50) {
-      synthesizedDescription = existingReadmeFirstParagraph
-    }
-  }
-  if (liveDemoMetaDescription) {
-    synthesizedDescription = liveDemoMetaDescription
-  } else if (liveDemoTitle) {
-    synthesizedDescription = `This project is about "${liveDemoTitle}". ${synthesizedDescription}`
-  }
-
-  if (!synthesizedDescription) {
-    synthesizedDescription = "A project built with passion and purpose, designed to solve a specific problem."
-  }
+  // Use repoData.description or packageJsonContent.description for a brief tagline
+  const briefTagline =
+    repoData.description || packageJsonContent?.description || "A project built with passion and purpose."
 
   const inferredFeatures =
     packageJsonContent?.keywords?.length > 0
@@ -340,9 +323,7 @@ ${liveDemoMetaDescription ? `\n> ${liveDemoMetaDescription}` : ""}
   const vibeTemplates = {
     professional: `# ${repoData.name}
 
-## Executive Summary
-
-${synthesizedDescription} ${inferredFeatures}
+${briefTagline}
 
 ## Technical Specifications
 
@@ -386,11 +367,7 @@ For technical support, please contact the development team through official chan
 
     friendly: `# Welcome to ${repoData.name}! 👋
 
-Hey there, fellow developer! Thanks for stopping by our little corner of GitHub. 
-
-## What's This All About? 😊
-
-${synthesizedDescription} We hope you'll find it useful! ${inferredFeatures}
+${briefTagline} We hope you'll find it useful! ${inferredFeatures}
 
 We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
 ${liveDemoSection}
@@ -439,7 +416,7 @@ Made with ❤️ by our amazing community`,
 
 ## What Does This Thing Do? 🤔
 
-${synthesizedDescription} ${inferredFeatures}
+${briefTagline} ${inferredFeatures}
 
 Built with ${primaryLanguage} because we're rebels like that. 🔥
 ${liveDemoSection}
@@ -492,7 +469,7 @@ They're not bugs, they're *undocumented features*. But if you find any "features
 
 🎨 **A Digital Masterpiece** 🎨
 
-${synthesizedDescription} ${inferredFeatures}
+${briefTagline} ${inferredFeatures}
 
 ## 🌟 The Vision
 
@@ -546,7 +523,7 @@ We believe in the power of creative collaboration. Reach out and let's create so
 
     minimal: `# ${repoData.name}
 
-${synthesizedDescription}
+${briefTagline}
 ${liveDemoSection}
 ## Install
 
@@ -592,7 +569,7 @@ ${liveDemoUrl ? "11. [Live Demo](#live-demo)" : ""}
 
 ## Overview 🔍
 
-${synthesizedDescription}
+${briefTagline}
 
 ### Technical Details
 - **Primary Language**: ${primaryLanguage}
