@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 import IntroAnimation from "@/components/intro-animation" // Import the new component
+import Footer from "@/components/footer" // Import the new Footer component
 
 // Markdown rendering imports
 import ReactMarkdown from "react-markdown"
@@ -289,7 +290,7 @@ export default function HomePage() {
   const remainingUses = getRemainingUses()
 
   return (
-    <div className="min-h-screen transition-all duration-700 relative overflow-hidden">
+    <div className="min-h-screen transition-all duration-700 relative overflow-hidden flex flex-col">
       {/* Intro Animation */}
       <AnimatePresence>
         {showIntroAnimation && <IntroAnimation onAnimationComplete={() => setShowIntroAnimation(false)} />}
@@ -300,7 +301,7 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: showIntroAnimation ? 0 : 1 }}
         transition={{ delay: showIntroAnimation ? 1.75 : 0, duration: 0.5 }} // Delay for 1.5s (animation duration) + 0.25s buffer before fading in main content
-        className={showIntroAnimation ? "pointer-events-none" : ""}
+        className={`flex-grow ${showIntroAnimation ? "pointer-events-none" : ""}`}
       >
         {/* Dynamic Background */}
         <div
@@ -661,7 +662,7 @@ export default function HomePage() {
         </header>
 
         {/* Main Content */}
-        <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12">
+        <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Input Section */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
@@ -821,6 +822,9 @@ export default function HomePage() {
             </motion.div>
           </div>
         </main>
+
+        {/* Footer */}
+        <Footer />
 
         {/* Loading Animation Overlay */}
         <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
