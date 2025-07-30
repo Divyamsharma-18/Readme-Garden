@@ -13,7 +13,7 @@ export default function Footer() {
                  bg-white/10 dark:bg-black/10 backdrop-blur-lg border-t border-white/20 dark:border-gray-700 shadow-lg
                  text-center text-sm text-foreground/80"
     >
-      Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by{" "}
+      Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by&nbsp;
       
       <a
         href="https://divyamsharma.netlify.app/"
