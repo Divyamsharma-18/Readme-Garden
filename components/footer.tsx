@@ -14,13 +14,14 @@ export default function Footer() {
                  text-center text-sm text-foreground/80"
     >
       Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by{" "}
+      
       <a
-        href="https://divyamsharma.netlify.app/" 
+        href="https://divyamsharma.netlify.app/"
         target="_blank"
         rel="noopener noreferrer"
         className="font-semibold text-primary hover:underline transition-colors"
       >
-         Divyam Sharma
+        Divyam Sharma
       </a>
     </motion.footer>
   )
