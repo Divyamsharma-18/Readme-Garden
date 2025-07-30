@@ -16,8 +16,8 @@ import AuthModal from "@/components/auth-modal"
 import { Textarea } from "@/components/ui/textarea"
 import Image from "next/image"
 import UserProfile from "@/components/user-profile"
-import IntroAnimation from "@/components/intro-animation" // Import the new component
-import Footer from "@/components/footer" // Import the new Footer component
+import IntroAnimation from "@/components/intro-animation"
+import Footer from "@/components/footer"
 
 // Markdown rendering imports
 import ReactMarkdown from "react-markdown"
@@ -35,21 +35,20 @@ const vibeOptions = [
 
 export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
-  const [liveDemoUrl, setLiveDemoUrl] = useState("") // New state for live demo URL
+  const [liveDemoUrl, setLiveDemoUrl] = useState("")
   const [projectPurpose, setProjectPurpose] = useState("")
   const [selectedVibe, setSelectedVibe] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
-  // Removed usageCount, replaced by unauthDailyUsageCount for daily tracking
-  const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0) // New state for unauthenticated daily usage
-  const [dailyUsageCount, setDailyUsageCount] = useState(0) // For authenticated users
+  const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0)
+  const [dailyUsageCount, setDailyUsageCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState({ username: "User", email: "user@example.com" })
   const [activeTab, setActiveTab] = useState("preview")
   const [mounted, setMounted] = useState(false)
-  const [showIntroAnimation, setShowIntroAnimation] = useState(true) // New state for intro animation
+  const [showIntroAnimation, setShowIntroAnimation] = useState(true)
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
@@ -69,7 +68,6 @@ export default function HomePage() {
       }
     }
 
-    // Handle daily reset for authenticated users
     const lastAuthUsageDate = localStorage.getItem("readme-last-usage-date-auth")
     const authDailyCount = localStorage.getItem("readme-daily-usage-count-auth")
     if (lastAuthUsageDate !== today) {
@@ -80,7 +78,6 @@ export default function HomePage() {
       setDailyUsageCount(authDailyCount ? Number.parseInt(authDailyCount) : 0)
     }
 
-    // Handle daily reset for unauthenticated users
     const lastUnauthUsageDate = localStorage.getItem("readme-last-usage-date-unauth")
     const unauthCount = localStorage.getItem("readme-daily-usage-count-unauth")
     if (lastUnauthUsageDate !== today) {
@@ -90,16 +87,13 @@ export default function HomePage() {
     } else {
       setUnauthDailyUsageCount(unauthCount ? Number.parseInt(unauthCount) : 0)
     }
-
-    // The IntroAnimation component will call setShowIntroAnimation(false) when its animation completes.
-    // No need for a setTimeout here.
   }, [])
 
   const getRemainingUses = () => {
     if (!isAuthenticated) {
-      return Math.max(0, 5 - unauthDailyUsageCount) // 5 daily uses for non-logged in
+      return Math.max(0, 5 - unauthDailyUsageCount)
     } else {
-      return Math.max(0, 10 - dailyUsageCount) // 10 daily uses for logged in
+      return Math.max(0, 10 - dailyUsageCount)
     }
   }
 
@@ -113,7 +107,6 @@ export default function HomePage() {
       return
     }
 
-    // Check usage limits
     const remainingUses = getRemainingUses()
     if (remainingUses <= 0) {
       if (!isAuthenticated) {
@@ -137,7 +130,7 @@ export default function HomePage() {
       const response = await fetch("/api/generate-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }), // Pass projectPurpose
+        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }),
       })
 
       console.log("Response status:", response.status)
@@ -157,7 +150,6 @@ export default function HomePage() {
 
       setGeneratedReadme(data.readme)
 
-      // Update usage counts based on authentication status
       const today = new Date().toDateString()
       if (!isAuthenticated) {
         const newCount = unauthDailyUsageCount + 1
@@ -208,7 +200,7 @@ export default function HomePage() {
       const response = await fetch("/api/rewrite-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe, repoUrl }), // Pass repoUrl for rewrite context
+        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe, repoUrl }),
       })
 
       if (!response.ok) {
@@ -219,7 +211,6 @@ export default function HomePage() {
 
       const data = await response.json()
 
-      // Completely replace the content
       setGeneratedReadme(data.rewrittenReadme)
 
       toast({
@@ -266,7 +257,6 @@ export default function HomePage() {
     localStorage.setItem("readme-auth-status", "true")
     localStorage.setItem("readme-user-data", JSON.stringify(userData))
     setShowAuthModal(false)
-    // Reset daily usage for new user upon login
     setDailyUsageCount(0)
     localStorage.setItem("readme-daily-usage-count-auth", "0")
     localStorage.setItem("readme-last-usage-date-auth", new Date().toDateString())
@@ -296,12 +286,12 @@ export default function HomePage() {
         {showIntroAnimation && <IntroAnimation onAnimationComplete={() => setShowIntroAnimation(false)} />}
       </AnimatePresence>
 
-      {/* Main content, hidden during intro animation */}
+      {/* Main content wrapper, flex-grow to push footer down */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showIntroAnimation ? 0 : 1 }}
-        transition={{ delay: showIntroAnimation ? 1.75 : 0, duration: 0.5 }} // Delay for 1.5s (animation duration) + 0.25s buffer before fading in main content
-        className={`flex-grow ${showIntroAnimation ? "pointer-events-none" : ""}`}
+        transition={{ delay: showIntroAnimation ? 1.75 : 0, duration: 0.5 }}
+        className={`flex-grow flex flex-col ${showIntroAnimation ? "pointer-events-none" : ""}`}
       >
         {/* Dynamic Background */}
         <div
@@ -607,12 +597,8 @@ export default function HomePage() {
 
             <div className="flex items-center space-x-4">
               <Badge variant="secondary" className="px-3 py-1 shadow-sm hidden sm:flex">
-                {isAuthenticated
-                  ? `${remainingUses}/10 Uses Today` // Updated for logged-in
-                  : `${remainingUses}/5 Free Uses Today`}{" "}
-                {/* Updated for non-logged-in */}
+                {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}{" "}
               </Badge>
-              {/* Star on GitHub Button - Large Screen */}
               <Button
                 variant="outline"
                 size="sm"
@@ -622,7 +608,6 @@ export default function HomePage() {
                 <Star className="w-4 h-4 mr-1 text-yellow-500" />
                 Star on GitHub
               </Button>
-              {/* Star on GitHub Button - Small Screen (icon only) */}
               <Button
                 variant="outline"
                 size="icon"
@@ -643,11 +628,9 @@ export default function HomePage() {
                 <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
               ) : (
                 <>
-                  {/* Sign In Button - Large Screen */}
                   <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden sm:flex">
                     Sign In
                   </Button>
-                  {/* Sign In Button - Small Screen (icon only) */}
                   <Button
                     onClick={() => setShowAuthModal(true)}
                     className="rounded-full shadow-sm sm:hidden"
@@ -661,7 +644,7 @@ export default function HomePage() {
           </div>
         </header>
 
-        {/* Main Content */}
+        {/* Main Content Area - takes up remaining space */}
         <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Input Section */}
@@ -684,7 +667,6 @@ export default function HomePage() {
                     />
                   </div>
 
-                  {/* New Live Demo URL Input */}
                   <div>
                     <label className="text-sm font-medium mb-2 block">Live Demo URL (Optional)</label>
                     <Input
@@ -793,7 +775,6 @@ export default function HomePage() {
                       </TabsList>
                       <TabsContent value="preview" className="mt-4">
                         <div className="prose dark:prose-invert max-w-none max-h-96 overflow-y-auto">
-                          {/* Use ReactMarkdown for proper rendering */}
                           <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                             {generatedReadme}
                           </ReactMarkdown>
@@ -822,16 +803,16 @@ export default function HomePage() {
             </motion.div>
           </div>
         </main>
-
-        {/* Footer */}
-        <Footer />
-
-        {/* Loading Animation Overlay */}
-        <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
-
-        {/* Auth Modal */}
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
       </motion.div>
+
+      {/* Footer - now outside the flex-grow content, but still within the flex-col container */}
+      <Footer />
+
+      {/* Loading Animation Overlay */}
+      <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
     </div>
   )
 }
