@@ -17,9 +17,8 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
       className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900"
     >
       <motion.div
-        initial={{ scale: 0, rotateY: 0 }} // Start with no scale and no Y-rotation
+        initial={{ rotateY: 0 }} // Start with no Y-rotation, no scale animation
         animate={{
-          scale: [0, 1], // Scale from 0 to its final size (no extra zoom)
           rotateY: [0, 360, 360], // Rotate 360 degrees around Y-axis for the first part, then hold
         }}
         transition={{
@@ -30,7 +29,8 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
         className="relative"
         onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes
       >
-        <Github className="w-20 h-20 md:w-24 md:h-24 text-yellow-500 drop-shadow-lg" /> {/* Smaller icon */}
+        <Github className="w-20 h-20 md:w-24 md:h-24 text-yellow-500 drop-shadow-lg" />{" "}
+        {/* Icon size remains constant */}
         <motion.div
           initial={{ opacity: 0, y: 20 }} // Start below and invisible
           animate={{ opacity: 1, y: 0 }} // Move up and fade in
