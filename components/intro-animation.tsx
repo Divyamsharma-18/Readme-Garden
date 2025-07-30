@@ -24,7 +24,7 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
         transition={{
           duration: 2, // Total duration for the icon's animation
           ease: "easeInOut",
-          times: [0, 0.75 / 2, 1], // Rotation completes at 0.75s (0.375 of 2s), then holds until 2s
+          times: [0, 1 / 2, 1], // Spin completes at 1 second (1/2 of 2s), then holds until 2s
         }}
         className="relative"
         onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes

@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   description:
     "Create stunning GitHub README files with AI-powered generation. Choose your vibe and let our garden grow the perfect documentation for your projects.",
   keywords: "README, GitHub, AI, documentation, generator, markdown",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -23,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false}>
           {children}
           <Toaster />
         </ThemeProvider>
