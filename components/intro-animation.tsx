@@ -19,12 +19,12 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
       <motion.div
         initial={{ rotateY: 0 }} // Start with no Y-rotation, no scale animation
         animate={{
-          rotateY: [0, 360, 360], // Rotate 360 degrees around Y-axis for the first part, then hold
+          rotateY: [0, 360, 360], // Rotate 360 degrees around Y-axis, then hold
         }}
         transition={{
-          duration: 2.5, // Total duration for the icon's animation
+          duration: 1.5, // Total duration for the icon's animation (matches text end time)
           ease: "easeInOut",
-          times: [0, 1 / 2.5, 1], // Rotation completes at 1s (1/2.5 of 2.5s), then holds until 2.5s
+          times: [0, 0.5 / 1.5, 1], // Rotation completes at 0.5s (0.5/1.5 = 1/3 of 1.5s), then holds until 1.5s
         }}
         className="relative"
         onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes
