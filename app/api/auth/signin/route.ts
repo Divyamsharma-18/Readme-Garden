@@ -1,5 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+// Add a simple in-memory user store (for demonstration purposes only)
+// In a real application, this would be a persistent database.
+const users = new Map()
+
+// Add a default demo user for easy testing
+if (!users.has("demo@example.com")) {
+  users.set("demo@example.com", {
+    id: "demo-user-id",
+    email: "demo@example.com",
+    name: "Demo User",
+    password: "demo123", // In a real app, this would be hashed
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
@@ -8,33 +22,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
-    // In a real app, you would:
-    // 1. Hash the password and compare with stored hash
-    // 2. Generate JWT token
-    // 3. Store session in database
-    // 4. Set secure HTTP-only cookies
+    const user = users.get(email)
 
-    // For demo purposes, we'll simulate authentication
-    if (email === "demo@example.com" && password === "demo123") {
+    if (!user) {
+      return NextResponse.json({ error: "Invalid credentials. User not found." }, { status: 401 })
+    }
+
+
+    if (user.password === password) {
+      // Simple password check for demo
       return NextResponse.json({
         success: true,
         user: {
-          id: "1",
-          email: email,
-          name: "Demo User",
+          id: user.id,
+          email: user.email,
+          name: user.name,
         },
       })
+    } else {
+      return NextResponse.json({ error: "Invalid credentials. Incorrect password." }, { status: 401 })
     }
-
-    // Simulate any valid email/password combination working
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: Math.random().toString(36).substr(2, 9),
-        email: email,
-        name: email.split("@")[0],
-      },
-    })
   } catch (error) {
     console.error("Sign in error:", error)
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
