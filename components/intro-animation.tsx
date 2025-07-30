@@ -19,12 +19,12 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
       <motion.div
         initial={{ rotateY: 0 }} // Start with no Y-rotation, no scale animation
         animate={{
-          rotateY: [0, 360, 360], // Rotate 360 degrees around Y-axis, then hold
+          rotateY: [0, 720, 720], // Two full 360-degree rotations around Y-axis, then hold
         }}
         transition={{
-          duration: 1.5, // Total duration for the icon's animation (matches text end time)
+          duration: 2, // Total duration for the icon's animation
           ease: "easeInOut",
-          times: [0, 0.5 / 1.5, 1], // Rotation completes at 0.5s (0.5/1.5 = 1/3 of 1.5s), then holds until 1.5s
+          times: [0, 0.75 / 2, 1], // Rotation completes at 0.75s (0.375 of 2s), then holds until 2s
         }}
         className="relative"
         onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes
@@ -35,8 +35,8 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
           initial={{ opacity: 0, y: 20 }} // Start below and invisible
           animate={{ opacity: 1, y: 0 }} // Move up and fade in
           transition={{
-            delay: 1.25, // Start at 1.25 seconds
-            duration: 0.25, // Finish by 1.5 seconds
+            delay: 1.75, // Start at 1.75 seconds
+            duration: 0.25, // Finish by 2 seconds
             ease: "easeOut",
           }}
           className="absolute inset-x-0 bottom-[-40px] flex items-center justify-center" // Position below the icon
