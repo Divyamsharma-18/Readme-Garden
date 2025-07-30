@@ -33,7 +33,7 @@ export default function UserProfile({ username, email, onLogout }: UserProfilePr
     })
   }
 
-  const firstInitial = username.charAt(0).toUpperCase()
+  const firstInitial = username && username.length > 0 ? username.charAt(0).toUpperCase() : "U"
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
