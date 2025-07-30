@@ -26,25 +26,31 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
-      // Simulate authentication
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const endpoint = type === "signin" ? "/api/auth/signin" : "/api/auth/signup"
+      const body = type === "signin" ? { email, password } : { email, password, name }
 
-      // Create user data
-      const userData = {
-        username: type === "signin" ? email.split("@")[0] : name,
-        email: email,
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Authentication failed.")
       }
 
       toast({
         title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
-        description: "You now have 5 README generations per day!",
+        description: "You now have 10 README generations per day!", // Updated description for logged-in users
       })
 
-      onSuccess(userData)
+      onSuccess(data.user)
     } catch (error) {
       toast({
         title: "Authentication Failed",
-        description: "Please check your credentials and try again.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -57,6 +63,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     console.log(
       `Simulating social login with ${provider}. For real authentication, integrate with Auth.js (NextAuth.js) or a similar OAuth solution.`,
     )
+
+    toast({
+      title: "Social Login Simulation",
+      description: "For real social login, integrate with Auth.js (NextAuth.js) or a similar OAuth solution.",
+      variant: "default", // Use a default variant for informational toast
+    })
+
     try {
       // Simulate social auth
       await new Promise((resolve) => setTimeout(resolve, 1000))

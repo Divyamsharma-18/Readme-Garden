@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+
+const users = new Map()
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password, name } = await request.json()
@@ -8,21 +11,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
     }
 
-    // In a real app, you would:
-    // 1. Validate email format and password strength
-    // 2. Check if user already exists
-    // 3. Hash the password
-    // 4. Store user in database
-    // 5. Generate JWT token
-    // 6. Set secure HTTP-only cookies
+    if (users.has(email)) {
+      return NextResponse.json({ error: "User with this email already exists." }, { status: 409 })
+    }
 
-    // For demo purposes, we'll simulate successful signup
+    // In a real app, you would hash the password before storing:
+    // const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = {
+      id: Math.random().toString(36).substr(2, 9),
+      email: email,
+      name: name,
+      password: password, // Storing plain password for demo, hash in real app
+    }
+    users.set(email, newUser)
+
     return NextResponse.json({
       success: true,
       user: {
-        id: Math.random().toString(36).substr(2, 9),
-        email: email,
-        name: name,
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
       },
     })
   } catch (error) {
