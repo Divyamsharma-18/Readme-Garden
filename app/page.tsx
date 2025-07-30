@@ -40,8 +40,9 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
-  const [usageCount, setUsageCount] = useState(0)
-  const [dailyUsageCount, setDailyUsageCount] = useState(0)
+  // Removed usageCount, replaced by unauthDailyUsageCount for daily tracking
+  const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0) // New state for unauthenticated daily usage
+  const [dailyUsageCount, setDailyUsageCount] = useState(0) // For authenticated users
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState({ username: "User", email: "user@example.com" })
@@ -53,15 +54,10 @@ export default function HomePage() {
 
   useEffect(() => {
     setMounted(true)
-    // Check usage count from localStorage
-    const count = localStorage.getItem("readme-usage-count")
     const authStatus = localStorage.getItem("readme-auth-status")
     const today = new Date().toDateString()
-    const lastUsageDate = localStorage.getItem("readme-last-usage-date")
-    const dailyCount = localStorage.getItem("readme-daily-usage-count")
     const savedUserData = localStorage.getItem("readme-user-data")
 
-    setUsageCount(count ? Number.parseInt(count) : 0)
     setIsAuthenticated(authStatus === "true")
 
     if (savedUserData) {
@@ -72,13 +68,26 @@ export default function HomePage() {
       }
     }
 
-    // Reset daily count if it's a new day
-    if (lastUsageDate !== today) {
+    // Handle daily reset for authenticated users
+    const lastAuthUsageDate = localStorage.getItem("readme-last-usage-date-auth")
+    const authDailyCount = localStorage.getItem("readme-daily-usage-count-auth")
+    if (lastAuthUsageDate !== today) {
       setDailyUsageCount(0)
-      localStorage.setItem("readme-daily-usage-count", "0")
-      localStorage.setItem("readme-last-usage-date", today)
+      localStorage.setItem("readme-daily-usage-count-auth", "0")
+      localStorage.setItem("readme-last-usage-date-auth", today)
     } else {
-      setDailyUsageCount(dailyCount ? Number.parseInt(dailyCount) : 0)
+      setDailyUsageCount(authDailyCount ? Number.parseInt(authDailyCount) : 0)
+    }
+
+    // Handle daily reset for unauthenticated users
+    const lastUnauthUsageDate = localStorage.getItem("readme-last-usage-date-unauth")
+    const unauthCount = localStorage.getItem("readme-daily-usage-count-unauth")
+    if (lastUnauthUsageDate !== today) {
+      setUnauthDailyUsageCount(0)
+      localStorage.setItem("readme-daily-usage-count-unauth", "0")
+      localStorage.setItem("readme-last-usage-date-unauth", today)
+    } else {
+      setUnauthDailyUsageCount(unauthCount ? Number.parseInt(unauthCount) : 0)
     }
 
     // The IntroAnimation component will call setShowIntroAnimation(false) when its animation completes.
@@ -87,9 +96,9 @@ export default function HomePage() {
 
   const getRemainingUses = () => {
     if (!isAuthenticated) {
-      return Math.max(0, 1 - usageCount)
+      return Math.max(0, 5 - unauthDailyUsageCount) // 5 daily uses for non-logged in
     } else {
-      return Math.max(0, 5 - dailyUsageCount)
+      return Math.max(0, 10 - dailyUsageCount) // 10 daily uses for logged in
     }
   }
 
@@ -112,7 +121,7 @@ export default function HomePage() {
       } else {
         toast({
           title: "Daily Limit Reached",
-          description: "You've used all 5 generations for today. Come back tomorrow!",
+          description: "You've used all 10 generations for today. Come back tomorrow!",
           variant: "destructive",
         })
         return
@@ -147,16 +156,18 @@ export default function HomePage() {
 
       setGeneratedReadme(data.readme)
 
-      // Update usage counts
+      // Update usage counts based on authentication status
+      const today = new Date().toDateString()
       if (!isAuthenticated) {
-        const newCount = usageCount + 1
-        setUsageCount(newCount)
-        localStorage.setItem("readme-usage-count", newCount.toString())
+        const newCount = unauthDailyUsageCount + 1
+        setUnauthDailyUsageCount(newCount)
+        localStorage.setItem("readme-daily-usage-count-unauth", newCount.toString())
+        localStorage.setItem("readme-last-usage-date-unauth", today)
       } else {
         const newDailyCount = dailyUsageCount + 1
         setDailyUsageCount(newDailyCount)
-        localStorage.setItem("readme-daily-usage-count", newDailyCount.toString())
-        localStorage.setItem("readme-last-usage-date", new Date().toDateString())
+        localStorage.setItem("readme-daily-usage-count-auth", newDailyCount.toString())
+        localStorage.setItem("readme-last-usage-date-auth", today)
       }
 
       toast({
@@ -254,10 +265,10 @@ export default function HomePage() {
     localStorage.setItem("readme-auth-status", "true")
     localStorage.setItem("readme-user-data", JSON.stringify(userData))
     setShowAuthModal(false)
-    // Reset daily usage for new user
+    // Reset daily usage for new user upon login
     setDailyUsageCount(0)
-    localStorage.setItem("readme-daily-usage-count", "0")
-    localStorage.setItem("readme-last-usage-date", new Date().toDateString())
+    localStorage.setItem("readme-daily-usage-count-auth", "0")
+    localStorage.setItem("readme-last-usage-date-auth", new Date().toDateString())
   }
 
   const handleLogout = () => {
@@ -596,8 +607,9 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <Badge variant="secondary" className="px-3 py-1 shadow-sm hidden sm:flex">
                 {isAuthenticated
-                  ? `${remainingUses}/5 Uses Today`
-                  : `${remainingUses} Free Use${remainingUses !== 1 ? "s" : ""} Left`}
+                  ? `${remainingUses}/10 Uses Today` // Updated for logged-in
+                  : `${remainingUses}/5 Free Uses Today`}{" "}
+                {/* Updated for non-logged-in */}
               </Badge>
               {/* Star on GitHub Button - Large Screen */}
               <Button
