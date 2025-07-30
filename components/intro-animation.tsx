@@ -17,10 +17,10 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
       className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900"
     >
       <motion.div
-        initial={{ scale: 0, rotate: 0 }}
+        initial={{ scale: 0, rotateY: 0 }} // Changed rotate to rotateY
         animate={{
           scale: [0, 1, 1.2], // Scale from 0 to 1 (normal size), then to 1.2 (zoom in)
-          rotate: [0, 360, 360], // Rotate 360 degrees, then hold
+          rotateY: [0, 360, 360], // Rotate 360 degrees around Y-axis, then hold
         }}
         transition={{
           duration: 1.5, // Total duration for icon animation
@@ -35,8 +35,8 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
           initial={{ opacity: 0, y: 20 }} // Start below and invisible
           animate={{ opacity: 1, y: 0 }} // Move up and fade in
           transition={{
-            delay: 1.25, // Start at 1.25 seconds
-            duration: 0.25, // Finish by 1.5 seconds
+            delay: 1.25, 
+            duration: 0.25, 
             ease: "easeOut",
           }}
           className="absolute inset-x-0 bottom-[-40px] flex items-center justify-center" // Position below the icon
