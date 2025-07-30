@@ -81,12 +81,8 @@ export default function HomePage() {
       setDailyUsageCount(dailyCount ? Number.parseInt(dailyCount) : 0)
     }
 
-    // Hide intro animation after a delay
-    const timer = setTimeout(() => {
-      setShowIntroAnimation(false)
-    }, 3000) // Total animation duration (1.5s scale/rotate + 0.5s fade-out + 1s buffer)
-
-    return () => clearTimeout(timer)
+    // The IntroAnimation component will call setShowIntroAnimation(false) when its animation completes.
+    // No need for a setTimeout here.
   }, [])
 
   const getRemainingUses = () => {
@@ -292,7 +288,7 @@ export default function HomePage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showIntroAnimation ? 0 : 1 }}
-        transition={{ delay: showIntroAnimation ? 3 : 0, duration: 0.5 }}
+        transition={{ delay: showIntroAnimation ? 1.75 : 0, duration: 0.5 }} // Delay for 1.5s (animation duration) + 0.25s buffer before fading in main content
         className={showIntroAnimation ? "pointer-events-none" : ""}
       >
         {/* Dynamic Background */}
