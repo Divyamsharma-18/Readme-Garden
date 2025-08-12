@@ -192,16 +192,20 @@ export default function HomePage() {
     setIsRewriting(true)
 
     try {
-      toast({
-        title: "Rewriting README...",
-        description: "Creating a fresh version with the same vibe.",
-      })
+      console.log("Rewriting README with vibe:", selectedVibe) // Add logging
 
       const response = await fetch("/api/rewrite-readme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: generatedReadme, vibe: selectedVibe, repoUrl }),
+        body: JSON.stringify({
+          content: generatedReadme,
+          vibe: selectedVibe,
+          repoUrl,
+          projectPurpose,
+        }),
       })
+
+      console.log("Rewrite response status:", response.status) // Add logging
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -210,7 +214,13 @@ export default function HomePage() {
       }
 
       const data = await response.json()
+      console.log("Rewritten README length:", data.rewrittenReadme?.length) // Add logging
 
+      if (!data.rewrittenReadme) {
+        throw new Error("No rewritten content received")
+      }
+
+      // Completely replace the content
       setGeneratedReadme(data.rewrittenReadme)
 
       toast({
@@ -225,6 +235,7 @@ export default function HomePage() {
         variant: "destructive",
       })
     } finally {
+      // Ensure isRewriting is always reset
       setIsRewriting(false)
     }
   }
