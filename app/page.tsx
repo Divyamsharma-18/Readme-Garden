@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, Star, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,6 +41,7 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
+  const [rewriteCount, setRewriteCount] = useState(0) // Add counter to track rewrites
   const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0)
   const [dailyUsageCount, setDailyUsageCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -123,6 +124,7 @@ export default function HomePage() {
     }
 
     setIsGenerating(true)
+    setRewriteCount(0) // Reset rewrite counter when generating new README
 
     try {
       console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe, "live demo:", liveDemoUrl)
@@ -179,7 +181,7 @@ export default function HomePage() {
     }
   }
 
-  const handleRewrite = async () => {
+  const handleRewrite = useCallback(async () => {
     if (!generatedReadme || !selectedVibe) {
       toast({
         title: "Nothing to Rewrite",
@@ -189,23 +191,39 @@ export default function HomePage() {
       return
     }
 
+    // Prevent multiple simultaneous rewrite requests
+    if (isRewriting) {
+      console.log("Rewrite already in progress, ignoring request")
+      return
+    }
+
     setIsRewriting(true)
+    const currentRewriteCount = rewriteCount + 1
+    setRewriteCount(currentRewriteCount)
 
     try {
-      console.log("Rewriting README with vibe:", selectedVibe) // Add logging
+      console.log(`Starting rewrite #${currentRewriteCount} with vibe:`, selectedVibe)
+
+      const requestBody = {
+        content: generatedReadme,
+        vibe: selectedVibe,
+        repoUrl,
+        projectPurpose,
+        rewriteCount: currentRewriteCount, // Add this to make each request unique
+      }
+
+      console.log("Rewrite request body:", requestBody)
 
       const response = await fetch("/api/rewrite-readme", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: generatedReadme,
-          vibe: selectedVibe,
-          repoUrl,
-          projectPurpose,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache", // Prevent caching
+        },
+        body: JSON.stringify(requestBody),
       })
 
-      console.log("Rewrite response status:", response.status) // Add logging
+      console.log("Rewrite response status:", response.status)
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -214,31 +232,38 @@ export default function HomePage() {
       }
 
       const data = await response.json()
-      console.log("Rewritten README length:", data.rewrittenReadme?.length) // Add logging
+      console.log("Rewritten README length:", data.rewrittenReadme?.length)
 
       if (!data.rewrittenReadme) {
         throw new Error("No rewritten content received")
       }
 
-      // Completely replace the content
+      // Force a state update by adding a small delay
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       setGeneratedReadme(data.rewrittenReadme)
 
       toast({
-        title: "README Rewritten! ✨",
+        title: `README Rewritten! ✨ (${currentRewriteCount})`,
         description: "Your README has been completely refreshed!",
       })
+
+      console.log(`Rewrite #${currentRewriteCount} completed successfully`)
     } catch (error) {
-      console.error("Rewrite error:", error)
+      console.error(`Rewrite #${currentRewriteCount} error:`, error)
       toast({
         title: "Rewrite Failed",
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
-      // Ensure isRewriting is always reset
-      setIsRewriting(false)
+      // Add a small delay before resetting the loading state
+      setTimeout(() => {
+        setIsRewriting(false)
+        console.log(`Rewrite #${currentRewriteCount} finished, button should be enabled again`)
+      }, 200)
     }
-  }
+  }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedReadme)
@@ -748,10 +773,11 @@ export default function HomePage() {
               <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Your README</CardTitle>
+                    <CardTitle>Your README {rewriteCount > 0 && `(v${rewriteCount + 1})`}</CardTitle>
                     {generatedReadme && (
                       <div className="flex space-x-2">
                         <Button
+                          key={`rewrite-${rewriteCount}`} // Add unique key to force re-render
                           variant="outline"
                           size="sm"
                           onClick={handleRewrite}
