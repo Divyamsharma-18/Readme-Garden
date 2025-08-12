@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai"
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, vibe, repoUrl, projectPurpose } = await request.json() // Receive projectPurpose here
+    const { content, vibe, repoUrl, projectPurpose } = await request.json()
 
     if (!content || !vibe) {
       return NextResponse.json({ error: "Content and vibe are required" }, { status: 400 })
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
 
       // Enhanced fallback rewrite that actually changes the content
-      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl, projectPurpose) // Pass repoUrl to fallback
+      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl, projectPurpose)
     }
 
     return NextResponse.json({ rewrittenReadme })
@@ -82,7 +82,7 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
     if (firstParagraphMatch && firstParagraphMatch[1]) {
       briefTagline = firstParagraphMatch[1].trim()
     } else {
-      briefTagline = "A simple, efficient solution designed for clarity and directness."
+      briefTagline = "A powerful solution designed for modern development workflows."
     }
   }
 
@@ -91,49 +91,30 @@ function enhancedFallbackRewrite(originalContent: string, vibe: string, repoUrl?
   if (briefTagline.length > 0) {
     switch (vibe) {
       case "professional":
-        compellingDescription = `Unlock the full potential of your workflow with this robust solution. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This cutting-edge solution")}.`
+        compellingDescription = `Unlock enterprise-grade capabilities with this robust solution. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This cutting-edge platform")}.`
         break
       case "friendly":
-        compellingDescription = `Get ready to simplify your life and boost your productivity! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This friendly tool")}.`
+        compellingDescription = `Ready to supercharge your workflow? You're in the right place! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This amazing tool")}.`
         break
       case "humorous":
-        compellingDescription = `Tired of the same old problems? This project is here to save the day (and maybe make you chuckle)! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This hilarious yet powerful tool")}.`
+        compellingDescription = `Tired of wrestling with complicated tools? This project is here to save your sanity! ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This delightfully clever solution")}.`
         break
       case "creative":
-        compellingDescription = `Dive into a world where innovation meets artistry. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This visionary creation")}.`
+        compellingDescription = `Step into a realm where functionality meets artistry. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This masterfully crafted experience")}.`
         break
       case "minimal":
-        compellingDescription = `Achieve more with less. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This streamlined solution")}.`
+        compellingDescription = `Simple. Effective. Powerful. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This streamlined tool")}.`
         break
       case "detailed":
-        compellingDescription = `Explore the depths of comprehensive functionality. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This meticulously crafted system")}.`
+        compellingDescription = `Discover comprehensive functionality designed for professional excellence. ${briefTagline.replace(/^(A|This) (project|tool|solution)/i, "This extensively engineered system")}.`
         break
       default:
-        compellingDescription = `Discover the power of this innovative project. ${briefTagline}.`
+        compellingDescription = `Transform your development experience with this innovative solution. ${briefTagline}.`
     }
   } else {
     compellingDescription =
-      "This project is designed to empower your development journey, offering innovative solutions and seamless integration."
+      "This project represents the next evolution in development tools, offering unparalleled functionality and user experience."
   }
-
-  // Attempt to extract primary language from original content
-  let primaryLanguage = "JavaScript" // Default
-  const primaryLanguageMatch = originalContent.match(/Primary Language:\s*(.*?)\n/)
-  if (primaryLanguageMatch && primaryLanguageMatch[1]) {
-    primaryLanguage = primaryLanguageMatch[1].trim()
-  }
-
-  // Attempt to extract a live demo URL if present in the original content
-  const liveDemoMatch = originalContent.match(/\[.*? Live\]$$(https?:\/\/[^\s]+)$$/)
-  const liveDemoUrl = liveDemoMatch ? liveDemoMatch[1] : undefined
-
-  const liveDemoSection = liveDemoUrl
-    ? `
-## Live Demo 🚀
-
-Experience the project live here: [${projectName} Live](${liveDemoUrl})
-`
-    : ""
 
   // Determine the clone URL for fallback
   let cloneUrl = "<repository-url>" // Default placeholder
@@ -152,30 +133,33 @@ Experience the project live here: [${projectName} Live](${liveDemoUrl})
 
 ${compellingDescription}
 
+## Executive Summary
+
+This enterprise-grade solution delivers exceptional performance and reliability for mission-critical applications.
+
 ## Technical Specifications
 
-- **Primary Technology**: ${primaryLanguage}
-- **Architecture**: Modern, scalable design ensuring high performance and maintainability.
-- **Implementation**: Industry-standard practices for secure and efficient operation.
-- **Compatibility**: Engineered for cross-platform support, ensuring broad applicability.
-${liveDemoSection}
-## Installation Procedures
+- **Architecture**: Scalable, production-ready infrastructure
+- **Performance**: Optimized for high-throughput environments  
+- **Security**: Enterprise-level security protocols
+- **Compatibility**: Cross-platform deployment support
 
-To set up the project, follow these steps:
+## Installation Procedures
 
 \`\`\`bash
 git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 npm install --production
+npm run build
 \`\`\`
 
 ## Implementation Guidelines
 
-For detailed implementation procedures and integration instructions, please refer to the comprehensive technical documentation provided within the repository.
+Follow our comprehensive documentation for seamless integration into your existing infrastructure.
 
-## Corporate Contribution Standards
+## Corporate Standards
 
-All contributions must adhere to established coding standards, undergo rigorous testing, and pass a thorough code review process to maintain project integrity and quality.
+All contributions must adhere to established coding standards and undergo rigorous quality assurance processes.
 
 ---
 
@@ -183,141 +167,130 @@ All contributions must adhere to established coding standards, undergo rigorous 
 
     friendly: `# Welcome to ${projectName}! 👋
 
-${compellingDescription} We hope you'll find it useful!
+${compellingDescription}
+
+Hey there, developer friend! We're absolutely thrilled you've discovered our project. We've poured our hearts into creating something that we hope will make your coding journey a little brighter! ✨
+
+## What Makes This Special? 🌟
+
+- **User-Friendly**: We've designed everything with you in mind
+- **Community-Driven**: Built by developers, for developers
+- **Always Improving**: We're constantly adding new features based on your feedback
+- **Supportive**: Our community is here to help you succeed
 
 ## Getting Started (It's Super Easy!) 🚀
 
-Ready to dive in? Here's how to get our project up and running on your machine:
+Don't worry if you're new to this - we've got your back every step of the way!
 
 \`\`\`bash
-# First, let's get the code onto your computer
+# Let's get you set up in no time!
 git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
-# Now, install all the necessary bits and bobs (grab a coffee while this runs!)
+# Install all the good stuff
 npm install
+
+# You're ready to go! 🎉
+npm start
 \`\`\`
 
-Don't worry if you're new to this - we've all been there! If you get stuck, just ask!
+## Need Help? We're Here! 🤗
 
-## How to Use It 🤝
+Our friendly community is always ready to lend a helping hand. Don't hesitate to reach out!
 
-We've made this as simple as possible. Just follow along with our examples, and you'll be up and running in no time!
+## Want to Contribute? We'd Love That! 💝
 
-## Want to Help Out? We'd Love That! 💝
+Every contribution, big or small, makes our project better. Join our amazing community of contributors!
 
-We're always excited to welcome new contributors! Here's how you can join our friendly community:
-
-1. Fork this repo (you've got this!)
-2. Create your feature branch
-3. Make your awesome changes
-4. Share it with us via a pull request
-
-Don't be shy - we're here to help if you get stuck! 
-
-## Questions? We're Here for You! 🤗
-
-Feel free to reach out anytime - we love hearing from our users!
-
-Made with ❤️ by our amazing community`,
+Made with lots of ❤️ and ☕ by our incredible community`,
 
     humorous: `# ${projectName} 🎭
 
-*Because boring code is so last century and we like a little pizzazz!* 😎
+*Because life's too short for boring code!*
 
 ${compellingDescription}
 
-## Installation (AKA "The Ancient Ritual") 🧙‍♂️
+## What's This Magical Contraption? 🪄
 
-Prepare yourself, for the ancient texts (and a few commands) await!
+Think of this as your coding sidekick - the Robin to your Batman, the Watson to your Sherlock, the... well, you get the idea!
+
+## Installation (The Ancient Ritual) 🧙‍♂️
 
 \`\`\`bash
 # Step 1: Summon the code from the digital realm
 git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
-# Step 2: Feed the hungry dependencies (they're very particular about their snacks)
+# Step 2: Feed the dependency monsters
 npm install
+
+# Step 3: Cross your fingers and hope for the best
+npm start
 \`\`\`
 
-⚠️ **Warning**: Side effects may include uncontrollable productivity and spontaneous "aha!" moments. Proceed with caution (or don't, we're not your boss).
+⚠️ **Warning**: Side effects may include increased productivity, spontaneous "aha!" moments, and an irresistible urge to show off your code to everyone.
 
-## Usage (The Fun Part!) 🎪
+## Features That'll Knock Your Socks Off 🧦
 
-Using this is easier than explaining why we have so many JavaScript frameworks. Just point, click, and let the magic happen!
+- **It Actually Works**: Revolutionary, we know
+- **User-Friendly**: Even your cat could use it (results may vary)
+- **Bug-Free**: *cough* mostly *cough*
+- **Fast**: Faster than your last relationship ended
 
-## Contributing (Join Our Circus!) 🎪
+## Contributing (Join the Circus!) 🎪
 
-Want to add your own brand of glorious chaos? We love chaos! The more, the merrier!
-
-1. Fork it (like a road, but for code, and less confusing)
-2. Branch it (like a tree, but digital, and hopefully less prone to squirrels)
-3. Code it (like a boss, or at least someone who knows what they're doing)
-4. Push it (real good)
-5. PR it (and we'll probably love it, unless it breaks everything, then we'll still love you, but maybe less the code)
-
-## Bugs? What Bugs? 🐛
-
-They're not bugs, they're *undocumented features* that add character. But if you find any "features" that seem a *little* too creative, let us know! We're always up for a good laugh (and a fix).
+Got ideas? We love ideas! Got bugs? We... well, we call those "undocumented features."
 
 ---
 
-*Disclaimer: No developers were harmed in the making of this README. Side effects may include uncontrollable coding, dad jokes, and a sudden urge to optimize everything. Results may vary. Void where prohibited by law or common sense.*`,
+*No developers were harmed in the making of this README. Your mileage may vary. Void where prohibited.*`,
 
     creative: `# ✨ ${projectName} ✨
-*Where Code Meets Art, and Dreams Take Flight*
+*Where Innovation Dances with Imagination*
 
 ${compellingDescription}
 
-## 🌟 The Vision Unfolds
+## 🎨 The Vision Unfolds
 
-Crafted with meticulous care, this project represents the vibrant intersection of:
-- 💡 **Innovation**: Pushing the boundaries of what's possible.
-- 🎯 **Purpose**: Designed with a clear mission to inspire and empower.
-- 🚀 **Excellence**: Built with a commitment to quality and performance.
-- 🌈 **Creativity**: Infused with unique flair and artistic expression.
+In the tapestry of digital creation, this project stands as a beacon of artistic expression merged with technical excellence.
 
-## 🎭 Installation Symphony
+### 🌟 Core Essence
+- **🎭 Expressive**: Every line of code tells a story
+- **🌈 Vibrant**: Bringing color to the monochrome world of development
+- **🚀 Transcendent**: Beyond mere functionality lies true artistry
+- **💫 Inspiring**: Igniting creativity in every interaction
 
-Prepare to embark on a journey of creation. The installation is but the first movement of our grand symphony:
+## 🎼 Installation Symphony
 
 \`\`\`bash
-# 🎼 First Movement: The Acquisition of the Sacred Texts
+# 🎵 First Movement: The Awakening
 git clone ${cloneUrl}
 cd ${projectName.toLowerCase()}
 
-# 🎵 Second Movement: The Preparation of the Canvas and Tools
+# 🎶 Second Movement: The Preparation
 npm install
+
+# 🎺 Finale: The Grand Performance
+npm start
 \`\`\`
 
-## 🎪 The Performance Begins
+## 🎪 The Creative Process
 
-Witness as your ideas transform into breathtaking reality through the magic of code. Each interaction is a brushstroke, each function a note in a harmonious composition.
+Watch as your ideas transform into digital masterpieces through the alchemy of code and creativity.
 
-## 🤝 Join the Creative Collective
+## 🤝 Join Our Creative Collective
 
-We invite you to become part of our artistic journey. Your unique perspective is a valuable addition to our collective masterpiece:
-
-🎯 **Fork** → Create your own interpretation, a new branch on the tree of ideas.
-🌱 **Branch** → Nurture your ideas, letting them grow and flourish.
-🎨 **Create** → Express your vision, paint your unique contribution.
-🚀 **Share** → Inspire others, let your creativity ignite new sparks.
-
-## 🌈 Connect With Us
-
-We believe in the profound power of creative collaboration. Reach out and let's create something truly beautiful and impactful together!
+Become part of our artistic journey. Together, we paint the future with pixels and possibilities.
 
 ---
 
-*"Code is poetry written in logic, and logic is the brush of the digital artist."* - The ${projectName} Collective`,
+*"In every line of code lies infinite possibility"* - The ${projectName} Collective`,
 
     minimal: `# ${projectName}
 
 ${compellingDescription}
-${liveDemoSection}
-## Install
 
-To get started, clone the repository and install dependencies:
+## Install
 
 \`\`\`bash
 git clone ${cloneUrl}
@@ -327,99 +300,96 @@ npm install
 
 ## Use
 
-Refer to the concise documentation for usage examples.
+\`\`\`bash
+npm start
+\`\`\`
 
 ## Contribute
 
-Contributions are welcome. Follow these steps:
 1. Fork
-2. Branch
+2. Branch  
 3. Code
 4. PR
 
 ## License
 
-This project is released under the ${originalContent.includes("License") ? originalContent.split("## License")[1]?.split("\n")[1]?.trim() : "MIT"} License.`,
+MIT`,
 
     detailed: `# ${projectName} - Comprehensive Documentation 📚
 
-## Table of Contents 📋
+## Table of Contents
 1. [Overview](#overview)
 2. [Features](#features)
 3. [Installation](#installation)
 4. [Configuration](#configuration)
-5. [Usage Examples](#usage-examples)
+5. [Usage](#usage)
 6. [API Reference](#api-reference)
 7. [Contributing](#contributing)
 8. [Testing](#testing)
 9. [Troubleshooting](#troubleshooting)
 10. [License](#license)
-${liveDemoUrl ? "11. [Live Demonstration](#live-demonstration)" : ""}
 
 ## Overview 🔍
 
 ${compellingDescription}
 
-### Technical Details
-- **Primary Language**: ${primaryLanguage}
-- **Architecture**: Modular design pattern
-- **Compatibility**: Cross-platform support
-- **Performance**: Optimized for production use
-${liveDemoSection}
+### Technical Architecture
+- **Design Pattern**: Modular, scalable architecture
+- **Performance**: Optimized for high-throughput scenarios
+- **Security**: Enterprise-grade security implementations
+- **Compatibility**: Multi-platform support
+
 ## Features 🌟
 
 ### Core Functionality
-- **Primary feature implementation with comprehensive error handling.**
-- **Robust secondary feature support, enhancing overall utility.**
-- **Advanced configuration options for granular control.**
-- **Integrated error handling and data validation mechanisms.**
-- **Performance optimization techniques applied throughout the codebase.**
+- ✅ Primary feature implementation with comprehensive error handling
+- ✅ Advanced configuration options for granular control
+- ✅ Integrated logging and monitoring capabilities
+- ✅ Performance optimization techniques
+- ✅ Comprehensive test coverage
 
 ### Advanced Capabilities
-- **Extensible plugin system, allowing for custom module integration.**
-- **Built-in analytics and logging for operational insights.**
-- **Comprehensive security protocols, including authentication and authorization.**
-- **Mobile-responsive design, ensuring optimal user experience on all devices.**
-- **Internationalization support for global deployment.**
+- 🔧 Extensible plugin architecture
+- 📊 Built-in analytics and reporting
+- 🔒 Advanced security protocols
+- 📱 Responsive design principles
+- 🌐 Internationalization support
 
 ## Installation 📦
 
 ### Prerequisites
-Before proceeding with the installation, ensure the following software is installed on your system:
-- Node.js (version 14.0.0 or higher recommended)
-- npm (Node Package Manager, version 6.0.0 or higher)
+- Node.js (v16.0.0 or higher)
+- npm (v8.0.0 or higher)
 - Git version control system
 
-### Step-by-Step Installation Process
+### Step-by-Step Installation
 
-1. **Clone the Repository**
-   Initiate the process by cloning the project repository from GitHub:
+1. **Repository Cloning**
    \`\`\`bash
    git clone ${cloneUrl}
    cd ${projectName.toLowerCase()}
    \`\`\`
 
 2. **Dependency Management**
-   Install all required project dependencies using npm:
    \`\`\`bash
    npm install
+   npm audit fix
    \`\`\`
 
-3. **Environment Setup**
+3. **Environment Configuration**
    \`\`\`bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Configure environment variables as needed
    \`\`\`
 
-4. **Project Build**
+4. **Build Process**
    \`\`\`bash
    npm run build
    \`\`\`
 
-## Configuration Parameters ⚙️
+## Configuration ⚙️
 
 ### Basic Configuration
-A typical basic configuration might look like this:
 \`\`\`json
 {
   "name": "${projectName}",
@@ -429,114 +399,74 @@ A typical basic configuration might look like this:
 \`\`\`
 
 ### Advanced Options
-- **Database Configuration**: Detailed parameters for connecting to various database systems.
-- **API Endpoint Settings**: Customization options for external API integrations.
-- **Security Parameters**: Fine-tuning of authentication, authorization, and encryption settings.
-- **Performance Tuning**: Parameters for optimizing application speed and resource usage.
+- Database configuration parameters
+- API endpoint customization
+- Security protocol settings
+- Performance optimization flags
 
 ## Usage Examples 💡
 
 ### Basic Implementation
-A fundamental example demonstrating the core functionality:
 \`\`\`javascript
-const ${projectName} = require('./${projectName}') // Adjust path as necessary
+const ${projectName} = require('./${projectName}')
 
-// Initialize the module with default settings
-const instance = new ${projectName}()
+const instance = new ${projectName}({
+  option1: 'value1',
+  option2: 'value2'
+})
 
-// Execute the primary function and log the result
 const result = instance.execute()
-console.log('Operation Result:', result)
+console.log('Result:', result)
 \`\`\`
 
 ### Advanced Usage
-Illustrative examples for more complex scenarios, including asynchronous operations:
 \`\`\`javascript
-// Define custom configuration for the instance
-const config = {
-  option1: 'value1',
-  option2: 'value2'
-}
-
-const instance = new ${projectName}(config)
-
-// Asynchronous operation example
 async function advancedExample() {
   try {
-    const processedData = await instance.processAsync()
-    console.log('Processed Data:', processedData)
-    return processedData
+    const result = await instance.processAsync({
+      data: inputData,
+      options: advancedOptions
+    })
+    return result
   } catch (error) {
-    console.error('An error occurred during advanced processing:', error)
+    console.error('Processing error:', error)
   }
 }
-
-advancedExample()
 \`\`\`
 
-## Contributing Guidelines 🤝
-
-We highly value community contributions! Please review our comprehensive contributing guidelines before submitting any changes.
+## Contributing 🤝
 
 ### Development Workflow
-1. Fork the repository: Create a personal fork of the project.
-2. Create a feature branch: Branch off from \`main\` for new features or bug fixes.
-3. Implement changes with tests: Ensure all new code is thoroughly tested.
-4. Submit a pull request: Provide a detailed description of your changes.
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes with comprehensive tests
+4. Submit a detailed pull request
 
-### Code Standards
-- Adhere strictly to ESLint and Prettier configurations.
-- Maintain comprehensive test coverage for all new and modified features.
-- Update relevant documentation to reflect changes.
-- Utilize conventional commits for clear commit history.
+### Code Quality Standards
+- Maintain 100% test coverage
+- Follow established coding conventions
+- Update documentation for all changes
+- Use conventional commit messages
 
-## Testing Procedures 🧪
+## Testing 🧪
 
-### Running Tests
-Execute the following commands to run the various test suites:
+### Test Execution
 \`\`\`bash
-# Run all unit tests
-npm test
-
-# Execute integration tests
-npm run test:integration
-
-# Generate a detailed test coverage report
-npm run test:coverage
+npm test                    # Unit tests
+npm run test:integration    # Integration tests
+npm run test:coverage       # Coverage report
 \`\`\`
-
-### Test Structure
-- **Unit Tests**: Located in the \`/tests/unit\` directory, focusing on individual functions.
-- **Integration Tests**: Found in \`/tests/integration\`, verifying interactions between components.
-- **End-to-End Tests**: Reside in \`/tests/e2e\`, simulating full user workflows.
 
 ## Troubleshooting 🔧
 
 ### Common Issues
-
-**Issue 1: Installation fails with dependency errors**
-- **Solution**: Verify your Node.js and npm versions against the prerequisites. Try clearing your npm cache (\`npm cache clean --force\`) and reinstalling dependencies.
-
-**Issue 2: Build errors after cloning**
-- **Solution**: Ensure all dependencies are installed (\`npm install\`). Check for missing environment variables.
-
-**Issue 3: Runtime errors during execution**
-- **Solution**: Review console logs for specific error messages. Verify environment configuration and data inputs.
-
-### Getting Help
-- Consult the project's FAQ section for common questions.
-- Search existing issues on the GitHub repository for similar problems.
-- If your issue persists, create a new issue with detailed information and steps to reproduce.
-
-## License Information 📄
-
-This project is licensed under the ${originalContent.includes("License") ? originalContent.split("## License")[1]?.split("\n")[1]?.trim() : "MIT License"}. A copy of the license is included in the repository.
+- Installation failures: Check Node.js version compatibility
+- Build errors: Verify environment configuration
+- Runtime issues: Review log files for detailed error information
 
 ---
 
-**Comprehensive documentation maintained by the ${projectName} Development Team**  
-**Last Updated**: ${new Date().toLocaleDateString()}  
-**Version**: 1.0.0`,
+**Comprehensive documentation maintained by the ${projectName} development team**`,
   }
 
   return vibeRewrites[vibe as keyof typeof vibeRewrites] || vibeRewrites.professional
