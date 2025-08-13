@@ -1,54 +1,61 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Github } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Github, Sparkles } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface IntroAnimationProps {
   onAnimationComplete: () => void
 }
 
 export default function IntroAnimation({ onAnimationComplete }: IntroAnimationProps) {
+  const [showText, setShowText] = useState(false)
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => setShowText(true), 500) // Show text after 0.5s
+    const timer2 = setTimeout(() => onAnimationComplete(), 2000) // Complete animation after 2s
+
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+    }
+  }, [onAnimationComplete])
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }} // Overall fade-in/out of the overlay
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900"
-    >
+    <AnimatePresence>
       <motion.div
-        initial={{ rotateY: 0 }} // Start with no Y-rotation, no scale animation
-        animate={{
-          rotateY: [0, 720, 720], // Two full 360-degree rotations around Y-axis, then hold
-        }}
-        transition={{
-          duration: 2, // Total duration for the icon's animation
-          ease: "easeInOut",
-          times: [0, 1 / 2, 1], // Spin completes at 1 second (1/2 of 2s), then holds until 2s
-        }}
-        className="relative"
-        onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes
+        initial={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5, delay: 1.5 }}
+        className="fixed inset-0 bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center z-[100]"
       >
-        <Github className="w-20 h-20 md:w-24 md:h-24 text-yellow-500 drop-shadow-lg" />{" "}
-        {/* Icon size remains constant */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }} // Start below and invisible
-          animate={{ opacity: 1, y: 0 }} // Move up and fade in
-          transition={{
-            delay: 1.75, // Start at 1.75 seconds
-            duration: 0.25, // Finish by 2 seconds
-            ease: "easeOut",
-          }}
-          className="absolute inset-x-0 bottom-[-40px] flex items-center justify-center" // Position below the icon
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex flex-col items-center"
         >
-          <motion.span
-            className="text-2xl md:text-3xl font-bold text-white text-shadow-md"
-            style={{ textShadow: "0px 0px 8px rgba(0,0,0,0.5)" }}
-          >
-            README Garden
-          </motion.span>
+          <div className="p-4 bg-white/20 rounded-3xl shadow-lg backdrop-blur-sm">
+            <Github className="w-24 h-24 text-white" />
+          </div>
+          <AnimatePresence>
+            {showText && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-8 text-center"
+              >
+                <h1 className="text-5xl font-extrabold text-white drop-shadow-lg flex items-center justify-center">
+                  README Garden <Sparkles className="w-10 h-10 ml-3 text-yellow-300" />
+                </h1>
+                <p className="text-xl text-white/90 mt-2">Grow beautiful READMEs with AI magic</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </AnimatePresence>
   )
 }
