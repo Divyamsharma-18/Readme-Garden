@@ -19,9 +19,10 @@ interface UserProfileProps {
   username: string
   email: string
   onLogout: () => void
+  onOpenAuthModal: () => void // New prop for opening auth modal
 }
 
-export default function UserProfile({ username, email, onLogout }: UserProfileProps) {
+export default function UserProfile({ username, email, onLogout, onOpenAuthModal }: UserProfileProps) {
   const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -30,6 +31,15 @@ export default function UserProfile({ username, email, onLogout }: UserProfilePr
     toast({
       title: "Logged out successfully",
       description: "See you next time!",
+    })
+  }
+
+  const handleMyProfileClick = () => {
+    onOpenAuthModal() // Call the function to open the auth modal
+    toast({
+      title: "Profile Management",
+      description: "For account management or switching users, please use the sign-in/sign-up modal.",
+      variant: "default",
     })
   }
 
@@ -56,7 +66,7 @@ export default function UserProfile({ username, email, onLogout }: UserProfilePr
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer" onClick={handleMyProfileClick}>
             <User className="mr-2 h-4 w-4" />
             <span>My Profile</span>
           </DropdownMenuItem>

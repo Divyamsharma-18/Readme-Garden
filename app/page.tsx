@@ -661,7 +661,12 @@ export default function HomePage() {
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
               {isAuthenticated ? (
-                <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
+                <UserProfile
+                  username={userData.username}
+                  email={userData.email}
+                  onLogout={handleLogout}
+                  onOpenAuthModal={() => setShowAuthModal(true)}
+                />
               ) : (
                 <>
                   <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden sm:flex">
@@ -846,7 +851,11 @@ export default function HomePage() {
       <Footer />
 
       {/* Loading Animation Overlay */}
-      <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
+      <AnimatePresence>
+        {(isGenerating || isRewriting) && (
+          <LoadingAnimation isLoading={isGenerating || isRewriting} onAnimationComplete={() => {}} />
+        )}
+      </AnimatePresence>
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
