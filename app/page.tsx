@@ -18,6 +18,8 @@ import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 import IntroAnimation from "@/components/intro-animation"
 import Footer from "@/components/footer"
+import { generateReadme } from "./api/generate-readme/route"
+import { rewriteReadme } from "./api/rewrite-readme/route"
 
 // Markdown rendering imports
 import ReactMarkdown from "react-markdown"
@@ -37,7 +39,7 @@ export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
   const [liveDemoUrl, setLiveDemoUrl] = useState("")
   const [projectPurpose, setProjectPurpose] = useState("")
-  const [selectedVibe, setSelectedVibe] = useState("")
+  const [selectedVibe, setSelectedVibe] = useState("professional")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
@@ -50,6 +52,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("preview")
   const [mounted, setMounted] = useState(false)
   const [showIntroAnimation, setShowIntroAnimation] = useState(true)
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
@@ -124,33 +127,28 @@ export default function HomePage() {
     }
 
     setIsGenerating(true)
+    setShowLoadingOverlay(true)
     setRewriteCount(0) // Reset rewrite counter when generating new README
 
     try {
       console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe, "live demo:", liveDemoUrl)
 
-      const response = await fetch("/api/generate-readme", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }),
-      })
+      const response = await generateReadme({ repoUrl, description: projectPurpose, vibe: selectedVibe })
 
       console.log("Response status:", response.status)
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("API Error:", errorData)
-        throw new Error(errorData.error || "Failed to generate README")
+      if (!response.success) {
+        throw new Error(response.error || "Failed to generate README")
       }
 
-      const data = await response.json()
-      console.log("Generated README length:", data.readme?.length)
+      const data = response.readme
+      console.log("Generated README length:", data?.length)
 
-      if (!data.readme) {
+      if (!data) {
         throw new Error("No README content received")
       }
 
-      setGeneratedReadme(data.readme)
+      setGeneratedReadme(data)
 
       const today = new Date().toDateString()
       if (!isAuthenticated) {
@@ -178,6 +176,7 @@ export default function HomePage() {
       })
     } finally {
       setIsGenerating(false)
+      setShowLoadingOverlay(false)
     }
   }
 
@@ -198,6 +197,7 @@ export default function HomePage() {
     }
 
     setIsRewriting(true)
+    setShowLoadingOverlay(true)
     const currentRewriteCount = rewriteCount + 1
     setRewriteCount(currentRewriteCount)
 
@@ -214,34 +214,25 @@ export default function HomePage() {
 
       console.log("Rewrite request body:", requestBody)
 
-      const response = await fetch("/api/rewrite-readme", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache", // Prevent caching
-        },
-        body: JSON.stringify(requestBody),
-      })
+      const response = await rewriteReadme(requestBody)
 
       console.log("Rewrite response status:", response.status)
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("API Rewrite Error:", errorData)
-        throw new Error(errorData.error || "Failed to rewrite README")
+      if (!response.success) {
+        throw new Error(response.error || "Failed to rewrite README")
       }
 
-      const data = await response.json()
-      console.log("Rewritten README length:", data.rewrittenReadme?.length)
+      const data = response.rewrittenReadme
+      console.log("Rewritten README length:", data?.length)
 
-      if (!data.rewrittenReadme) {
+      if (!data) {
         throw new Error("No rewritten content received")
       }
 
       // Force a state update by adding a small delay
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      setGeneratedReadme(data.rewrittenReadme)
+      setGeneratedReadme(data)
 
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
@@ -250,7 +241,7 @@ export default function HomePage() {
 
       console.log(`Rewrite #${currentRewriteCount} completed successfully`)
     } catch (error) {
-      console.error(`Rewrite #${currentRewriteCount} error:`, error)
+      console.error(`Rewrite #${rewriteCount} error:`, error)
       toast({
         title: "Rewrite Failed",
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
@@ -260,7 +251,8 @@ export default function HomePage() {
       // Add a small delay before resetting the loading state
       setTimeout(() => {
         setIsRewriting(false)
-        console.log(`Rewrite #${currentRewriteCount} finished, button should be enabled again`)
+        setShowLoadingOverlay(false)
+        console.log(`Rewrite #${rewriteCount} finished, button should be enabled again`)
       }, 200)
     }
   }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])
