@@ -1,19 +1,15 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
-// Add a simple in-memory user store (for demonstration purposes only)
-// In a real application, this would be a persistent database.
-const users = new Map()
+export async function POST(req: Request) {
+  const { email, password } = await req.json()
 
-// Add a default demo user for easy testing
-if (!users.has("demo@example.com")) {
-  users.set("demo@example.com", {
-    id: "demo-user-id",
-    email: "demo@example.com",
-    name: "Demo User",
-    password: "demo123", // In a real app, this would be hashed
-  })
-}
+  // In a real application, you would:
+  // 1. Hash the password
+  // 2. Query your database to find a user with the given email
+  // 3. Compare the hashed password with the stored hash
+  // 4. If valid, create a session (e.g., using JWTs or session cookies)
 
+<<<<<<< HEAD
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
@@ -53,5 +49,22 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Sign in error:", error)
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+=======
+  // For this simulation, we'll just check for a hardcoded user
+  if (email === "test@example.com" && password === "password123") {
+    return NextResponse.json({
+      success: true,
+      message: "Sign in successful!",
+      user: { username: "TestUser", email: "test@example.com" },
+    })
+  } else {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid email or password.",
+      },
+      { status: 401 },
+    )
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
   }
 }

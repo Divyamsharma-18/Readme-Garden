@@ -1,5 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
+<<<<<<< HEAD
 // Add a simple in-memory user store (for demonstration purposes only)
 // In a real application, this would be a persistent database.
 const users = new Map()
@@ -26,17 +27,32 @@ export async function POST(request: NextRequest) {
       password: password, // Storing plain password for demo, hash in real app
     }
     users.set(email, newUser)
+=======
+export async function POST(req: Request) {
+  const { name, email, password } = await req.json()
 
+  // In a real application, you would:
+  // 1. Validate input (e.g., email format, password strength)
+  // 2. Check if the email already exists in your database
+  // 3. Hash the password
+  // 4. Store the new user in your database
+  // 5. Create a session for the new user
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
+
+  // For this simulation, we'll just assume success
+  if (name && email && password) {
     return NextResponse.json({
       success: true,
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-      },
+      message: "Account created successfully!",
+      user: { username: name, email: email },
     })
-  } catch (error) {
-    console.error("Sign up error:", error)
-    return NextResponse.json({ error: "Account creation failed" }, { status: 500 })
+  } else {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Missing name, email, or password.",
+      },
+      { status: 400 },
+    )
   }
 }
