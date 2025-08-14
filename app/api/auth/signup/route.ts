@@ -1,29 +1,32 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST(req: Request) {
-  const { name, email, password } = await req.json()
+export async function POST(request: NextRequest) {
+  try {
+    const { email, password, name } = await request.json()
 
-  // In a real application, you would:
-  // 1. Validate input (e.g., email format, password strength)
-  // 2. Check if the email already exists in your database
-  // 3. Hash the password
-  // 4. Store the new user in your database
-  // 5. Create a session for the new user
+    if (!email || !password || !name) {
+      return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
+    }
 
-  // For this simulation, we'll just assume success
-  if (name && email && password) {
+    // Simulate a delay for network request
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // Simulate an existing user for conflict
+    if (email === "existing@example.com") {
+      return NextResponse.json({ error: "User with this email already exists." }, { status: 409 })
+    }
+
+    // Simulate successful user creation
     return NextResponse.json({
       success: true,
-      message: "Account created successfully!",
-      user: { username: name, email: email },
-    })
-  } else {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Missing name, email, or password.",
+      user: {
+        id: Math.random().toString(36).substr(2, 9), // Generate a random ID for demo
+        email: email,
+        name: name,
       },
-      { status: 400 },
-    )
+    })
+  } catch (error) {
+    console.error("Sign up error:", error)
+    return NextResponse.json({ error: "Account creation failed" }, { status: 500 })
   }
 }
