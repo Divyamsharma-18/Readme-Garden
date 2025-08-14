@@ -127,7 +127,10 @@ export default function HomePage() {
     }
 
     setIsGenerating(true)
+<<<<<<< HEAD
+=======
     setShowLoadingOverlay(true)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
     setRewriteCount(0) // Reset rewrite counter when generating new README
 
     try {
@@ -197,12 +200,16 @@ export default function HomePage() {
     }
 
     setIsRewriting(true)
+<<<<<<< HEAD
+=======
     setShowLoadingOverlay(true)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
     const currentRewriteCount = rewriteCount + 1
     setRewriteCount(currentRewriteCount)
 
     try {
       console.log(`Starting rewrite #${currentRewriteCount} with vibe:`, selectedVibe)
+<<<<<<< HEAD
 
       const requestBody = {
         content: generatedReadme,
@@ -213,6 +220,38 @@ export default function HomePage() {
       }
 
       console.log("Rewrite request body:", requestBody)
+
+      const response = await fetch("/api/rewrite-readme", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache", // Prevent caching
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      console.log("Rewrite response status:", response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("API Rewrite Error:", errorData)
+        throw new Error(errorData.error || "Failed to rewrite README")
+      }
+
+      const data = await response.json()
+      console.log("Rewritten README length:", data.rewrittenReadme?.length)
+=======
+
+      const requestBody = {
+        content: generatedReadme,
+        vibe: selectedVibe,
+        repoUrl,
+        projectPurpose,
+        rewriteCount: currentRewriteCount, // Add this to make each request unique
+      }
+
+      console.log("Rewrite request body:", requestBody)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
 
       const response = await rewriteReadme(requestBody)
 
@@ -232,7 +271,11 @@ export default function HomePage() {
       // Force a state update by adding a small delay
       await new Promise((resolve) => setTimeout(resolve, 100))
 
+<<<<<<< HEAD
+      setGeneratedReadme(data.rewrittenReadme)
+=======
       setGeneratedReadme(data)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
 
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
@@ -241,7 +284,11 @@ export default function HomePage() {
 
       console.log(`Rewrite #${currentRewriteCount} completed successfully`)
     } catch (error) {
+<<<<<<< HEAD
+      console.error(`Rewrite #${currentRewriteCount} error:`, error)
+=======
       console.error(`Rewrite #${rewriteCount} error:`, error)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
       toast({
         title: "Rewrite Failed",
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
@@ -251,8 +298,12 @@ export default function HomePage() {
       // Add a small delay before resetting the loading state
       setTimeout(() => {
         setIsRewriting(false)
+<<<<<<< HEAD
+        console.log(`Rewrite #${currentRewriteCount} finished, button should be enabled again`)
+=======
         setShowLoadingOverlay(false)
         console.log(`Rewrite #${rewriteCount} finished, button should be enabled again`)
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
       }, 200)
     }
   }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])

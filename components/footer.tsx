@@ -12,6 +12,18 @@ export default function Footer() {
       transition={{ delay: 0.3 }}
       className="relative z-10 py-8 px-6 bg-gradient-to-t from-background/90 to-transparent backdrop-blur-sm"
     >
+<<<<<<< HEAD
+      Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by&nbsp;
+      
+      <a
+        href="https://divyamsharma.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-semibold text-primary hover:underline transition-colors"
+      >
+        Divyam Sharma
+      </a>
+=======
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-muted-foreground text-sm space-y-4 sm:space-y-0">
         <p>&copy; {new Date().getFullYear()} README Garden. All rights reserved.</p>
         <div className="flex space-x-4">
@@ -43,6 +55,7 @@ export default function Footer() {
           </a>
         </div>
       </div>
+>>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
     </motion.footer>
   )
 }
