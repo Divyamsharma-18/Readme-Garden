@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description:
     "Create stunning GitHub README files with AI-powered generation. Choose your vibe and let our garden grow the perfect documentation for your projects.",
   keywords: "README, GitHub, AI, documentation, generator, markdown",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

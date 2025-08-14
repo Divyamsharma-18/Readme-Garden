@@ -28,7 +28,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials. User not found." }, { status: 401 })
     }
 
+    // In a real app, you would compare the hashed password:
+    // if (await bcrypt.compare(password, user.password)) {
+    //   return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+    // } else {
+    //   return NextResponse.json({ error: "Invalid credentials. Incorrect password." }, { status: 401 });
+    // }
 
+    // For this simulation, we'll just check if the user exists
+    // and assume the password is correct if the user is found.
     if (user.password === password) {
       // Simple password check for demo
       return NextResponse.json({

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-
+// Add a simple in-memory user store (for demonstration purposes only)
+// In a real application, this would be a persistent database.
 const users = new Map()
 
 export async function POST(request: NextRequest) {

@@ -14,7 +14,7 @@ export default function Footer() {
                  text-center text-sm text-foreground/80"
     >
       Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by&nbsp;
-      {/* Added &nbsp; here to ensure a visible space */}
+      
       <a
         href="https://divyamsharma.netlify.app/"
         target="_blank"
