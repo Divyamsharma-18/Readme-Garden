@@ -1,4 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+
+// Initialize Supabase client for server-side use
+// In a real app, you might use a service role key for more privileged operations
+// but for basic auth, the anon key is sufficient here.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+  )
+}
+
+const supabaseServer = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,22 +23,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
-    // Simulate a delay for network request
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const { data, error } = await supabaseServer.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-    // Hardcoded demo user for sign-in simulation
-    if (email === "demo@example.com" && password === "demo123") {
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: "demo-user-id",
-          email: "demo@example.com",
-          name: "Demo User",
-        },
-      })
-    } else {
-      return NextResponse.json({ error: "Invalid email or password." }, { status: 401 })
+    if (error) {
+      console.error("Supabase sign-in error:", error.message)
+      return NextResponse.json({ error: error.message || "Authentication failed." }, { status: 401 })
     }
+
+    if (!data.user) {
+      return NextResponse.json({ error: "No user data returned after sign-in." }, { status: 401 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.user_metadata?.full_name || data.user.email, // Use user_metadata for name
+      },
+    })
   } catch (error) {
     console.error("Sign in error:", error)
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
