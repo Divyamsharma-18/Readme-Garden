@@ -18,8 +18,7 @@ import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 import IntroAnimation from "@/components/intro-animation"
 import Footer from "@/components/footer"
-import { generateReadme } from "./api/generate-readme/route"
-import { rewriteReadme } from "./api/rewrite-readme/route"
+import { supabase } from "@/lib/supabase" // Import the Supabase client
 
 // Markdown rendering imports
 import ReactMarkdown from "react-markdown"
@@ -39,7 +38,7 @@ export default function HomePage() {
   const [repoUrl, setRepoUrl] = useState("")
   const [liveDemoUrl, setLiveDemoUrl] = useState("")
   const [projectPurpose, setProjectPurpose] = useState("")
-  const [selectedVibe, setSelectedVibe] = useState("professional")
+  const [selectedVibe, setSelectedVibe] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
@@ -48,30 +47,51 @@ export default function HomePage() {
   const [dailyUsageCount, setDailyUsageCount] = useState(0)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userData, setUserData] = useState({ username: "User", email: "user@example.com" })
+  const [userData, setUserData] = useState<{ username: string; email: string } | null>(null) // Can be null
   const [activeTab, setActiveTab] = useState("preview")
   const [mounted, setMounted] = useState(false)
   const [showIntroAnimation, setShowIntroAnimation] = useState(true)
-  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
   useEffect(() => {
     setMounted(true)
-    const authStatus = localStorage.getItem("readme-auth-status")
     const today = new Date().toDateString()
-    const savedUserData = localStorage.getItem("readme-user-data")
 
-    setIsAuthenticated(authStatus === "true")
-
-    if (savedUserData) {
-      try {
-        setUserData(JSON.parse(savedUserData))
-      } catch (e) {
-        console.error("Error parsing user data", e)
+    // Check Supabase session
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (session?.user) {
+        setIsAuthenticated(true)
+        setUserData({
+          username: session.user.user_metadata?.full_name || session.user.email || "User",
+          email: session.user.email || "user@example.com",
+        })
+      } else {
+        setIsAuthenticated(false)
+        setUserData(null)
       }
     }
 
+    checkSession()
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true)
+        setUserData({
+          username: session.user.user_metadata?.full_name || session.user.email || "User",
+          email: session.user.email || "user@example.com",
+        })
+      } else {
+        setIsAuthenticated(false)
+        setUserData(null)
+      }
+    })
+
+    // Usage count logic (still using localStorage for simplicity for now)
     const lastAuthUsageDate = localStorage.getItem("readme-last-usage-date-auth")
     const authDailyCount = localStorage.getItem("readme-daily-usage-count-auth")
     if (lastAuthUsageDate !== today) {
@@ -90,6 +110,10 @@ export default function HomePage() {
       localStorage.setItem("readme-last-usage-date-unauth", today)
     } else {
       setUnauthDailyUsageCount(unauthCount ? Number.parseInt(unauthCount) : 0)
+    }
+
+    return () => {
+      authListener.subscription.unsubscribe()
     }
   }, [])
 
@@ -127,31 +151,33 @@ export default function HomePage() {
     }
 
     setIsGenerating(true)
-<<<<<<< HEAD
-=======
-    setShowLoadingOverlay(true)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
     setRewriteCount(0) // Reset rewrite counter when generating new README
 
     try {
       console.log("Generating README for:", repoUrl, "with vibe:", selectedVibe, "live demo:", liveDemoUrl)
 
-      const response = await generateReadme({ repoUrl, description: projectPurpose, vibe: selectedVibe })
+      const response = await fetch("/api/generate-readme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }),
+      })
 
       console.log("Response status:", response.status)
 
-      if (!response.success) {
-        throw new Error(response.error || "Failed to generate README")
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("API Error:", errorData)
+        throw new Error(errorData.error || "Failed to generate README")
       }
 
-      const data = response.readme
-      console.log("Generated README length:", data?.length)
+      const data = await response.json()
+      console.log("Generated README length:", data.readme?.length)
 
-      if (!data) {
+      if (!data.readme) {
         throw new Error("No README content received")
       }
 
-      setGeneratedReadme(data)
+      setGeneratedReadme(data.readme)
 
       const today = new Date().toDateString()
       if (!isAuthenticated) {
@@ -179,7 +205,6 @@ export default function HomePage() {
       })
     } finally {
       setIsGenerating(false)
-      setShowLoadingOverlay(false)
     }
   }
 
@@ -200,16 +225,11 @@ export default function HomePage() {
     }
 
     setIsRewriting(true)
-<<<<<<< HEAD
-=======
-    setShowLoadingOverlay(true)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
     const currentRewriteCount = rewriteCount + 1
     setRewriteCount(currentRewriteCount)
 
     try {
       console.log(`Starting rewrite #${currentRewriteCount} with vibe:`, selectedVibe)
-<<<<<<< HEAD
 
       const requestBody = {
         content: generatedReadme,
@@ -240,42 +260,15 @@ export default function HomePage() {
 
       const data = await response.json()
       console.log("Rewritten README length:", data.rewrittenReadme?.length)
-=======
 
-      const requestBody = {
-        content: generatedReadme,
-        vibe: selectedVibe,
-        repoUrl,
-        projectPurpose,
-        rewriteCount: currentRewriteCount, // Add this to make each request unique
-      }
-
-      console.log("Rewrite request body:", requestBody)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
-
-      const response = await rewriteReadme(requestBody)
-
-      console.log("Rewrite response status:", response.status)
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to rewrite README")
-      }
-
-      const data = response.rewrittenReadme
-      console.log("Rewritten README length:", data?.length)
-
-      if (!data) {
+      if (!data.rewrittenReadme) {
         throw new Error("No rewritten content received")
       }
 
       // Force a state update by adding a small delay
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-<<<<<<< HEAD
       setGeneratedReadme(data.rewrittenReadme)
-=======
-      setGeneratedReadme(data)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
 
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
@@ -284,11 +277,7 @@ export default function HomePage() {
 
       console.log(`Rewrite #${currentRewriteCount} completed successfully`)
     } catch (error) {
-<<<<<<< HEAD
       console.error(`Rewrite #${currentRewriteCount} error:`, error)
-=======
-      console.error(`Rewrite #${rewriteCount} error:`, error)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
       toast({
         title: "Rewrite Failed",
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
@@ -298,12 +287,7 @@ export default function HomePage() {
       // Add a small delay before resetting the loading state
       setTimeout(() => {
         setIsRewriting(false)
-<<<<<<< HEAD
         console.log(`Rewrite #${currentRewriteCount} finished, button should be enabled again`)
-=======
-        setShowLoadingOverlay(false)
-        console.log(`Rewrite #${rewriteCount} finished, button should be enabled again`)
->>>>>>> 3cfdf99cba412755336d5912269aaf45a17c9429
       }, 200)
     }
   }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])
@@ -330,21 +314,32 @@ export default function HomePage() {
     window.open("https://github.com/your-username/readme-garden", "_blank") // TODO: Replace with actual repo URL
   }
 
-  const handleLogin = (userData: { username: string; email: string }) => {
+  const handleLogin = async (user: { id: string; email: string; name: string }) => {
     setIsAuthenticated(true)
-    setUserData(userData)
-    localStorage.setItem("readme-auth-status", "true")
-    localStorage.setItem("readme-user-data", JSON.stringify(userData))
+    setUserData({ username: user.name, email: user.email })
     setShowAuthModal(false)
-    setDailyUsageCount(0)
+    setDailyUsageCount(0) // Reset daily usage on successful login
     localStorage.setItem("readme-daily-usage-count-auth", "0")
     localStorage.setItem("readme-last-usage-date-auth", new Date().toDateString())
   }
 
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    localStorage.removeItem("readme-auth-status")
-    localStorage.removeItem("readme-user-data")
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error("Supabase logout error:", error.message)
+      toast({
+        title: "Logout Failed",
+        description: error.message,
+        variant: "destructive",
+      })
+    } else {
+      setIsAuthenticated(false)
+      setUserData(null)
+      toast({
+        title: "Logged out successfully",
+        description: "See you next time!",
+      })
+    }
   }
 
   const toggleTheme = () => {
@@ -703,13 +698,8 @@ export default function HomePage() {
               >
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
-              {isAuthenticated ? (
-                <UserProfile
-                  username={userData.username}
-                  email={userData.email}
-                  onLogout={handleLogout}
-                  onOpenAuthModal={() => setShowAuthModal(true)}
-                />
+              {isAuthenticated && userData ? ( // Ensure userData is not null
+                <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
               ) : (
                 <>
                   <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden sm:flex">
@@ -894,11 +884,7 @@ export default function HomePage() {
       <Footer />
 
       {/* Loading Animation Overlay */}
-      <AnimatePresence>
-        {(isGenerating || isRewriting) && (
-          <LoadingAnimation isLoading={isGenerating || isRewriting} onAnimationComplete={() => {}} />
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
