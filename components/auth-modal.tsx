@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Github, Chrome } from "lucide-react"
+import { X, User } from "lucide-react" // Removed Github, Chrome imports
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,10 +41,19 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         throw new Error(data.error || "Authentication failed.")
       }
 
-      toast({
-        title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
-        description: "You now have 10 README generations per day!", // Updated description for logged-in users
-      })
+      // Handle email confirmation message if present
+      if (data.emailConfirmationRequired) {
+        toast({
+          title: "Account Created! 🎉",
+          description: "Please check your email to confirm your account before signing in.",
+          variant: "default",
+        })
+      } else {
+        toast({
+          title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
+          description: "You now have 10 README generations per day!",
+        })
+      }
 
       onSuccess(data.user)
     } catch (error) {
@@ -58,44 +67,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     }
   }
 
-  const handleSocialAuth = async (provider: "github" | "google") => {
-    setIsLoading(true)
-    console.log(
-      `Simulating social login with ${provider}. For real authentication, integrate with Auth.js (NextAuth.js) or a similar OAuth solution.`,
-    )
-
-    toast({
-      title: "Social Login Simulation",
-      description: "For real social login, integrate with Auth.js (NextAuth.js) or a similar OAuth solution.",
-      variant: "default", // Use a default variant for informational toast
-    })
-
-    try {
-      // Simulate social auth
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Create user data based on provider
-      const userData = {
-        username: provider === "github" ? "github_user" : "google_user",
-        email: `${provider}_user@example.com`,
-      }
-
-      toast({
-        title: "Welcome! 🎉",
-        description: "Successfully signed in with " + provider,
-      })
-
-      onSuccess(userData)
-    } catch (error) {
-      toast({
-        title: "Authentication Failed",
-        description: "Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // Removed handleSocialAuth function
 
   return (
     <AnimatePresence>
@@ -206,35 +178,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   </TabsContent>
                 </Tabs>
 
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-muted" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleSocialAuth("github")}
-                    disabled={isLoading}
-                    className="rounded-xl"
-                  >
-                    <Github className="w-4 h-4 mr-2" />
-                    GitHub
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleSocialAuth("google")}
-                    disabled={isLoading}
-                    className="rounded-xl"
-                  >
-                    <Chrome className="w-4 h-4 mr-2" />
-                    Google
-                  </Button>
-                </div>
+                {/* Removed the "Or continue with" separator and social login buttons */}
 
                 <p className="text-xs text-center text-muted-foreground mt-4">
                   By signing up, you agree to our Terms of Service and Privacy Policy
