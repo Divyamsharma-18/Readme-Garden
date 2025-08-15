@@ -40,6 +40,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No user data returned after sign-up." }, { status: 400 })
     }
 
+    // Check if email confirmation is required and pending
+    if (!data.session && !data.user.email_confirmed_at) {
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.user_metadata?.full_name || data.user.email,
+        },
+        message: "Please check your email to confirm your account before signing in.",
+        emailConfirmationRequired: true,
+      })
+    }
+
     return NextResponse.json({
       success: true,
       user: {
