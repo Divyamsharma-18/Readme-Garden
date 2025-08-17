@@ -32,8 +32,20 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error("Supabase sign-up error:", error.message)
-      return NextResponse.json({ error: error.message || "Account creation failed." }, { status: 400 })
+      // Return only clean, user-friendly error messages
+      let cleanErrorMessage = "Account creation failed. Please try again."
+
+      const errorText = error.message?.toLowerCase() || ""
+
+      if (errorText.includes("user already registered") || errorText.includes("already registered")) {
+        cleanErrorMessage = "An account with this email already exists"
+      } else if (errorText.includes("password") && errorText.includes("6")) {
+        cleanErrorMessage = "Password must be at least 6 characters"
+      } else if (errorText.includes("invalid email")) {
+        cleanErrorMessage = "Please enter a valid email address"
+      }
+
+      return NextResponse.json({ error: cleanErrorMessage }, { status: 400 })
     }
 
     if (!data.user) {
@@ -63,7 +75,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Sign up error:", error)
     return NextResponse.json({ error: "Account creation failed" }, { status: 500 })
   }
 }

@@ -29,30 +29,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      // Log the full error for debugging (server-side only)
-      console.error("Supabase sign-in error:", error.message)
+      // Clean error message - only return user-friendly messages
+      let cleanErrorMessage = "Invalid login credentials"
 
-      // Return only clean, user-friendly error messages
-      const errorMessage = error.message.toLowerCase()
+      const errorText = error.message?.toLowerCase() || ""
 
-      if (errorMessage.includes("invalid") && errorMessage.includes("credentials")) {
-        return NextResponse.json({ error: "Invalid login credentials" }, { status: 401 })
+      if (errorText.includes("email") && errorText.includes("not") && errorText.includes("confirmed")) {
+        cleanErrorMessage = "Please check your email to confirm your account"
+      } else if (errorText.includes("too many")) {
+        cleanErrorMessage = "Too many login attempts. Please try again later"
       }
 
-      if (errorMessage.includes("email") && errorMessage.includes("not") && errorMessage.includes("confirmed")) {
-        return NextResponse.json({ error: "Please check your email to confirm your account" }, { status: 401 })
-      }
-
-      if (errorMessage.includes("too many")) {
-        return NextResponse.json({ error: "Too many login attempts. Please try again later" }, { status: 401 })
-      }
-
-      if (errorMessage.includes("user") && errorMessage.includes("not found")) {
-        return NextResponse.json({ error: "No account found with this email" }, { status: 401 })
-      }
-
-      // Default fallback for any other error
-      return NextResponse.json({ error: "Invalid login credentials" }, { status: 401 })
+      return NextResponse.json({ error: cleanErrorMessage }, { status: 401 })
     }
 
     if (!data.user) {
