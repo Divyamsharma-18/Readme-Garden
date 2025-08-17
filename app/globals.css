@@ -6,156 +6,201 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 224.3 76.3% 94.1%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-300;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-500;
+  }
+
+  html {
+    @apply transition-colors duration-500;
   }
 }
 
-/* Custom styles for markdown highlighting */
-.prose pre {
-  background-color: #2d2d2d !important; /* Dark background for code blocks */
-  color: #f8f8f2 !important; /* Light text color */
-  padding: 1em;
-  border-radius: 0.5em;
-  overflow-x: auto;
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
+}
+
+/* Prose styling for README preview */
+.prose {
+  max-width: none;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mb-4 text-foreground;
+}
+
+.prose h2 {
+  @apply text-xl font-semibold mb-3 text-foreground;
+}
+
+.prose h3 {
+  @apply text-lg font-medium mb-2 text-foreground;
+}
+
+.prose p {
+  @apply mb-3 text-foreground/80 leading-relaxed;
+}
+
+.prose ul,
+.prose ol {
+  @apply mb-3 pl-6;
+}
+
+.prose li {
+  @apply mb-1 text-foreground/80;
 }
 
 .prose code {
-  background-color: #3c3c3c !important; /* Slightly lighter background for inline code */
-  color: #f8f8f2 !important; /* Light text color */
-  padding: 0.2em 0.4em;
-  border-radius: 0.3em;
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono text-foreground;
 }
 
-/* Specific syntax highlighting colors */
-.prose .token.comment,
-.prose .token.prolog,
-.prose .token.doctype,
-.prose .token.cdata {
-  color: #888; /* Gray for comments */
+.prose pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4 text-foreground;
 }
 
-.prose .token.punctuation {
-  color: #f8f8f2; /* White for punctuation */
+.prose blockquote {
+  @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
 }
 
-.prose .token.namespace {
-  opacity: 0.7;
+.prose a {
+  @apply text-primary hover:underline transition-colors;
 }
 
-.prose .token.property,
-.prose .token.tag,
-.prose .token.boolean,
-.prose .token.number,
-.prose .token.constant,
-.prose .token.symbol,
-.prose .token.deleted {
-  color: #fc5757; /* Red for properties, tags, numbers, etc. */
+.prose strong {
+  @apply font-semibold text-foreground;
 }
 
-.prose .token.selector,
-.prose .token.attr-name,
-.prose .token.string,
-.prose .token.char,
-.prose .token.builtin,
-.prose .token.inserted {
-  color: #a6e22e; /* Green for selectors, strings, etc. */
+.prose em {
+  @apply italic text-foreground/90;
 }
 
-.prose .token.operator,
-.prose .token.entity,
-.prose .token.url,
-.prose .language-css .token.string,
-.prose .style .token.string {
-  color: #f8f8f2; /* White for operators, entities, URLs */
+/* Enhanced button hover effects */
+.btn-gradient {
+  @apply bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 active:scale-95;
 }
 
-.prose .token.atrule,
-.prose .token.keyword,
-.prose .token.attr-value,
-.prose .token.class-name {
-  color: #66d9ef; /* Cyan for at-rules, keywords, class names */
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;
 }
 
-.prose .token.function,
-.prose .token.regex,
-.prose .token.important,
-.prose .token.variable {
-  color: #fd971f; /* Orange for functions, regex, important, variables */
-}
-
-.prose .token.important,
-.prose .token.bold {
-  font-weight: bold;
-}
-.prose .token.italic {
-  font-style: italic;
-}
-
-.prose .token.entity {
-  cursor: help;
+/* Theme transition for all elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }

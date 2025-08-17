@@ -131,7 +131,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       <Button
                         onClick={() => handleAuth("signin")}
                         disabled={isLoading || !email || !password}
-                        className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500"
+                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                       >
                         {isLoading ? "Signing In..." : "Sign In"}
                       </Button>
@@ -170,7 +170,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       <Button
                         onClick={() => handleAuth("signup")}
                         disabled={isLoading || !email || !password || !name}
-                        className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500"
+                        className="w-full rounded-xl bg-gradient-to-r bg-gradient-to-r from-blue-500 to-purple-500 text-neutral-50"
                       >
                         {isLoading ? "Creating Account..." : "Create Account"}
                       </Button>
