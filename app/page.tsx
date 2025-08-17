@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Moon, Sun, Star, User } from "lucide-react"
+import { Github, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
 import AuthModal from "@/components/auth-modal"
-import UserProfile from "@/components/user-profile"
 import IntroAnimation from "@/components/intro-animation"
 import { supabase } from "@/lib/supabase"
 import MarketingPage from "@/components/marketing-page"
@@ -183,56 +181,15 @@ export default function HomePage() {
                 </motion.div>
 
                 <div className="flex items-center space-x-4">
-                  <Badge
-                    variant="secondary"
-                    className="px-3 py-1 shadow-sm hidden sm:flex bg-purple-900/50 text-purple-200 border-purple-700"
-                  >
-                    {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
-                  </Badge>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 hidden sm:flex"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20"
                   >
                     <Star className="w-4 h-4 mr-1 text-yellow-400" />
                     Star on GitHub
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 sm:hidden"
-                  >
-                    <Star className="w-4 h-4 text-yellow-400" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20"
-                  >
-                    {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                  </Button>
-                  {isAuthenticated && userData ? (
-                    <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
-                  ) : (
-                    <>
-                      <Button
-                        onClick={() => setShowAuthModal(true)}
-                        className="rounded-full shadow-sm hidden sm:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/50"
-                      >
-                        Sign In
-                      </Button>
-                      <Button
-                        onClick={() => setShowAuthModal(true)}
-                        className="rounded-full shadow-sm sm:hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/50"
-                        size="icon"
-                      >
-                        <User className="w-4 h-4" />
-                      </Button>
-                    </>
-                  )}
                 </div>
               </div>
             </header>
