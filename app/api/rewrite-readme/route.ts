@@ -80,6 +80,24 @@ export async function POST(request: NextRequest) {
     const promptIndex = rewriteCount ? (rewriteCount - 1) % vibePromptArray.length : 0
     const selectedPrompt = vibePromptArray[promptIndex]
 
+    // Remove the existing title (first line starting with #) to prevent title accumulation
+    const preprocessContent = (content: string): string => {
+      const lines = content.split("\n")
+      // Find the first line that starts with # (the title)
+      const titleIndex = lines.findIndex((line) => line.trim().startsWith("#"))
+
+      if (titleIndex !== -1) {
+        // Remove the title line and return the rest
+        lines.splice(titleIndex, 1)
+        return lines.join("\n").trim()
+      }
+
+      return content
+    }
+
+    // Apply preprocessing before sending to AI
+    const contentWithoutTitle = preprocessContent(content)
+
     let rewrittenReadme = ""
 
     try {
@@ -91,14 +109,15 @@ export async function POST(request: NextRequest) {
           
           CRITICAL INSTRUCTIONS:
           - COMPLETELY REWRITE the entire README from scratch
+          - START with a fresh title using # format
           - DO NOT copy any sentences or phrases from the original
           - Use a COMPLETELY DIFFERENT structure and approach
           - Change the writing style, tone, and presentation dramatically
           - Keep the same factual information but present it in an entirely new way
           - Make it feel like a completely different document written by a different person
           
-          Original README to be completely rewritten:
-          ${content}
+          Original README content to be completely rewritten (title has been removed, you need to create a new one):
+          ${contentWithoutTitle}
           
           ${repoUrl ? `Repository URL for reference: ${repoUrl}` : ""}
           ${projectPurpose ? `Core project purpose: "${projectPurpose}"` : ""}
@@ -118,7 +137,7 @@ export async function POST(request: NextRequest) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
 
       // Enhanced fallback with multiple variations
-      rewrittenReadme = enhancedFallbackRewrite(content, vibe, repoUrl, projectPurpose, rewriteCount || 1)
+      rewrittenReadme = enhancedFallbackRewrite(contentWithoutTitle, vibe, repoUrl, projectPurpose, rewriteCount || 1)
     }
 
     return NextResponse.json({ rewrittenReadme })
@@ -624,8 +643,6 @@ In the mystical realm of Development, where bugs lurk in shadowy corners and fea
 # Invoke the ancient incantation
 git clone ${repoUrl || "the-sacred-repository"}
 cd ${projectName.toLowerCase()}
-
-# Gather the mystical components
 npm install
 
 # Awaken the sleeping code dragon
