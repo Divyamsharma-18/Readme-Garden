@@ -58,9 +58,30 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
       onSuccess(data.user)
     } catch (error) {
+      // Clean error message to show only user-friendly text
+      let cleanErrorMessage = "Authentication failed. Please try again."
+
+      if (error instanceof Error) {
+        const errorText = error.message
+        // Extract just the user-friendly part before any technical details
+        if (errorText.includes("Invalid login credentials")) {
+          cleanErrorMessage = "Invalid login credentials"
+        } else if (errorText.includes("User already registered")) {
+          cleanErrorMessage = "User already registered"
+        } else if (errorText.includes("Email not confirmed")) {
+          cleanErrorMessage = "Please check your email to confirm your account"
+        } else if (errorText.includes("Password should be at least")) {
+          cleanErrorMessage = "Password should be at least 6 characters"
+        } else {
+          // For any other error, extract just the first sentence or line
+          const firstLine = errorText.split("\n")[0].split(" at ")[0].trim()
+          cleanErrorMessage = firstLine || "Authentication failed. Please try again."
+        }
+      }
+
       toast({
         title: "Authentication Failed",
-        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        description: cleanErrorMessage,
         variant: "destructive",
       })
     } finally {
