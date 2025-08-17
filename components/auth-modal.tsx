@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User } from "lucide-react" // Removed Github, Chrome imports
+import { X, User, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -128,15 +128,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="rounded-xl pr-12"
+                          className="rounded-xl pr-10"
                         />
                         <button
                           type="button"
                           onClick={togglePasswordVisibility}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg hover:scale-110 transition-transform"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                         >
-                          {showPassword ? "🙈" : "👁️"}
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                       <Button
@@ -175,15 +175,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="rounded-xl pr-12"
+                          className="rounded-xl pr-10"
                         />
                         <button
                           type="button"
                           onClick={togglePasswordVisibility}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg hover:scale-110 transition-transform"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                         >
-                          {showPassword ? "🙈" : "👁️"}
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                       <Button
