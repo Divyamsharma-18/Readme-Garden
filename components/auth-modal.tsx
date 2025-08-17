@@ -20,6 +20,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
 
   const handleAuth = async (type: "signin" | "signup") => {
@@ -67,7 +68,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     }
   }
 
-  // Removed handleSocialAuth function
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
 
   return (
     <AnimatePresence>
@@ -119,14 +122,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           className="rounded-xl"
                         />
                       </div>
-                      <div>
+                      <div className="relative">
                         <Input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="rounded-xl"
+                          className="rounded-xl pr-12"
                         />
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg hover:scale-110 transition-transform"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? "🙈" : "👁️"}
+                        </button>
                       </div>
                       <Button
                         onClick={() => handleAuth("signin")}
@@ -158,14 +169,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                           className="rounded-xl"
                         />
                       </div>
-                      <div>
+                      <div className="relative">
                         <Input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="rounded-xl"
+                          className="rounded-xl pr-12"
                         />
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lg hover:scale-110 transition-transform"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? "🙈" : "👁️"}
+                        </button>
                       </div>
                       <Button
                         onClick={() => handleAuth("signup")}
@@ -177,8 +196,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     </div>
                   </TabsContent>
                 </Tabs>
-
-                {/* Removed the "Or continue with" separator and social login buttons */}
 
                 <p className="text-xs text-center text-muted-foreground mt-4">
                   By signing up, you agree to our Terms of Service and Privacy Policy
