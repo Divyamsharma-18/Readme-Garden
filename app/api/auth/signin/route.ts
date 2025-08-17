@@ -30,7 +30,21 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Supabase sign-in error:", error.message)
-      return NextResponse.json({ error: error.message || "Authentication failed." }, { status: 401 })
+
+      // Clean error message for user-friendly display
+      let cleanErrorMessage = "Authentication failed"
+
+      if (error.message.includes("Invalid login credentials")) {
+        cleanErrorMessage = "Invalid login credentials"
+      } else if (error.message.includes("Email not confirmed")) {
+        cleanErrorMessage = "Please check your email to confirm your account"
+      } else if (error.message.includes("Too many requests")) {
+        cleanErrorMessage = "Too many login attempts. Please try again later"
+      } else if (error.message.includes("User not found")) {
+        cleanErrorMessage = "No account found with this email"
+      }
+
+      return NextResponse.json({ error: cleanErrorMessage }, { status: 401 })
     }
 
     if (!data.user) {
