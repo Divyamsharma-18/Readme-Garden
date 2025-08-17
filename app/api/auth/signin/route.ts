@@ -1,9 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-// Initialize Supabase client for server-side use
-// In a real app, you might use a service role key for more privileged operations
-// but for basic auth, the anon key is sufficient here.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -29,26 +26,34 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
+      // Log the full error for debugging (server-side only)
       console.error("Supabase sign-in error:", error.message)
 
-      // Clean error message for user-friendly display
-      let cleanErrorMessage = "Authentication failed"
+      // Return only clean, user-friendly error messages
+      const errorMessage = error.message.toLowerCase()
 
-      if (error.message.includes("Invalid login credentials")) {
-        cleanErrorMessage = "Invalid login credentials"
-      } else if (error.message.includes("Email not confirmed")) {
-        cleanErrorMessage = "Please check your email to confirm your account"
-      } else if (error.message.includes("Too many requests")) {
-        cleanErrorMessage = "Too many login attempts. Please try again later"
-      } else if (error.message.includes("User not found")) {
-        cleanErrorMessage = "No account found with this email"
+      if (errorMessage.includes("invalid") && errorMessage.includes("credentials")) {
+        return NextResponse.json({ error: "Invalid login credentials" }, { status: 401 })
       }
 
-      return NextResponse.json({ error: cleanErrorMessage }, { status: 401 })
+      if (errorMessage.includes("email") && errorMessage.includes("not") && errorMessage.includes("confirmed")) {
+        return NextResponse.json({ error: "Please check your email to confirm your account" }, { status: 401 })
+      }
+
+      if (errorMessage.includes("too many")) {
+        return NextResponse.json({ error: "Too many login attempts. Please try again later" }, { status: 401 })
+      }
+
+      if (errorMessage.includes("user") && errorMessage.includes("not found")) {
+        return NextResponse.json({ error: "No account found with this email" }, { status: 401 })
+      }
+
+      // Default fallback for any other error
+      return NextResponse.json({ error: "Invalid login credentials" }, { status: 401 })
     }
 
     if (!data.user) {
-      return NextResponse.json({ error: "No user data returned after sign-in." }, { status: 401 })
+      return NextResponse.json({ error: "Authentication failed" }, { status: 401 })
     }
 
     return NextResponse.json({
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
       user: {
         id: data.user.id,
         email: data.user.email,
-        name: data.user.user_metadata?.full_name || data.user.email, // Use user_metadata for name
+        name: data.user.user_metadata?.full_name || data.user.email,
       },
     })
   } catch (error) {
