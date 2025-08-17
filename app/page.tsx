@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
 import AuthModal from "@/components/auth-modal"
-import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 import IntroAnimation from "@/components/intro-animation"
 import { supabase } from "@/lib/supabase"
@@ -148,11 +147,10 @@ export default function HomePage() {
     return null
   }
 
-  const isDark = theme === "dark"
   const remainingUses = getRemainingUses()
 
   return (
-    <div className="min-h-screen transition-all duration-700 relative overflow-hidden flex flex-col">
+    <div className="min-h-screen">
       {/* Intro Animation */}
       <AnimatePresence mode="wait">
         {showIntroAnimation && <IntroAnimation key="intro" onAnimationComplete={handleIntroComplete} />}
@@ -163,54 +161,58 @@ export default function HomePage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
+            className="min-h-screen"
           >
             {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 z-50 p-6 backdrop-blur-sm bg-white/10 dark:bg-black/10">
+            <header className="fixed top-0 left-0 right-0 z-50 p-6 backdrop-blur-sm bg-black/20">
               <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="flex items-center space-x-3"
                 >
-                  <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg">
                     <Github className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                       README Garden
                     </h1>
-                    <p className="text-sm text-muted-foreground">Where boring docs go to bloom 🌱</p>
+                    <p className="text-sm text-purple-300">Where boring docs go to bloom 🌱</p>
                   </div>
                 </motion.div>
 
                 <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="px-3 py-1 shadow-sm hidden sm:flex">
+                  <Badge
+                    variant="secondary"
+                    className="px-3 py-1 shadow-sm hidden sm:flex bg-purple-900/50 text-purple-200 border-purple-700"
+                  >
                     {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
                   </Badge>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-white/20 dark:bg-black/20 backdrop-blur-sm border-white/30 dark:border-white/10 hidden sm:flex"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 hidden sm:flex"
                   >
-                    <Star className="w-4 h-4 mr-1 text-yellow-500" />
+                    <Star className="w-4 h-4 mr-1 text-yellow-400" />
                     Star on GitHub
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-white/20 dark:bg-black/20 backdrop-blur-sm border-white/30 dark:border-white/10 sm:hidden"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 sm:hidden"
                   >
-                    <Star className="w-4 h-4 text-yellow-500" />
+                    <Star className="w-4 h-4 text-yellow-400" />
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={toggleTheme}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-white/20 dark:bg-black/20 backdrop-blur-sm border-white/30 dark:border-white/10"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20"
                   >
-                    {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                   </Button>
                   {isAuthenticated && userData ? (
                     <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
@@ -218,16 +220,14 @@ export default function HomePage() {
                     <>
                       <Button
                         onClick={() => setShowAuthModal(true)}
-                        className="rounded-full shadow-sm hidden sm:flex bg-white/20 dark:bg-black/20 backdrop-blur-sm border-white/30 dark:border-white/10"
-                        variant="outline"
+                        className="rounded-full shadow-sm hidden sm:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/50"
                       >
                         Sign In
                       </Button>
                       <Button
                         onClick={() => setShowAuthModal(true)}
-                        className="rounded-full shadow-sm sm:hidden bg-white/20 dark:bg-black/20 backdrop-blur-sm border-white/30 dark:border-white/10"
+                        className="rounded-full shadow-sm sm:hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-purple-500/50"
                         size="icon"
-                        variant="outline"
                       >
                         <User className="w-4 h-4" />
                       </Button>
@@ -237,296 +237,11 @@ export default function HomePage() {
               </div>
             </header>
 
-            {/* Marketing Page Content */}
-            <div className="pt-24">
-              <MarketingPage onGetStarted={handleGetStarted} />
-            </div>
+            {/* Marketing Page Content - No extra padding needed since MarketingPage handles its own layout */}
+            <MarketingPage onGetStarted={handleGetStarted} />
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Dynamic Background */}
-      <div
-        className={`fixed inset-0 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-            : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
-        }`}
-      />
-
-      {/* Nature Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {!isDark ? (
-          <>
-            {/* Sun */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.8 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-2xl"
-              style={{
-                boxShadow: "0 0 50px rgba(251, 191, 36, 0.6)",
-              }}
-            />
-
-            {/* Day Clouds */}
-            <motion.div
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.7 }}
-              transition={{ duration: 2, delay: 0.5 }}
-              className="absolute top-20 left-1/4 w-32 h-16 overflow-hidden rounded-full"
-            >
-              <Image
-                src="/images/day-clouds.png"
-                alt="Day clouds"
-                width={128}
-                height={64}
-                className="object-cover w-full h-full opacity-80"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.6 }}
-              transition={{ duration: 2, delay: 1 }}
-              className="absolute top-32 right-1/3 w-24 h-12 overflow-hidden rounded-full"
-            >
-              <Image
-                src="/images/day-clouds.png"
-                alt="Day clouds"
-                width={96}
-                height={48}
-                className="object-cover w-full h-full opacity-70"
-              />
-            </motion.div>
-
-            {/* Day Trees */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.8 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10 w-16 h-32"
-            >
-              <Image
-                src="/images/day-tree-1.png"
-                alt="Day tree"
-                width={64}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.7 }}
-              transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20 w-20 h-40"
-            >
-              <Image
-                src="/images/day-tree-2.png"
-                alt="Day tree"
-                width={80}
-                height={160}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-
-            {/* Day Flowers */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 1.5 }}
-              className="absolute bottom-10 left-1/3 w-8 h-8 rounded-full overflow-hidden"
-            >
-              <Image
-                src="/images/day-flowers.png"
-                alt="Day flowers"
-                width={32}
-                height={32}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 1.8 }}
-              className="absolute bottom-16 left-1/2 w-6 h-6 rounded-full overflow-hidden"
-            >
-              <Image
-                src="/images/day-flowers.png"
-                alt="Day flowers"
-                width={24}
-                height={24}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 2.1 }}
-              className="absolute bottom-12 right-1/4 w-10 h-10 rounded-full overflow-hidden"
-            >
-              <Image
-                src="/images/day-flowers.png"
-                alt="Day flowers"
-                width={40}
-                height={40}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-
-            {/* Day River */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 2, delay: 1 }}
-              className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden"
-            >
-              <Image
-                src="/images/day-river.png"
-                alt="Day river"
-                width={800}
-                height={48}
-                className="object-cover w-full h-full opacity-60"
-              />
-            </motion.div>
-          </>
-        ) : (
-          <>
-            {/* Moon */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.9 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-2xl"
-              style={{
-                boxShadow: "0 0 40px rgba(229, 231, 235, 0.8)",
-              }}
-            />
-
-            {/* Stars */}
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.5, 1, 0.5] }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{
-                  left: `${15 + i * 7}%`,
-                  top: `${8 + (i % 4) * 12}%`,
-                }}
-              />
-            ))}
-
-            {/* Night Clouds */}
-            <motion.div
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 0.4 }}
-              transition={{ duration: 2, delay: 0.5 }}
-              className="absolute top-20 left-1/4 w-32 h-16 overflow-hidden rounded-full"
-            >
-              <Image
-                src="/images/night-clouds.png"
-                alt="Night clouds"
-                width={128}
-                height={64}
-                className="object-cover w-full h-full opacity-60"
-              />
-            </motion.div>
-
-            {/* Night Trees */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.7 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10 w-16 h-32"
-            >
-              <Image
-                src="/images/night-tree-1.png"
-                alt="Night tree"
-                width={64}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.6 }}
-              transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20 w-20 h-40"
-            >
-              <Image
-                src="/images/night-tree-2.png"
-                alt="Night tree"
-                width={80}
-                height={160}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-
-            {/* Night Flowers */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 1.5 }}
-              className="absolute bottom-10 left-1/3 w-8 h-8 rounded-full overflow-hidden"
-            >
-              <Image
-                src="/images/night-flowers.png"
-                alt="Night flowers"
-                width={32}
-                height={32}
-                className="object-cover w-full h-full opacity-70"
-              />
-            </motion.div>
-
-            {/* Fireflies */}
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{
-                  opacity: [0.3, 1, 0.3],
-                  scale: [0.8, 1.4, 0.8],
-                }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.5,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-                className="absolute w-2 h-2 bg-yellow-300 rounded-full shadow-lg"
-                style={{
-                  left: `${25 + i * 12}%`,
-                  bottom: `${15 + (i % 3) * 15}%`,
-                  boxShadow: "0 0 10px rgba(253, 224, 71, 0.8)",
-                }}
-              />
-            ))}
-
-            {/* Night River */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 2, delay: 1 }}
-              className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden"
-            >
-              <Image
-                src="/images/night-river.png"
-                alt="Night river"
-                width={800}
-                height={48}
-                className="object-cover w-full h-full opacity-50"
-              />
-            </motion.div>
-          </>
-        )}
-      </div>
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
