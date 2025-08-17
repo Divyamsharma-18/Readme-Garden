@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
-import Image from "next/image"
 import Footer from "@/components/footer"
 
 interface MarketingPageProps {
@@ -59,151 +58,119 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
   const isDark = theme === "dark"
 
   return (
-    <div className="min-h-screen transition-all duration-700 relative overflow-hidden flex flex-col">
-      {/* Dynamic Background - Same as MVP */}
-      <div
-        className={`fixed inset-0 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-            : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
-        }`}
-      />
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+      {/* Mystical Black & Purple Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-purple-950 to-black" />
 
-      {/* Nature Background Elements - Same as MVP */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {!isDark ? (
-          <>
-            {/* Sun */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.8 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-2xl"
-              style={{ boxShadow: "0 0 50px rgba(251, 191, 36, 0.6)" }}
-            />
+      {/* Animated Purple Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Large mystical orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+          className="absolute top-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+        />
 
-            {/* Day elements */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.8 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10 w-16 h-32"
-            >
-              <Image
-                src="/images/day-tree-1.png"
-                alt="Day tree"
-                width={64}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+            delay: 2,
+          }}
+          className="absolute bottom-32 left-16 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"
+        />
 
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.7 }}
-              transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20 w-20 h-40"
-            >
-              <Image
-                src="/images/day-tree-2.png"
-                alt="Day tree"
-                width={80}
-                height={160}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.1, 0.4, 0.1],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+            delay: 4,
+          }}
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/15 rounded-full blur-3xl"
+        />
 
-            {/* Flowers */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5, delay: 1.5 + i * 0.3 }}
-                className="absolute bottom-10 w-8 h-8 rounded-full overflow-hidden"
-                style={{ left: `${30 + i * 20}%` }}
-              >
-                <Image
-                  src="/images/day-flowers.png"
-                  alt="Day flowers"
-                  width={32}
-                  height={32}
-                  className="object-cover w-full h-full"
-                />
-              </motion.div>
-            ))}
-          </>
-        ) : (
-          <>
-            {/* Moon */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.9 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-2xl"
-              style={{ boxShadow: "0 0 40px rgba(229, 231, 235, 0.8)" }}
-            />
+        {/* Floating particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [-20, -100, -20],
+              opacity: [0, 1, 0],
+              scale: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 6 + i * 0.5,
+              repeat: Number.POSITIVE_INFINITY,
+              delay: i * 0.8,
+              ease: "easeInOut",
+            }}
+            className="absolute w-2 h-2 bg-purple-400 rounded-full shadow-lg"
+            style={{
+              left: `${10 + ((i * 4) % 80)}%`,
+              bottom: `${5 + ((i * 3) % 20)}%`,
+              boxShadow: "0 0 20px rgba(168, 85, 247, 0.8)",
+            }}
+          />
+        ))}
 
-            {/* Stars */}
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.5, 1, 0.5] }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{
-                  left: `${15 + i * 7}%`,
-                  top: `${8 + (i % 4) * 12}%`,
-                }}
-              />
-            ))}
+        {/* Mystical grid pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: "50px 50px",
+            }}
+          />
+        </div>
 
-            {/* Night elements */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.7 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10 w-16 h-32"
-            >
-              <Image
-                src="/images/night-tree-1.png"
-                alt="Night tree"
-                width={64}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
+        {/* Glowing lines */}
+        <motion.div
+          animate={{
+            opacity: [0.2, 0.6, 0.2],
+            scaleX: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+          className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+        />
 
-            {/* Fireflies */}
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{
-                  opacity: [0.3, 1, 0.3],
-                  scale: [0.8, 1.4, 0.8],
-                }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.5,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-                className="absolute w-2 h-2 bg-yellow-300 rounded-full shadow-lg"
-                style={{
-                  left: `${25 + i * 12}%`,
-                  bottom: `${15 + (i % 3) * 15}%`,
-                  boxShadow: "0 0 10px rgba(253, 224, 71, 0.8)",
-                }}
-              />
-            ))}
-          </>
-        )}
+        <motion.div
+          animate={{
+            opacity: [0.1, 0.4, 0.1],
+            scaleX: [1.2, 0.8, 1.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+            delay: 3,
+          }}
+          className="absolute bottom-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent"
+        />
       </div>
 
       {/* Content */}
@@ -218,14 +185,28 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="mb-8"
             >
               <div className="flex items-center justify-center space-x-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-2xl shadow-lg">
+                <motion.div
+                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
+                  animate={{
+                    boxShadow: [
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                      "0 0 40px rgba(168, 85, 247, 0.8)",
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
                   <Github className="w-10 h-10 text-white" />
-                </div>
+                </motion.div>
                 <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden
                   </h1>
-                  <p className="text-lg text-muted-foreground">Where boring docs go to bloom 🌱</p>
+                  <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
                 </div>
               </div>
             </motion.div>
@@ -236,43 +217,52 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="mb-12"
             >
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-white">
                 Stop Staring at{" "}
-                <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
                   Blank READMEs
                 </span>
               </h2>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-purple-200 mb-8 max-w-3xl mx-auto leading-relaxed">
                 Turn your GitHub repos from "meh" to "wow" in 30 seconds. Choose your vibe, let AI do the magic.
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 mb-8">
-                <Badge variant="secondary" className="px-4 py-2 text-sm">
+                <Badge
+                  variant="secondary"
+                  className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
+                >
                   <Zap className="w-4 h-4 mr-2" />
                   30-second generation
                 </Badge>
-                <Badge variant="secondary" className="px-4 py-2 text-sm">
+                <Badge
+                  variant="secondary"
+                  className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
+                >
                   <Palette className="w-4 h-4 mr-2" />6 unique vibes
                 </Badge>
-                <Badge variant="secondary" className="px-4 py-2 text-sm">
+                <Badge
+                  variant="secondary"
+                  className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
+                >
                   <Users className="w-4 h-4 mr-2" />
                   10,000+ developers
                 </Badge>
               </div>
 
-              <Button
-                onClick={onGetStarted}
-                size="lg"
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 text-lg"
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Grow My README
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  onClick={onGetStarted}
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Grow My README
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </motion.div>
 
-              <p className="text-sm text-muted-foreground mt-4">
-                Free forever • No signup required • 5 generations daily
-              </p>
+              <p className="text-sm text-purple-300 mt-4">Free forever • No signup required • 5 generations daily</p>
             </motion.div>
           </div>
         </section>
@@ -287,13 +277,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h3 className="text-3xl md:text-4xl font-bold mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">
                 Choose Your{" "}
-                <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Personality
                 </span>
               </h3>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-xl text-purple-200 max-w-2xl mx-auto">
                 Every project has a personality. Let your README reflect yours with our unique vibe system.
               </p>
             </motion.div>
@@ -310,10 +300,10 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 {vibeExamples.map((vibe, index) => (
                   <motion.div
                     key={vibe.vibe}
-                    className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
+                    className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
                       index === currentVibeIndex
-                        ? "bg-white/20 dark:bg-gray-800/40 shadow-lg scale-105"
-                        : "bg-white/10 dark:bg-gray-800/20 hover:bg-white/15 dark:hover:bg-gray-800/30"
+                        ? "bg-purple-900/40 border-purple-500/50 shadow-lg shadow-purple-500/20 scale-105"
+                        : "bg-black/20 border-purple-800/30 hover:bg-purple-900/20 hover:border-purple-600/40"
                     }`}
                     onClick={() => setCurrentVibeIndex(index)}
                     whileHover={{ scale: 1.02 }}
@@ -324,8 +314,8 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                         <span className="text-2xl">{vibe.emoji}</span>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-lg">{vibe.vibe}</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="font-semibold text-lg text-white">{vibe.vibe}</h4>
+                        <p className="text-sm text-purple-300">
                           {vibe.vibe === "Professional" && "Clean, corporate, and to-the-point"}
                           {vibe.vibe === "Humorous" && "Professional with jokes and wit"}
                           {vibe.vibe === "Creative" && "Artistic and expressive"}
@@ -343,10 +333,10 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-2xl">
+                <Card className="bg-black/40 border-purple-800/50 shadow-2xl shadow-purple-500/10">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-semibold text-lg">README Preview</h4>
+                      <h4 className="font-semibold text-lg text-white">README Preview</h4>
                       <div className="flex space-x-2">
                         <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                         <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
@@ -358,9 +348,9 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 font-mono text-sm overflow-hidden"
+                      className="bg-gray-900/80 border border-purple-800/30 rounded-lg p-4 font-mono text-sm overflow-hidden"
                     >
-                      <pre className="whitespace-pre-wrap text-foreground/80">
+                      <pre className="whitespace-pre-wrap text-purple-100">
                         {vibeExamples[currentVibeIndex].preview}
                       </pre>
                     </motion.div>
@@ -381,9 +371,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h3 className="text-3xl md:text-4xl font-bold mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">
                 Everything You Need to{" "}
-                <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">Shine</span>
+                <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                  Shine
+                </span>
               </h3>
             </motion.div>
 
@@ -433,13 +425,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
+                  <Card className="bg-black/40 border-purple-800/50 shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 h-full hover:border-purple-600/60">
                     <CardContent className="p-6 text-center">
                       <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${feature.color} mb-4`}>
                         <div className="text-white">{feature.icon}</div>
                       </div>
-                      <h4 className="font-semibold text-xl mb-3">{feature.title}</h4>
-                      <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                      <h4 className="font-semibold text-xl mb-3 text-white">{feature.title}</h4>
+                      <p className="text-purple-200 leading-relaxed">{feature.description}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -457,30 +449,32 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <Card className="backdrop-blur-sm bg-gradient-to-r from-green-500/10 to-blue-500/10 border-0 shadow-2xl">
+            <Card className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border-purple-500/30 shadow-2xl shadow-purple-500/20">
               <CardContent className="p-12">
-                <h3 className="text-3xl md:text-4xl font-bold mb-6">
+                <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">
                   Ready to Grow Your{" "}
-                  <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden?
                   </span>
                 </h3>
-                <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+                <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
                   Join thousands of developers who've transformed their GitHub presence. Start growing beautiful
                   documentation today.
                 </p>
 
-                <Button
-                  onClick={onGetStarted}
-                  size="lg"
-                  className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold px-12 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 text-lg"
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Start Growing Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    onClick={onGetStarted}
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-12 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Start Growing Now
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </motion.div>
 
-                <p className="text-sm text-muted-foreground mt-6">
+                <p className="text-sm text-purple-300 mt-6">
                   No credit card required • Free forever • Takes 30 seconds
                 </p>
               </CardContent>
