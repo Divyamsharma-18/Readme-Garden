@@ -97,7 +97,7 @@ export default function HomePage() {
   }
 
   const handleStarOnGitHub = () => {
-    window.open("https://github.com/your-username/readme-garden", "_blank")
+    window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
   }
 
   const handleLogin = async (user: { id: string; email: string; name: string }) => {
