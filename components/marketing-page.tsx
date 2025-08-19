@@ -37,6 +37,10 @@ const vibeExamples = [
   },
 ]
 
+const handleStarOnGitHub = () => {
+  window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
+}
+
 export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
   const [mounted, setMounted] = useState(false)
   const [currentVibeIndex, setCurrentVibeIndex] = useState(0)
