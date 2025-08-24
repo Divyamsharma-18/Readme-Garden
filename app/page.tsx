@@ -162,7 +162,7 @@ export default function HomePage() {
             className="min-h-screen"
           >
             {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 z-50 p-6 backdrop-blur-sm bg-black/20">
+            <header className="fixed top-0 left-0 right-0 z-[60] p-6 backdrop-blur-sm bg-black/20">
               <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -194,8 +194,10 @@ export default function HomePage() {
               </div>
             </header>
 
-            {/* Marketing Page Content - No extra padding needed since MarketingPage handles its own layout */}
-            <MarketingPage onGetStarted={handleGetStarted} />
+            {/* Marketing Page Content - Add padding-top to account for fixed header */}
+            <div className="pt-20">
+              <MarketingPage onGetStarted={handleGetStarted} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
