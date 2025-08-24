@@ -91,9 +91,23 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="mb-8"
             >
               <div className="flex items-center justify-center space-x-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg">
+                <motion.div
+                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
+                  animate={{
+                    boxShadow: [
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                      "0 0 40px rgba(168, 85, 247, 0.8)",
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
                   <Github className="w-10 h-10 text-white" />
-                </div>
+                </motion.div>
                 <div>
                   <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden
