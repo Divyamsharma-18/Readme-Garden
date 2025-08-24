@@ -63,90 +63,20 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col">
-      {/* Mystical Black & Purple Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-black via-purple-950 to-black" />
 
-      {/* Animated Purple Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Large mystical orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3],
+      {/* Simple grid pattern overlay */}
+      <div className="fixed inset-0 opacity-5 pointer-events-none">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
           }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute top-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
         />
-
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-          className="absolute bottom-32 left-16 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"
-        />
-
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.1, 0.4, 0.1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 4,
-          }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/15 rounded-full blur-3xl"
-        />
-
-        {/* Floating particles */}
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              y: [-20, -100, -20],
-              opacity: [0, 1, 0],
-              scale: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 6 + i * 0.5,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: i * 0.8,
-              ease: "easeInOut",
-            }}
-            className="absolute w-2 h-2 bg-purple-400 rounded-full shadow-lg"
-            style={{
-              left: `${10 + ((i * 4) % 80)}%`,
-              bottom: `${5 + ((i * 3) % 20)}%`,
-              boxShadow: "0 0 20px rgba(168, 85, 247, 0.8)",
-            }}
-          />
-        ))}
-
-        {/* Mystical grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
-              `,
-              backgroundSize: "50px 50px",
-            }}
-          />
-        </div>
       </div>
 
       {/* Content */}
@@ -161,25 +91,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="mb-8"
             >
               <div className="flex items-center justify-center space-x-3 mb-6">
-                <motion.div
-                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
-                  animate={{
-                    boxShadow: [
-                      "0 0 20px rgba(168, 85, 247, 0.5)",
-                      "0 0 40px rgba(168, 85, 247, 0.8)",
-                      "0 0 20px rgba(168, 85, 247, 0.5)",
-                    ],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                  }}
-                >
+                <div className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg">
                   <Github className="w-10 h-10 text-white" />
-                </motion.div>
+                </div>
                 <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                  <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden
                   </h1>
                   <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
