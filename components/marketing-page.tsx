@@ -147,34 +147,6 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
             }}
           />
         </div>
-
-        {/* Glowing lines */}
-        <motion.div
-          animate={{
-            opacity: [0.2, 0.6, 0.2],
-            scaleX: [0.8, 1.2, 0.8],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"
-        />
-
-        <motion.div
-          animate={{
-            opacity: [0.1, 0.4, 0.1],
-            scaleX: [1.2, 0.8, 1.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 3,
-          }}
-          className="absolute bottom-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent"
-        />
       </div>
 
       {/* Content */}
