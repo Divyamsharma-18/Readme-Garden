@@ -14,7 +14,6 @@ import { useToast } from "@/hooks/use-toast"
 import LoadingAnimation from "@/components/loading-animation"
 import AuthModal from "@/components/auth-modal"
 import { Textarea } from "@/components/ui/textarea"
-import Image from "next/image"
 import UserProfile from "@/components/user-profile"
 import Footer from "@/components/footer"
 import { supabase } from "@/lib/supabase"
@@ -347,34 +346,6 @@ export default function GeneratePage() {
               className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-2xl"
               style={{ boxShadow: "0 0 50px rgba(251, 191, 36, 0.6)" }}
             />
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.8 }}
-              transition={{ duration: 1.5, delay: 0.3 }}
-              className="absolute bottom-0 left-10 w-16 h-32"
-            >
-              <Image
-                src="/images/day-tree-1.png"
-                alt="Day tree"
-                width={64}
-                height={128}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.7 }}
-              transition={{ duration: 1.5, delay: 0.7 }}
-              className="absolute bottom-0 right-20 w-20 h-40"
-            >
-              <Image
-                src="/images/day-tree-2.png"
-                alt="Day tree"
-                width={80}
-                height={160}
-                className="object-cover w-full h-full"
-              />
-            </motion.div>
           </>
         ) : (
           <>
@@ -419,11 +390,11 @@ export default function GeneratePage() {
               <Button variant="ghost" size="icon" className="rounded-full">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl shadow-lg">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
                 <Github className="w-8 h-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              <div className="hidden sm:block">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                   README Garden
                 </h1>
                 <p className="text-sm text-muted-foreground">Grow beautiful READMEs with AI magic</p>
@@ -432,23 +403,26 @@ export default function GeneratePage() {
           </motion.div>
 
           <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="px-3 py-1 shadow-sm hidden sm:flex">
-              {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
+            <Badge variant="secondary" className="px-3 py-1 shadow-sm flex">
+              <span className="sm:hidden">{isAuthenticated ? `${remainingUses}/10` : `${remainingUses}/5`}</span>
+              <span className="hidden sm:inline">
+                {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
+              </span>
             </Badge>
             <Button
               variant="outline"
               size="sm"
               onClick={handleStarOnGitHub}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent hidden sm:flex"
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex"
             >
               <Star className="w-4 h-4 mr-1 text-yellow-500" />
-              Star on GitHub
+              <span className="hidden sm:inline">Star on GitHub</span>
             </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent"
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent hidden sm:flex"
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
