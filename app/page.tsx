@@ -162,7 +162,7 @@ export default function HomePage() {
             className="min-h-screen"
           >
             {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 z-[60] py-2 px-4 sm:px-6 backdrop-blur-sm bg-black/20">
+            <header className="fixed top-0 left-0 right-0 z-[60] py-3 px-4 sm:px-6 backdrop-blur-sm bg-black/20">
               <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
