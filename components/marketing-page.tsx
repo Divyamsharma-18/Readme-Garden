@@ -82,7 +82,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
       {/* Content */}
       <div className="relative z-10 flex-grow">
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center px-6 my-[-10px]">
+        <section className="min-h-screen flex items-center justify-center px-6">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -90,10 +90,24 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <div className="flex items-center justify-center space-x-3 mb-[34px]">
-                <div className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg">
+              <div className="flex items-center justify-center space-x-3 mb-6">
+                <motion.div
+                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
+                  animate={{
+                    boxShadow: [
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                      "0 0 40px rgba(168, 85, 247, 0.8)",
+                      "0 0 20px rgba(168, 85, 247, 0.5)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
                   <Github className="w-10 h-10 text-white" />
-                </div>
+                </motion.div>
                 <div>
                   <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden
@@ -146,11 +160,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 <Button
                   onClick={onGetStarted}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-4 sm:px-8 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto flex items-center justify-center gap-2"
                 >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Grow My README
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <Sparkles className="w-4 h-4 text-white" />
+                  <span className="whitespace-nowrap text-white">Grow My README</span>
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </Button>
               </motion.div>
 
@@ -358,11 +372,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   <Button
                     onClick={onGetStarted}
                     size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-12 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-3  sm:px-12 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-[280px] sm:max-w-none mx-auto flex items-center justify-center gap-1 sm:gap-2"
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Start Growing Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap text-xs sm:text-lg">Start Growing Now</span>
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   </Button>
                 </motion.div>
 
