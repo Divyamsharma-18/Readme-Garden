@@ -173,12 +173,10 @@ export default function HomePage() {
                     <Github className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                       README Garden
                     </h1>
-                    <p className="text-xs sm:text-sm text-purple-300 hidden xs:block">
-                      Where boring docs go to bloom 🌱
-                    </p>
+                    <p className="text-xs text-purple-300 hidden sm:block">Where boring docs go to bloom 🌱</p>
                   </div>
                 </motion.div>
 

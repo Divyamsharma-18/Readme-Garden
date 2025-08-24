@@ -179,7 +179,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   <Github className="w-10 h-10 text-white" />
                 </motion.div>
                 <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                  <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                     README Garden
                   </h1>
                   <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
