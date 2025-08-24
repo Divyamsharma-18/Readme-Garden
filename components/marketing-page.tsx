@@ -192,7 +192,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
               {/* Vibe Selector */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
@@ -283,7 +283,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               </h3>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
               {[
                 {
                   icon: <Code className="w-8 h-8" />,
