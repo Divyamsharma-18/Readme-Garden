@@ -13,41 +13,23 @@ export default function IntroAnimation({ onAnimationComplete }: IntroAnimationPr
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }} // Overall fade-in/out of the overlay
+      transition={{ duration: 0.5 }}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900"
     >
       <motion.div
-        initial={{ rotateY: 0 }} // Start with no Y-rotation, no scale animation
+        initial={{ rotateY: 0 }}
         animate={{
-          rotateY: [0, 720, 720], // Two full 360-degree rotations around Y-axis, then hold
+          rotateY: [0, 720, 720],
         }}
         transition={{
-          duration: 2, // Total duration for the icon's animation
+          duration: 2,
           ease: "easeInOut",
-          times: [0, 1 / 2, 1], // Spin completes at 1 second (1/2 of 2s), then holds until 2s
+          times: [0, 1 / 2, 1],
         }}
         className="relative"
-        onAnimationComplete={onAnimationComplete} // Call parent callback when this animation finishes
+        onAnimationComplete={onAnimationComplete}
       >
-        <Github className="w-20 h-20 md:w-24 md:h-24 text-yellow-500 drop-shadow-lg" />{" "}
-        {/* Icon size remains constant */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} // Start below and invisible
-          animate={{ opacity: 1, y: 0 }} // Move up and fade in
-          transition={{
-            delay: 1.75, // Start at 1.75 seconds
-            duration: 0.25, // Finish by 2 seconds
-            ease: "easeOut",
-          }}
-          className="absolute inset-x-0 bottom-[-40px] flex items-center justify-center" // Position below the icon
-        >
-          <motion.span
-            className="text-2xl md:text-3xl font-bold text-white text-shadow-md"
-            style={{ textShadow: "0px 0px 8px rgba(0,0,0,0.5)" }}
-          >
-            README Garden
-          </motion.span>
-        </motion.div>
+        <Github className="w-12 h-12 md:w-16 md:h-16 text-yellow-500 drop-shadow-lg" />
       </motion.div>
     </motion.div>
   )
