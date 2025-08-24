@@ -90,9 +90,9 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="flex items-center justify-center gap-4">
                 <motion.div
-                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
+                  className="hidden sm:block p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
                   animate={{
                     boxShadow: [
                       "0 0 20px rgba(168, 85, 247, 0.5)",
@@ -108,13 +108,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 >
                   <Github className="w-10 h-10 text-white" />
                 </motion.div>
-                <div>
-                  <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                    README Garden
-                  </h1>
-                  <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
-                </div>
+                <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                  README Garden
+                </h1>
               </div>
+              <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
             </motion.div>
 
             <motion.div
