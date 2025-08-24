@@ -37,6 +37,10 @@ const vibeExamples = [
   },
 ]
 
+const handleStarOnGitHub = () => {
+  window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
+}
+
 export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
   const [mounted, setMounted] = useState(false)
   const [currentVibeIndex, setCurrentVibeIndex] = useState(0)
@@ -59,117 +63,19 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col">
-      {/* Mystical Black & Purple Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-black via-purple-950 to-black" />
 
-      {/* Animated Purple Orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Large mystical orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3],
+      {/* Simple grid pattern overlay */}
+      <div className="fixed inset-0 opacity-5 pointer-events-none">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: "50px 50px",
           }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute top-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
-        />
-
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-          className="absolute bottom-32 left-16 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl"
-        />
-
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.1, 0.4, 0.1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 4,
-          }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/15 rounded-full blur-3xl"
-        />
-
-        {/* Floating particles */}
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              y: [-20, -100, -20],
-              opacity: [0, 1, 0],
-              scale: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 6 + i * 0.5,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: i * 0.8,
-              ease: "easeInOut",
-            }}
-            className="absolute w-2 h-2 bg-purple-400 rounded-full shadow-lg"
-            style={{
-              left: `${10 + ((i * 4) % 80)}%`,
-              bottom: `${5 + ((i * 3) % 20)}%`,
-              boxShadow: "0 0 20px rgba(168, 85, 247, 0.8)",
-            }}
-          />
-        ))}
-
-        {/* Mystical grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div
-            className="w-full h-full"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
-              `,
-              backgroundSize: "50px 50px",
-            }}
-          />
-        </div>
-
-        {/* Glowing lines */}
-        <motion.div
-          animate={{
-            opacity: [0.2, 0.6, 0.2],
-            scaleX: [0.8, 1.2, 0.8],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"
-        />
-
-        <motion.div
-          animate={{
-            opacity: [0.1, 0.4, 0.1],
-            scaleX: [1.2, 0.8, 1.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-            delay: 3,
-          }}
-          className="absolute bottom-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent"
         />
       </div>
 
@@ -184,9 +90,9 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="flex items-center justify-center gap-4">
                 <motion.div
-                  className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
+                  className="hidden sm:block p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-2xl"
                   animate={{
                     boxShadow: [
                       "0 0 20px rgba(168, 85, 247, 0.5)",
@@ -202,13 +108,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 >
                   <Github className="w-10 h-10 text-white" />
                 </motion.div>
-                <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                    README Garden
-                  </h1>
-                  <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
-                </div>
+                <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                  README Garden
+                </h1>
               </div>
+              <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
             </motion.div>
 
             <motion.div
@@ -254,11 +158,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 <Button
                   onClick={onGetStarted}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-4 sm:px-8 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto flex items-center justify-center gap-2"
                 >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Grow My README
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <Sparkles className="w-4 h-4 text-white" />
+                  <span className="whitespace-nowrap text-white">Grow My README</span>
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </Button>
               </motion.div>
 
@@ -288,7 +192,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
               {/* Vibe Selector */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
@@ -379,7 +283,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               </h3>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
               {[
                 {
                   icon: <Code className="w-8 h-8" />,
@@ -466,11 +370,11 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   <Button
                     onClick={onGetStarted}
                     size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-12 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/50"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-3  sm:px-12 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-[280px] sm:max-w-none mx-auto flex items-center justify-center gap-1 sm:gap-2"
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Start Growing Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="whitespace-nowrap text-xs sm:text-lg">Start Growing Now</span>
+                    <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   </Button>
                 </motion.div>
 
