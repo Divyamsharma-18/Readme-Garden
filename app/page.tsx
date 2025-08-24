@@ -162,40 +162,42 @@ export default function HomePage() {
             className="min-h-screen"
           >
             {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 z-[60] py-2 px-6 backdrop-blur-sm bg-black/20">
+            <header className="fixed top-0 left-0 right-0 z-[60] py-2 px-4 sm:px-6 backdrop-blur-sm bg-black/20">
               <div className="max-w-7xl mx-auto flex justify-between items-center">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center space-x-3"
+                  className="flex items-center space-x-2 sm:space-x-3"
                 >
-                  <div className="p-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg">
-                    <Github className="w-8 h-8 text-white" />
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
+                    <Github className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                       README Garden
                     </h1>
-                    <p className="text-sm text-purple-300">Where boring docs go to bloom 🌱</p>
+                    <p className="text-xs sm:text-sm text-purple-300 hidden xs:block">
+                      Where boring docs go to bloom 🌱
+                    </p>
                   </div>
                 </motion.div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
                   >
-                    <Star className="w-4 h-4 mr-1 text-yellow-400" />
-                    Star on GitHub
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
+                    <span className="hidden xs:inline">Star on </span>GitHub
                   </Button>
                 </div>
               </div>
             </header>
 
-            {/* Marketing Page Content - Reduced padding-top to move content up */}
-            <div className="pt-12">
+            {/* Marketing Page Content - Responsive padding-top */}
+            <div className="pt-16 sm:pt-14 md:pt-12">
               <MarketingPage onGetStarted={handleGetStarted} />
             </div>
           </motion.div>
