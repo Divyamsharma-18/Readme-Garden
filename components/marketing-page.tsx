@@ -82,7 +82,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
       {/* Content */}
       <div className="relative z-10 flex-grow">
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center px-6">
+        <section className="min-h-screen flex items-center justify-center px-6 my-[-10px]">
           <div className="max-w-6xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -90,7 +90,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="flex items-center justify-center space-x-3 mb-[34px]">
                 <div className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg">
                   <Github className="w-10 h-10 text-white" />
                 </div>
