@@ -192,42 +192,44 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               </p>
             </motion.div>
 
-              <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="grid sm:grid-cols-2 gap-8 items-stretch">
               {/* Vibe Selector */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
-                className="space-y-4"
+                className="h-full"
               >
-                {vibeExamples.map((vibe, index) => (
-                  <motion.div
-                    key={vibe.vibe}
-                    className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
-                      index === currentVibeIndex
-                        ? "bg-purple-900/40 border-purple-500/50 shadow-lg shadow-purple-500/20 scale-105"
-                        : "bg-black/20 border-purple-800/30 hover:bg-purple-900/20 hover:border-purple-600/40"
-                    }`}
-                    onClick={() => setCurrentVibeIndex(index)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-xl bg-gradient-to-r ${vibe.color}`}>
-                        <span className="text-2xl">{vibe.emoji}</span>
+                <div className="space-y-4 h-full flex flex-col justify-center md:py-0 sm:py-8">
+                  {vibeExamples.map((vibe, index) => (
+                    <motion.div
+                      key={vibe.vibe}
+                      className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
+                        index === currentVibeIndex
+                          ? "bg-purple-900/40 border-purple-500/50 shadow-lg shadow-purple-500/20 scale-105"
+                          : "bg-black/20 border-purple-800/30 hover:bg-purple-900/20 hover:border-purple-600/40"
+                      }`}
+                      onClick={() => setCurrentVibeIndex(index)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-3 rounded-xl bg-gradient-to-r ${vibe.color}`}>
+                          <span className="text-2xl">{vibe.emoji}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-lg text-white">{vibe.vibe}</h4>
+                          <p className="text-sm text-purple-300">
+                            {vibe.vibe === "Professional" && "Clean, corporate, and to-the-point"}
+                            {vibe.vibe === "Humorous" && "Professional with jokes and wit"}
+                            {vibe.vibe === "Creative" && "Artistic and expressive"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-lg text-white">{vibe.vibe}</h4>
-                        <p className="text-sm text-purple-300">
-                          {vibe.vibe === "Professional" && "Clean, corporate, and to-the-point"}
-                          {vibe.vibe === "Humorous" && "Professional with jokes and wit"}
-                          {vibe.vibe === "Creative" && "Artistic and expressive"}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
 
               {/* Preview */}
@@ -236,9 +238,10 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
+                className="h-full"
               >
-                <Card className="bg-black/40 border-purple-800/50 shadow-2xl shadow-purple-500/10">
-                  <CardContent className="p-6">
+                <Card className="bg-black/40 border-purple-800/50 shadow-2xl shadow-purple-500/10 h-full">
+                  <CardContent className="p-6 h-full flex flex-col justify-center">
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-semibold text-lg text-white">README Preview</h4>
                       <div className="flex space-x-2">
@@ -252,7 +255,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="bg-gray-900/80 border border-purple-800/30 rounded-lg p-4 font-mono text-sm overflow-hidden"
+                      className="bg-gray-900/80 border border-purple-800/30 rounded-lg p-4 font-mono text-sm overflow-hidden flex-grow"
                     >
                       <pre className="whitespace-pre-wrap text-purple-100">
                         {vibeExamples[currentVibeIndex].preview}
