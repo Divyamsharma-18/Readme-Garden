@@ -402,10 +402,10 @@ export default function GeneratePage() {
             </Link>
           </motion.div>
 
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="px-3 py-1 shadow-sm flex">
-              <span className="sm:hidden">{isAuthenticated ? `${remainingUses}/10` : `${remainingUses}/5`}</span>
-              <span className="hidden sm:inline">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
+            <Badge variant="secondary" className="px-2 sm:px-3 py-1 shadow-sm flex text-xs">
+              <span className="lg:hidden">{isAuthenticated ? `${remainingUses}/10` : `${remainingUses}/5`}</span>
+              <span className="hidden lg:inline">
                 {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
               </span>
             </Badge>
@@ -413,28 +413,32 @@ export default function GeneratePage() {
               variant="outline"
               size="sm"
               onClick={handleStarOnGitHub}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex"
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex p-2"
             >
               <Star className="w-4 h-4 mr-1 text-yellow-500" />
-              <span className="hidden sm:inline">Star on GitHub</span>
+              <span className="hidden lg:inline">Star on GitHub</span>
             </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent hidden sm:flex"
+              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex md:flex w-8 h-8 sm:w-10 sm:h-10"
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-3 h-3 sm:w-4 sm:h-4" /> : <Moon className="w-3 h-3 sm:w-4 sm:h-4" />}
             </Button>
             {isAuthenticated && userData ? (
               <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
             ) : (
               <>
-                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden sm:flex">
+                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden lg:flex">
                   Sign In
                 </Button>
-                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm sm:hidden" size="icon">
-                  <User className="w-4 h-4" />
+                <Button
+                  onClick={() => setShowAuthModal(true)}
+                  className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10"
+                  size="icon"
+                >
+                  <User className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </>
             )}
