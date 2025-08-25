@@ -112,7 +112,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   README Garden
                 </h1>
               </div>
-              <p className="text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
+              <p className="text-base sm:text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
             </motion.div>
 
             <motion.div
