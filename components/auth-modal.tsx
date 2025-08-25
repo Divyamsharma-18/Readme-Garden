@@ -1,209 +1,229 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Star } from "lucide-react"
+import { X, User, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useTheme } from "next-themes"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import AuthModal from "@/components/auth-modal"
-import IntroAnimation from "@/components/intro-animation"
-import { supabase } from "@/lib/supabase"
-import MarketingPage from "@/components/marketing-page"
-import { useRouter } from "next/navigation"
 
-export default function HomePage() {
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userData, setUserData] = useState<{ username: string; email: string } | null>(null)
-  const [mounted, setMounted] = useState(false)
-  const [showIntroAnimation, setShowIntroAnimation] = useState(true)
-  const [showMarketing, setShowMarketing] = useState(false)
-  const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0)
-  const [dailyUsageCount, setDailyUsageCount] = useState(0)
-  const router = useRouter()
-  const { theme, setTheme } = useTheme()
+interface AuthModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSuccess: (userData: { username: string; email: string }) => void
+}
+
+export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [name, setName] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
 
-  useEffect(() => {
-    setMounted(true)
-    const today = new Date().toDateString()
+  const handleAuth = async (type: "signin" | "signup") => {
+    setIsLoading(true)
 
-    // Check Supabase session
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (session?.user) {
-        setIsAuthenticated(true)
-        setUserData({
-          username: session.user.user_metadata?.full_name || session.user.email || "User",
-          email: session.user.email || "user@example.com",
+    try {
+      const endpoint = type === "signin" ? "/api/auth/signin" : "/api/auth/signup"
+      const body = type === "signin" ? { email, password } : { email, password, name }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Authentication failed.")
+      }
+
+      // Handle email confirmation message if present
+      if (data.emailConfirmationRequired) {
+        toast({
+          title: "Account Created! 🎉",
+          description: "Please check your email to confirm your account before signing in.",
+          variant: "default",
         })
       } else {
-        setIsAuthenticated(false)
-        setUserData(null)
-      }
-    }
-
-    checkSession()
-
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setIsAuthenticated(true)
-        setUserData({
-          username: session.user.user_metadata?.full_name || session.user.email || "User",
-          email: session.user.email || "user@example.com",
+        toast({
+          title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
+          description: "You now have 10 README generations per day!",
         })
-      } else {
-        setIsAuthenticated(false)
-        setUserData(null)
       }
-    })
 
-    // Usage count logic for badge display
-    const lastAuthUsageDate = localStorage.getItem("readme-last-usage-date-auth")
-    const authDailyCount = localStorage.getItem("readme-daily-usage-count-auth")
-    if (lastAuthUsageDate !== today) {
-      setDailyUsageCount(0)
-      localStorage.setItem("readme-daily-usage-count-auth", "0")
-      localStorage.setItem("readme-last-usage-date-auth", today)
-    } else {
-      setDailyUsageCount(authDailyCount ? Number.parseInt(authDailyCount) : 0)
-    }
+      onSuccess(data.user)
+    } catch (error) {
+      // Always show clean, user-friendly error messages
+      let cleanErrorMessage = "Authentication failed. Please try again."
 
-    const lastUnauthUsageDate = localStorage.getItem("readme-last-usage-date-unauth")
-    const unauthCount = localStorage.getItem("readme-daily-usage-count-unauth")
-    if (lastUnauthUsageDate !== today) {
-      setUnauthDailyUsageCount(0)
-      localStorage.setItem("readme-daily-usage-count-unauth", "0")
-      localStorage.setItem("readme-last-usage-date-unauth", today)
-    } else {
-      setUnauthDailyUsageCount(unauthCount ? Number.parseInt(unauthCount) : 0)
-    }
+      if (error instanceof Error) {
+        const errorText = error.message.toLowerCase()
 
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [])
+        if (errorText.includes("invalid") && errorText.includes("credentials")) {
+          cleanErrorMessage = "Invalid email or password"
+        } else if (errorText.includes("user already registered")) {
+          cleanErrorMessage = "An account with this email already exists"
+        } else if (errorText.includes("email not confirmed")) {
+          cleanErrorMessage = "Please check your email to confirm your account"
+        } else if (errorText.includes("password should be at least")) {
+          cleanErrorMessage = "Password must be at least 6 characters"
+        } else if (errorText.includes("too many")) {
+          cleanErrorMessage = "Too many attempts. Please try again later"
+        }
+      }
 
-  const getRemainingUses = () => {
-    if (!isAuthenticated) {
-      return Math.max(0, 5 - unauthDailyUsageCount)
-    } else {
-      return Math.max(0, 10 - dailyUsageCount)
-    }
-  }
-
-  const handleStarOnGitHub = () => {
-    window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
-  }
-
-  const handleLogin = async (user: { id: string; email: string; name: string }) => {
-    setIsAuthenticated(true)
-    setUserData({ username: user.name, email: user.email })
-    setShowAuthModal(false)
-    setDailyUsageCount(0)
-    localStorage.setItem("readme-daily-usage-count-auth", "0")
-    localStorage.setItem("readme-last-usage-date-auth", new Date().toDateString())
-  }
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error("Supabase logout error:", error.message)
       toast({
-        title: "Logout Failed",
-        description: error.message,
+        title: "Authentication Failed",
+        description: cleanErrorMessage,
         variant: "destructive",
       })
-    } else {
-      setIsAuthenticated(false)
-      setUserData(null)
-      toast({
-        title: "Logged out successfully",
-        description: "See you next time!",
-      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
   }
-
-  const handleIntroComplete = () => {
-    setShowIntroAnimation(false)
-    setShowMarketing(true)
-  }
-
-  const handleGetStarted = () => {
-    router.push("/generate")
-  }
-
-  if (!mounted) {
-    return null
-  }
-
-  const remainingUses = getRemainingUses()
 
   return (
-    <div className="min-h-screen">
-      {/* Intro Animation */}
-      <AnimatePresence mode="wait">
-        {showIntroAnimation && <IntroAnimation key="intro" onAnimationComplete={handleIntroComplete} />}
-        {showMarketing && (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
           <motion.div
-            key="marketing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="min-h-screen"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md"
           >
-            {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 py-3 z-[60] px-4 sm:px-6 backdrop-blur-sm bg-black/20 py-3">
-              <div className="max-w-7xl mx-auto flex justify-between items-center py-0">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center space-x-2 sm:space-x-3"
-                >
-                  <div className="p-1.5 sm:p-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
-                    <Github className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl">
+              <CardHeader className="relative">
+                <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-2 top-2 rounded-full">
+                  <X className="w-4 h-4" />
+                </Button>
+                <CardTitle className="text-center">
+                  <div className="flex items-center justify-center space-x-2 mb-2">
+                    <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <span>Join README Garden</span>
                   </div>
-                  <div>
-                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                      README Garden
-                    </h1>
-                    <p className="text-xs text-purple-300 hidden sm:block">Where boring docs go to bloom 🌱</p>
-                  </div>
-                </motion.div>
+                  <p className="text-sm font-normal text-muted-foreground">Get 10 README generations per day</p>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="signin" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="signin">Sign In</TabsTrigger>
+                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  </TabsList>
 
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
-                  >
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
-                    <span className="hidden xs:inline">Star on </span>GitHub
-                  </Button>
-                </div>
-              </div>
-            </header>
+                  <TabsContent value="signin" className="space-y-4">
+                    <div className="space-y-4">
+                      <div>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="rounded-xl pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <Button
+                        onClick={() => handleAuth("signin")}
+                        disabled={isLoading || !email || !password}
+                        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                      >
+                        {isLoading ? "Signing In..." : "Sign In"}
+                      </Button>
+                    </div>
+                  </TabsContent>
 
-            {/* Marketing Page Content - Responsive padding-top */}
-            <div className="pt-16 sm:pt-14 md:pt-12">
-              <MarketingPage onGetStarted={handleGetStarted} />
-            </div>
+                  <TabsContent value="signup" className="space-y-4">
+                    <div className="space-y-4">
+                      <div>
+                        <Input
+                          type="text"
+                          placeholder="Full Name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="rounded-xl"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="rounded-xl pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <Button
+                        onClick={() => handleAuth("signup")}
+                        disabled={isLoading || !email || !password || !name}
+                        className="w-full rounded-xl bg-gradient-to-r bg-gradient-to-r from-blue-500 to-purple-500 text-neutral-50"
+                      >
+                        {isLoading ? "Creating Account..." : "Create Account"}
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <p className="text-xs text-center text-muted-foreground mt-4">
+                  By signing up, you agree to our Terms of Service and Privacy Policy
+                </p>
+              </CardContent>
+            </Card>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Auth Modal */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
