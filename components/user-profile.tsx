@@ -35,7 +35,7 @@ export default function UserProfile({ username, email, onLogout }: UserProfilePr
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative flex items-center gap-2 rounded-full p-1 pl-3 pr-2 hover:bg-muted">
+        <Button variant="ghost" className="relative z-[9999] flex items-center gap-2 rounded-full p-1 pl-3 pr-2 hover:bg-muted">
           <Avatar className="h-8 w-8">
             <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${username}`} alt={username} />
             <AvatarFallback>{firstInitial}</AvatarFallback>
