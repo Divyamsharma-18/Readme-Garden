@@ -115,7 +115,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 </Button>
                 <CardTitle className="text-center">
                   <div className="flex items-center justify-center space-x-2 mb-2">
-                    <div className="p-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg">
+                    <div className="p-2 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-lg">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     <span>Join README Garden</span>
@@ -208,7 +208,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       <Button
                         onClick={() => handleAuth("signup")}
                         disabled={isLoading || !email || !password || !name}
-                        className="w-full rounded-xl bg-gradient-to-r bg-gradient-to-r from-blue-500 to-purple-500 text-neutral-50"
+                        className="w-full rounded-xl bg-gradient-to-r bg-gradient-to-r from-blue-600 to-purple-600 text-neutral-50"
                       >
                         {isLoading ? "Creating Account..." : "Create Account"}
                       </Button>
