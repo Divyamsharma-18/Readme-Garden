@@ -430,12 +430,15 @@ export default function GeneratePage() {
               <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
             ) : (
               <>
-                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden lg:flex">
+                <Button
+                  onClick={() => setShowAuthModal(true)}
+                  className="rounded-full shadow-sm hidden lg:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
                   Sign In
                 </Button>
                 <Button
                   onClick={() => setShowAuthModal(true)}
-                  className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10"
+                  className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                   size="icon"
                 >
                   <User className="w-3 h-3 sm:w-4 sm:h-4" />
