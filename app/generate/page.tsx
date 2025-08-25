@@ -538,7 +538,7 @@ export default function GeneratePage() {
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !repoUrl || !selectedVibe || remainingUses <= 0}
-                  className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
+                  className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 to-indigo-700 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
                 >
                   {isGenerating ? (
                     <>
