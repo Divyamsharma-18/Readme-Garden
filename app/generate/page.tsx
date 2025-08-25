@@ -415,7 +415,7 @@ export default function GeneratePage() {
               onClick={handleStarOnGitHub}
               className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex p-2"
             >
-              <Star className="w-4 h-4 mr-1 text-yellow-500" />
+              <Star className="w-4 h-4 text-yellow-500" />
               <span className="hidden lg:inline">Star on GitHub</span>
             </Button>
             <Button
