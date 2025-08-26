@@ -315,7 +315,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 {
                   icon: <Zap className="w-8 h-8" />,
                   title: "Lightning Fast",
-                  description: "Generate comprehensive READMEs in under 10 seconds, not 30 minutes",
+                  description: "Generate comprehensive READMEs in under 10 seconds, not in 30 minutes",
                   color: "from-yellow-500 to-orange-500",
                 },
                 {
