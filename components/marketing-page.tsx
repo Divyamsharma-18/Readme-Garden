@@ -128,7 +128,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 </span>
               </h2>
               <p className="text-xl md:text-2xl text-purple-200 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-                Turn your GitHub repos from "meh" to "wow" in 30 seconds. Choose your vibe, let AI do the magic.
+                Turn your GitHub repos from "meh" to "wow" in 10 seconds. Choose your vibe, let AI do the magic.
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -315,7 +315,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 {
                   icon: <Zap className="w-8 h-8" />,
                   title: "Lightning Fast",
-                  description: "Generate comprehensive READMEs in under 30 seconds, not 30 minutes",
+                  description: "Generate comprehensive READMEs in under 10 seconds, not 30 minutes",
                   color: "from-yellow-500 to-orange-500",
                 },
                 {
@@ -382,7 +382,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 </motion.div>
 
                 <p className="text-sm text-purple-300 mt-6">
-                  No credit card required • Free forever • Takes 30 seconds
+                  No credit card required • Free forever • Takes 10 seconds
                 </p>
               </CardContent>
             </Card>
