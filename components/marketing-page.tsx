@@ -123,13 +123,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="mb-12"
             >
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight text-white">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight text-white">
                 Stop Staring at{" "}
                 <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
                   Blank READMEs
                 </span>
               </h2>
-              <p className="text-xl md:text-2xl text-purple-200 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-purple-200 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
                 Turn your GitHub repos from "meh" to "wow" in 30 seconds. Choose your vibe, let AI do the magic.
               </p>
 
@@ -152,7 +152,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  10,000+ developers
+                  1000+ developers
                 </Badge>
               </div>
 
