@@ -166,7 +166,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                 </Button>
               </motion.div>
 
-              <p className="text-sm text-purple-300 mt-4">Free forever • No signup required • 5 generations daily</p>
+              <p className="text-sm text-purple-300 mt-4">Free forever • No signup required • 10 generations daily</p>
             </motion.div>
           </div>
         </section>
