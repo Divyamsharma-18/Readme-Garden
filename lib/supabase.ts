@@ -1,21 +1,33 @@
-import { createClient } from "@supabase/supabase-js"
+"use client"
 
-// Create a single Supabase client for the client-side
-// This uses the anon key, which is safe to expose in the browser
+import { createClient, type SupabaseClient, type Session, type AuthChangeEvent } from "@supabase/supabase-js"
+
+type MockSubscription = { unsubscribe: () => void }
+type MockOnAuthChangeReturn = { data: { subscription: MockSubscription } }
+
+function createMockSupabase(): any {
+  const subscription: MockSubscription = { unsubscribe: () => {} }
+
+  return {
+    auth: {
+      // Mimic supabase-js signatures we use in the app
+      async getSession(): Promise<{ data: { session: Session | null }; error: null }> {
+        return { data: { session: null }, error: null }
+      },
+      onAuthStateChange(_callback: (event: AuthChangeEvent, session: Session | null) => void): MockOnAuthChangeReturn {
+        return { data: { subscription } }
+      },
+      async signOut(): Promise<{ error: null }> {
+        return { error: null }
+      },
+    },
+  }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-  )
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// For server-side operations (e.g., in API routes or Server Actions),
-// you might need a service role key or a different setup if you're doing
-// admin-level operations. For basic auth, the anon key is often sufficient
-// when used in a secure server context.
-// However, for this demo, we'll use the anon key in the API routes as well
-// for simplicity, assuming the API routes are protected by Vercel's environment.
+// Create real client if env vars exist, otherwise fall back to a safe mock.
+// This prevents crashes in preview when env vars are not configured.
+export const supabase: SupabaseClient | any =
+  supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : createMockSupabase()

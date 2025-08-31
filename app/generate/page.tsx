@@ -33,6 +33,10 @@ const vibeOptions = [
   { value: "detailed", label: "📚 Detailed", description: "Comprehensive and thorough" },
 ]
 
+// Daily usage caps
+const UNAUTH_DAILY_LIMIT = 3 // 3 uses before sign up
+const AUTH_DAILY_LIMIT = 5 // total 5 after sign in (2 more)
+
 export default function GeneratePage() {
   const [repoUrl, setRepoUrl] = useState("")
   const [liveDemoUrl, setLiveDemoUrl] = useState("")
@@ -52,11 +56,18 @@ export default function GeneratePage() {
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
+  const getRemainingUses = () => {
+    if (!isAuthenticated) {
+      return Math.max(0, UNAUTH_DAILY_LIMIT - unauthDailyUsageCount)
+    } else {
+      return Math.max(0, AUTH_DAILY_LIMIT - dailyUsageCount)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
     const today = new Date().toDateString()
 
-    // Check Supabase session
     const checkSession = async () => {
       const {
         data: { session },
@@ -64,7 +75,7 @@ export default function GeneratePage() {
       if (session?.user) {
         setIsAuthenticated(true)
         setUserData({
-          username: session.user.user_metadata?.full_name || session.user.email || "User",
+          username: (session.user as any).user_metadata?.full_name || session.user.email || "User",
           email: session.user.email || "user@example.com",
         })
       } else {
@@ -75,8 +86,7 @@ export default function GeneratePage() {
 
     checkSession()
 
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       if (session?.user) {
         setIsAuthenticated(true)
         setUserData({
@@ -111,17 +121,9 @@ export default function GeneratePage() {
     }
 
     return () => {
-      authListener.subscription.unsubscribe()
+      authListener?.subscription?.unsubscribe?.()
     }
   }, [])
-
-  const getRemainingUses = () => {
-    if (!isAuthenticated) {
-      return Math.max(0, 5 - unauthDailyUsageCount)
-    } else {
-      return Math.max(0, 10 - dailyUsageCount)
-    }
-  }
 
   const handleGenerate = async () => {
     if (!repoUrl || !selectedVibe) {
@@ -141,7 +143,7 @@ export default function GeneratePage() {
       } else {
         toast({
           title: "Daily Limit Reached",
-          description: "You've used all 10 generations for today. Come back tomorrow!",
+          description: `You've used all ${AUTH_DAILY_LIMIT} generations for today. Come back tomorrow!`,
           variant: "destructive",
         })
         return
@@ -209,9 +211,21 @@ export default function GeneratePage() {
       return
     }
 
-    if (isRewriting) {
+    const remainingUsesNow = getRemainingUses()
+    if (remainingUsesNow <= 0) {
+      if (!isAuthenticated) {
+        setShowAuthModal(true)
+      } else {
+        toast({
+          title: "Daily Limit Reached",
+          description: `You've used all ${AUTH_DAILY_LIMIT} generations for today. Come back tomorrow!`,
+          variant: "destructive",
+        })
+      }
       return
     }
+
+    if (isRewriting) return
 
     setIsRewriting(true)
     const currentRewriteCount = rewriteCount + 1
@@ -247,6 +261,20 @@ export default function GeneratePage() {
       await new Promise((resolve) => setTimeout(resolve, 100))
       setGeneratedReadme(data.rewrittenReadme)
 
+      // Charge one use credit on successful rewrite
+      const today = new Date().toDateString()
+      if (!isAuthenticated) {
+        const newCount = unauthDailyUsageCount + 1
+        setUnauthDailyUsageCount(newCount)
+        localStorage.setItem("readme-daily-usage-count-unauth", newCount.toString())
+        localStorage.setItem("readme-last-usage-date-unauth", today)
+      } else {
+        const newDailyCount = dailyUsageCount + 1
+        setDailyUsageCount(newDailyCount)
+        localStorage.setItem("readme-daily-usage-count-auth", newDailyCount.toString())
+        localStorage.setItem("readme-last-usage-date-auth", today)
+      }
+
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
         description: "Your README has been completely refreshed!",
@@ -262,7 +290,18 @@ export default function GeneratePage() {
         setIsRewriting(false)
       }, 200)
     }
-  }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])
+  }, [
+    generatedReadme,
+    selectedVibe,
+    repoUrl,
+    projectPurpose,
+    isRewriting,
+    rewriteCount,
+    toast,
+    isAuthenticated,
+    unauthDailyUsageCount,
+    dailyUsageCount,
+  ])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedReadme)
@@ -286,13 +325,21 @@ export default function GeneratePage() {
     window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
   }
 
+  // Carry over today's unauth usage so sign-in only grants 2 more (total 5)
   const handleLogin = async (user: { id: string; email: string; name: string }) => {
     setIsAuthenticated(true)
     setUserData({ username: user.name, email: user.email })
     setShowAuthModal(false)
-    setDailyUsageCount(0)
-    localStorage.setItem("readme-daily-usage-count-auth", "0")
-    localStorage.setItem("readme-last-usage-date-auth", new Date().toDateString())
+
+    const today = new Date().toDateString()
+    const unauthCount = Number.parseInt(localStorage.getItem("readme-daily-usage-count-unauth") || "0")
+    const lastUnauthDate = localStorage.getItem("readme-last-usage-date-unauth")
+
+    // If it's the same day, carry usage; otherwise reset
+    const carried = lastUnauthDate === today ? Math.min(unauthCount, AUTH_DAILY_LIMIT) : 0
+    setDailyUsageCount(carried)
+    localStorage.setItem("readme-daily-usage-count-auth", carried.toString())
+    localStorage.setItem("readme-last-usage-date-auth", today)
   }
 
   const handleLogout = async () => {
@@ -325,7 +372,7 @@ export default function GeneratePage() {
   const remainingUses = getRemainingUses()
 
   return (
-    <div className="min-h-screen transition-all duration-700 relative overflow-hidden flex flex-col">
+    <div className="min-h-screen transition-all duration-700 relative flex flex-col">
       {/* Dynamic Background */}
       <div
         className={`fixed inset-0 transition-all duration-700 ${
@@ -404,9 +451,13 @@ export default function GeneratePage() {
 
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             <Badge variant="secondary" className="px-2 sm:px-3 py-1 shadow-sm flex text-xs">
-              <span className="lg:hidden">{isAuthenticated ? `${remainingUses}/10` : `${remainingUses}/5`}</span>
+              <span className="lg:hidden">
+                {!isAuthenticated ? `${remainingUses}/${UNAUTH_DAILY_LIMIT}` : `${remainingUses}/${AUTH_DAILY_LIMIT}`}
+              </span>
               <span className="hidden lg:inline">
-                {isAuthenticated ? `${remainingUses}/10 Uses Today` : `${remainingUses}/5 Free Uses Today`}
+                {!isAuthenticated
+                  ? `${remainingUses}/${UNAUTH_DAILY_LIMIT} Free Uses Today`
+                  : `${remainingUses}/${AUTH_DAILY_LIMIT} Uses Today`}
               </span>
             </Badge>
             <Button
@@ -415,7 +466,7 @@ export default function GeneratePage() {
               onClick={handleStarOnGitHub}
               className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex p-2"
             >
-              <Star className="w-4 h-4 mr-1 text-yellow-500" />
+              <Star className="w-4 h-4 text-yellow-500" />
               <span className="hidden lg:inline">Star on GitHub</span>
             </Button>
             <Button
@@ -430,13 +481,17 @@ export default function GeneratePage() {
               <UserProfile username={userData.username} email={userData.email} onLogout={handleLogout} />
             ) : (
               <>
-                <Button onClick={() => setShowAuthModal(true)} className="rounded-full shadow-sm hidden lg:flex">
-                  Sign In
+                <Button
+                  onClick={() => setShowAuthModal(true)}
+                  className="rounded-full shadow-sm hidden lg:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  Sign In (+2 uses)
                 </Button>
                 <Button
                   onClick={() => setShowAuthModal(true)}
-                  className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10"
+                  className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                   size="icon"
+                  aria-label="Sign in to get 2 more daily uses"
                 >
                   <User className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
@@ -447,11 +502,16 @@ export default function GeneratePage() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow w-full">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="min-w-0"
+          >
+            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl w-full">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-purple-500" />
@@ -516,7 +576,7 @@ export default function GeneratePage() {
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !repoUrl || !selectedVibe || remainingUses <= 0}
-                  className="w-full rounded-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
+                  className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 to-indigo-700 text-white font-medium py-3 shadow-lg hover:shadow-xl transition-shadow"
                 >
                   {isGenerating ? (
                     <>
@@ -535,8 +595,13 @@ export default function GeneratePage() {
           </motion.div>
 
           {/* Output Section */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="min-w-0"
+          >
+            <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full w-full">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Your README {rewriteCount > 0 && `(v${rewriteCount + 1})`}</CardTitle>
@@ -547,7 +612,7 @@ export default function GeneratePage() {
                         variant="outline"
                         size="sm"
                         onClick={handleRewrite}
-                        disabled={isRewriting}
+                        disabled={isRewriting || remainingUses <= 0}
                         className="flex items-center bg-transparent"
                       >
                         {isRewriting ? (
@@ -571,13 +636,13 @@ export default function GeneratePage() {
               </CardHeader>
               <CardContent>
                 {generatedReadme ? (
-                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="preview">Preview</TabsTrigger>
                       <TabsTrigger value="code">Markdown</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="preview" className="mt-4">
-                      <div className="prose dark:prose-invert max-w-none max-h-96 overflow-y-auto">
+                    <TabsContent value="preview" className="mt-4 min-w-0">
+                      <div className="prose dark:prose-invert max-w-full max-h-96 overflow-y-auto break-words prose-pre:overflow-x-auto">
                         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                           {generatedReadme}
                         </ReactMarkdown>
