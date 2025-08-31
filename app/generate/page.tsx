@@ -52,6 +52,16 @@ export default function GeneratePage() {
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
+
+  
+  const getRemainingUses = () => {
+    if (!isAuthenticated) {
+      return Math.max(0, 5 - unauthDailyUsageCount)
+    } else {
+      return Math.max(0, 10 - dailyUsageCount)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
     const today = new Date().toDateString()
@@ -114,14 +124,6 @@ export default function GeneratePage() {
       authListener.subscription.unsubscribe()
     }
   }, [])
-
-  const getRemainingUses = () => {
-    if (!isAuthenticated) {
-      return Math.max(0, 5 - unauthDailyUsageCount)
-    } else {
-      return Math.max(0, 10 - dailyUsageCount)
-    }
-  }
 
   const handleGenerate = async () => {
     if (!repoUrl || !selectedVibe) {
@@ -209,6 +211,21 @@ export default function GeneratePage() {
       return
     }
 
+    // Check remaining uses before rewrite
+    const remainingUsesNow = getRemainingUses()
+    if (remainingUsesNow <= 0) {
+      if (!isAuthenticated) {
+        setShowAuthModal(true)
+      } else {
+        toast({
+          title: "Daily Limit Reached",
+          description: "You've used all your generations for today. Come back tomorrow!",
+          variant: "destructive",
+        })
+      }
+      return
+    }
+
     if (isRewriting) {
       return
     }
@@ -247,6 +264,20 @@ export default function GeneratePage() {
       await new Promise((resolve) => setTimeout(resolve, 100))
       setGeneratedReadme(data.rewrittenReadme)
 
+      // Charge one use credit on successful rewrite
+      const today = new Date().toDateString()
+      if (!isAuthenticated) {
+        const newCount = unauthDailyUsageCount + 1
+        setUnauthDailyUsageCount(newCount)
+        localStorage.setItem("readme-daily-usage-count-unauth", newCount.toString())
+        localStorage.setItem("readme-last-usage-date-unauth", today)
+      } else {
+        const newDailyCount = dailyUsageCount + 1
+        setDailyUsageCount(newDailyCount)
+        localStorage.setItem("readme-daily-usage-count-auth", newDailyCount.toString())
+        localStorage.setItem("readme-last-usage-date-auth", today)
+      }
+
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
         description: "Your README has been completely refreshed!",
@@ -262,7 +293,18 @@ export default function GeneratePage() {
         setIsRewriting(false)
       }, 200)
     }
-  }, [generatedReadme, selectedVibe, repoUrl, projectPurpose, isRewriting, rewriteCount, toast])
+    }, [
+    generatedReadme,
+    selectedVibe,
+    repoUrl,
+    projectPurpose,
+    isRewriting,
+    rewriteCount,
+    toast,
+    isAuthenticated,
+    unauthDailyUsageCount,
+    dailyUsageCount,
+  ])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedReadme)
@@ -550,7 +592,7 @@ export default function GeneratePage() {
                         variant="outline"
                         size="sm"
                         onClick={handleRewrite}
-                        disabled={isRewriting}
+                        disabled={isRewriting || remainingUses <= 0}
                         className="flex items-center bg-transparent"
                       >
                         {isRewriting ? (
