@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      // Clean error message - only return user-friendly messages
+      // Clean up error message - only return user-friendly messages
       let cleanErrorMessage = "Invalid login credentials"
 
       const errorText = error.message?.toLowerCase() || ""
