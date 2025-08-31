@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Heart } from "lucide-react"
+import { Heart, Github, Twitter } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -14,7 +14,6 @@ export default function Footer() {
                  text-center text-sm text-foreground/80"
     >
       Made with <Heart className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse" fill="currentColor" /> by&nbsp;
-      
       <a
         href="https://divyamsharma.netlify.app/"
         target="_blank"
@@ -23,6 +22,28 @@ export default function Footer() {
       >
         Divyam Sharma
       </a>
+      <span className="ml-2 inline-flex items-center gap-2">
+        <a
+          href="https://x.com/Heydivyamsharma"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="X profile"
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+          title="X"
+        >
+          <Twitter className="w-4 h-4" />
+        </a>
+        <a
+          href="https://github.com/Divyamsharma-18"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub profile"
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+          title="GitHub"
+        >
+          <Github className="w-4 h-4" />
+        </a>
+      </span>
     </motion.footer>
   )
 }
