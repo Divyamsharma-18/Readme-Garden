@@ -616,19 +616,19 @@ export default function GeneratePage() {
                         className="flex items-center bg-transparent"
                       >
                         {isRewriting ? (
-                          <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                          <RefreshCw className="w-3 h-3 mr-0 xs:mr-1 animate-spin" />
                         ) : (
-                          <RefreshCw className="w-3 h-3 mr-1" />
+                          <RefreshCw className="w-3 h-3 mr-0 xs:mr-1" />
                         )}
-                        AI Rewrite
+                        <span className="hidden xs:inline">AI Rewrite</span>
                       </Button>
                       <Button variant="outline" size="sm" onClick={copyToClipboard}>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copy
+                        <Copy className="w-4 h-4 mr-0 xs:mr-1" />
+                        <span className="hidden xs:inline">Copy</span>
                       </Button>
                       <Button variant="outline" size="sm" onClick={downloadReadme}>
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
+                        <Download className="w-4 h-4 mr-0 xs:mr-1" />
+                        <span className="hidden xs:inline">Download</span>
                       </Button>
                     </div>
                   )}
