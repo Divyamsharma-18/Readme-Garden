@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { generateWithOpenAI } from "@/lib/llm"
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,46 +11,30 @@ export async function POST(request: NextRequest) {
 
     const vibePrompts = {
       professional: `Completely rewrite this README in a PROFESSIONAL, corporate style. Make it formal, business-oriented, and technically precise. Use corporate language, formal structure, and professional terminology. Remove any casual language or emojis.`,
-
       friendly: `Completely rewrite this README in a FRIENDLY, welcoming tone. Make it conversational, warm, and approachable. Use encouraging language, helpful tips, and a community-focused approach. Add friendly emojis where appropriate.`,
-
       humorous: `Completely rewrite this README with HUMOR and wit. Add jokes, puns, funny analogies, and entertaining commentary while keeping it informative. Make it fun to read with clever wordplay and amusing examples.`,
-
       creative: `Completely rewrite this README in a CREATIVE, artistic style. Use expressive language, creative metaphors, visual elements, and artistic formatting. Make it visually stunning and uniquely expressive.`,
-
       minimal: `Completely rewrite this README in a MINIMAL, clean style. Make it concise, direct, and simple. Remove unnecessary words, keep only essential information, and use clean, uncluttered formatting.`,
-
       detailed: `Completely rewrite this README in a DETAILED, comprehensive style. Add extensive explanations, thorough documentation, in-depth examples, and comprehensive coverage of all aspects. Make it educational and thorough.`,
-    }
+    } as const
+
+    const prompt = `
+${vibePrompts[vibe as keyof typeof vibePrompts]}
+
+Original README:
+${section}
+
+IMPORTANT: Completely rewrite this entire README to match the ${vibe} vibe. 
+Don't just modify it - create a brand new version that strongly reflects the ${vibe} style.
+Keep all the important information but present it in a completely different way.
+Return ONLY the rewritten README content without any code block formatting.
+`
 
     let text = ""
-
     try {
-      if (process.env.OPENAI_API_KEY) {
-        const result = await generateText({
-          model: openai("gpt-4o"),
-          prompt: `
-          ${vibePrompts[vibe as keyof typeof vibePrompts]}
-          
-          Original README:
-          ${section}
-          
-          IMPORTANT: Completely rewrite this entire README to match the ${vibe} vibe. 
-          Don't just modify it - create a brand new version that strongly reflects the ${vibe} style.
-          Keep all the important information but present it in a completely different way.
-          Return ONLY the rewritten README content without any code block formatting.
-          `,
-          maxTokens: 2500,
-          temperature: 0.8,
-        })
-        text = result.text
-      } else {
-        throw new Error("No OpenAI API key")
-      }
+      text = await generateWithOpenAI({ prompt, model: "gpt-4o", maxTokens: 2500, temperature: 0.8 })
     } catch (error) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
-
-      // Enhanced fallback rewrite that actually changes the content
       text = enhancedFallbackRewrite(section, vibe)
     }
 
@@ -63,7 +46,6 @@ export async function POST(request: NextRequest) {
 }
 
 function enhancedFallbackRewrite(originalContent: string, vibe: string) {
-  // Extract key information from original content
   const lines = originalContent.split("\n")
   const title = lines.find((line) => line.startsWith("#")) || "# Project"
   const projectName = title

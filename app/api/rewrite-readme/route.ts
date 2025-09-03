@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { generateWithOpenAI } from "@/lib/llm"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,133 +9,93 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Content and vibe are required" }, { status: 400 })
     }
 
-    // Enhanced prompts that force completely different approaches
     const vibePrompts = {
       professional: [
         `Transform this README into a CORPORATE ENTERPRISE document. Use formal business language, executive summaries, technical specifications, and corporate structure. Make it sound like it was written by a Fortune 500 company's technical documentation team.`,
-
         `Rewrite this as a TECHNICAL SPECIFICATION document. Focus on architecture, scalability, performance metrics, and enterprise-grade features. Use technical jargon and formal documentation standards.`,
-
         `Convert this into a BUSINESS PROPOSAL style README. Emphasize ROI, business value, competitive advantages, and professional implementation guidelines. Write as if presenting to stakeholders.`,
-
         `Create a GOVERNMENT/MILITARY style technical manual. Use precise, formal language with numbered sections, compliance standards, and official documentation formatting.`,
       ],
-
       friendly: [
         `Rewrite this README as if you're explaining it to a close friend over coffee. Use casual conversation, personal anecdotes, encouraging words, and a warm, welcoming tone throughout.`,
-
         `Transform this into a COMMUNITY-FOCUSED guide. Emphasize collaboration, mutual support, beginner-friendliness, and building relationships. Make it feel like joining a family.`,
-
         `Rewrite this as a MENTOR speaking to a student. Use encouraging language, helpful tips, gentle guidance, and supportive explanations that build confidence.`,
-
         `Convert this into a CHEERFUL TUTORIAL style. Use enthusiastic language, celebrate small wins, provide encouragement, and make everything sound achievable and fun.`,
       ],
-
       humorous: [
         `Rewrite this README with PROGRAMMING HUMOR and developer jokes. Include puns about coding, funny analogies, witty comments about bugs, and entertaining programming references.`,
-
         `Transform this into a COMEDY SKETCH about software development. Use absurd comparisons, funny scenarios, self-deprecating humor, and amusing takes on common developer problems.`,
-
         `Rewrite this as if written by a SARCASTIC DEVELOPER who's seen it all. Use dry humor, witty observations, funny warnings, and amusing commentary on the state of software development.`,
-
         `Convert this into a PARODY of overly serious technical documentation. Mock corporate speak while being informative, use funny examples, and include amusing "warnings" and "disclaimers".`,
       ],
-
       creative: [
         `Rewrite this README as a POETIC NARRATIVE. Use metaphors, artistic language, creative formatting, and present the project as a journey or story with beautiful, expressive descriptions.`,
-
         `Transform this into an ARTISTIC MANIFESTO. Use passionate, expressive language about the beauty of code, the art of programming, and the creative process of building software.`,
-
         `Rewrite this as a FANTASY ADVENTURE GUIDE. Present features as magical abilities, installation as a quest, and usage as embarking on an epic journey with mystical elements.`,
-
         `Convert this into a VISUAL ART PIECE with words. Use creative typography descriptions, color metaphors, artistic composition, and present code as a canvas for creativity.`,
       ],
-
       minimal: [
         `Strip this README down to ABSOLUTE ESSENTIALS. Use bullet points, single sentences, no fluff, just the core facts presented in the most concise way possible.`,
-
         `Rewrite this in TELEGRAM STYLE. Short, punchy sentences. No unnecessary words. Direct commands. Essential info only. Like sending quick messages.`,
-
         `Transform this into a QUICK REFERENCE CARD. Just the key points, essential commands, basic usage, and critical information in the most compact format.`,
-
         `Convert this to MINIMALIST DESIGN principles. Clean lines, white space, essential information only, elegant simplicity, no decorative elements.`,
       ],
-
       detailed: [
         `Expand this README into a COMPREHENSIVE TECHNICAL MANUAL. Add detailed explanations, extensive examples, troubleshooting guides, advanced configurations, and thorough documentation.`,
-
         `Rewrite this as an ACADEMIC RESEARCH PAPER style documentation. Include methodology, detailed analysis, comprehensive references, and scholarly explanations of every aspect.`,
-
         `Transform this into a COMPLETE DEVELOPER HANDBOOK. Cover every possible scenario, edge cases, advanced usage patterns, integration examples, and exhaustive configuration options.`,
-
         `Convert this into an ENCYCLOPEDIA ENTRY about this project. Provide historical context, detailed technical analysis, comprehensive feature coverage, and extensive cross-references.`,
       ],
-    }
+    } as const
 
-    // Get the array of prompts for the selected vibe
     const vibePromptArray = vibePrompts[vibe as keyof typeof vibePrompts]
-
-    // Use rewriteCount to cycle through different prompt styles, or use random if we have more rewrites than prompts
     const promptIndex = rewriteCount ? (rewriteCount - 1) % vibePromptArray.length : 0
     const selectedPrompt = vibePromptArray[promptIndex]
 
-    // Remove the existing title (first line starting with #) to prevent title accumulation
     const preprocessContent = (content: string): string => {
       const lines = content.split("\n")
-      // Find the first line that starts with # (the title)
       const titleIndex = lines.findIndex((line) => line.trim().startsWith("#"))
-
       if (titleIndex !== -1) {
-        // Remove the title line and return the rest
         lines.splice(titleIndex, 1)
         return lines.join("\n").trim()
       }
-
       return content
     }
 
-    // Apply preprocessing before sending to AI
     const contentWithoutTitle = preprocessContent(content)
 
     let rewrittenReadme = ""
-
     try {
-      if (process.env.OPENAI_API_KEY) {
-        const result = await generateText({
-          model: openai("gpt-4o"),
-          prompt: `
-          ${selectedPrompt}
-          
-          CRITICAL INSTRUCTIONS:
-          - COMPLETELY REWRITE the entire README from scratch
-          - START with a fresh title using # format
-          - DO NOT copy any sentences or phrases from the original
-          - Use a COMPLETELY DIFFERENT structure and approach
-          - Change the writing style, tone, and presentation dramatically
-          - Keep the same factual information but present it in an entirely new way
-          - Make it feel like a completely different document written by a different person
-          
-          Original README content to be completely rewritten (title has been removed, you need to create a new one):
-          ${contentWithoutTitle}
-          
-          ${repoUrl ? `Repository URL for reference: ${repoUrl}` : ""}
-          ${projectPurpose ? `Core project purpose: "${projectPurpose}"` : ""}
-          
-          This is rewrite attempt #${rewriteCount || 1}. Make it COMPLETELY different from any previous version.
-          
-          Return ONLY the completely rewritten README content in markdown format, without any additional text or code block formatting.
-          `,
-          maxTokens: 3000,
-          temperature: 0.95, // Higher temperature for more creativity and variation
-        })
-        rewrittenReadme = result.text
-      } else {
-        throw new Error("No OpenAI API key")
-      }
+      const prompt = `
+${selectedPrompt}
+
+CRITICAL INSTRUCTIONS:
+- COMPLETELY REWRITE the entire README from scratch
+- START with a fresh title using # format
+- DO NOT copy any sentences or phrases from the original
+- Use a COMPLETELY DIFFERENT structure and approach
+- Change the writing style, tone, and presentation dramatically
+- Keep the same factual information but present it in an entirely new way
+- Make it feel like a completely different document written by a different person
+
+Original README content to be completely rewritten (title has been removed, you need to create a new one):
+${contentWithoutTitle}
+
+${repoUrl ? `Repository URL for reference: ${repoUrl}` : ""}
+${projectPurpose ? `Core project purpose: "${projectPurpose}"` : ""}
+
+This is rewrite attempt #${rewriteCount || 1}. Make it COMPLETELY different from any previous version.
+
+Return ONLY the completely rewritten README content in markdown format, without any additional text or code block formatting.
+`
+      rewrittenReadme = await generateWithOpenAI({
+        prompt,
+        model: "gpt-4o",
+        maxTokens: 3000,
+        temperature: 0.95,
+      })
     } catch (error) {
       console.log("OpenAI rewrite failed, using enhanced fallback:", error)
-
-      // Enhanced fallback with multiple variations
       rewrittenReadme = enhancedFallbackRewrite(contentWithoutTitle, vibe, repoUrl, projectPurpose, rewriteCount || 1)
     }
 
@@ -154,7 +113,6 @@ function enhancedFallbackRewrite(
   projectPurpose?: string,
   rewriteCount = 1,
 ) {
-  // Extract key information from original content
   const lines = originalContent.split("\n")
   const titleLine = lines.find((line) => line.startsWith("#"))
   const projectName = titleLine
@@ -164,10 +122,8 @@ function enhancedFallbackRewrite(
         .trim()
     : "Project"
 
-  // Create multiple completely different fallback templates for each vibe
   const fallbackVariations = {
     professional: [
-      // Variation 1: Corporate Executive Summary
       `# ${projectName} - Enterprise Solution
 
 ## Executive Overview
@@ -205,8 +161,6 @@ Our dedicated support team ensures seamless integration and ongoing maintenance 
 
 ---
 © ${new Date().getFullYear()} ${projectName} Enterprise Solutions`,
-
-      // Variation 2: Technical Specification
       `# Technical Specification: ${projectName}
 
 ## System Overview
@@ -239,8 +193,6 @@ npm run deploy:production
 ## Quality Assurance
 
 Comprehensive testing protocols ensure reliability and performance standards are maintained across all deployment environments.`,
-
-      // Variation 3: Business Proposal
       `# ${projectName}: Strategic Technology Investment
 
 ## Value Proposition
@@ -282,9 +234,7 @@ npm install
 
 Join industry leaders who have already transformed their operations with our proven solution.`,
     ],
-
     friendly: [
-      // Variation 1: Coffee Chat Style
       `# Hey there! Welcome to ${projectName} ☕
 
 ## What's This All About?
@@ -322,8 +272,6 @@ Seriously, don't hesitate to reach out. We're all learning together, and I love 
 That would be amazing! Every little bit helps, and I'd love to have you as part of our growing family.
 
 Made with ❤️ and lots of ☕`,
-
-      // Variation 2: Community Focus
       `# Welcome to the ${projectName} Family! 🏠
 
 ## Our Story
@@ -364,8 +312,6 @@ npm run welcome
 Every contribution, no matter how small, makes our community stronger. We can't wait to see what you'll bring to our family!
 
 *"Alone we can do so little; together we can do so much."* - Helen Keller`,
-
-      // Variation 3: Mentor Style
       `# Learning ${projectName} Together 📚
 
 ## A Personal Note
@@ -415,9 +361,7 @@ Think of me as your coding buddy. Whenever you're stuck, confused, or just want 
 
 Keep coding, keep learning, keep growing! 🌱`,
     ],
-
     humorous: [
-      // Variation 1: Developer Comedy
       `# ${projectName} - Because Regular Code is Too Mainstream 😎
 
 ## What Does This Thing Actually Do?
@@ -466,8 +410,6 @@ Want to add your own brand of chaos? We love chaos! Just remember:
 
 ---
 *Disclaimer: No developers were harmed in the making of this README. Results may vary. Void where prohibited. Not responsible for existential crises caused by reading the source code.*`,
-
-      // Variation 2: Sarcastic Developer
       `# ${projectName}: Another "Revolutionary" Project 🙄
 
 ## Oh, You Want to Know What This Does?
@@ -516,8 +458,6 @@ Oh, you want to contribute? How noble. Here's what you need to know:
 Support? What support? This is open source, baby! You get what you pay for.
 
 *Built with questionable decisions and an unhealthy amount of energy drinks.*`,
-
-      // Variation 3: Absurd Analogies
       `# ${projectName}: Like a Swiss Army Knife, But Digital 🔧
 
 ## What Is This Magnificent Beast?
@@ -570,9 +510,7 @@ Remember: Every bug is just a feature that hasn't found its purpose yet!
 
 *Crafted with love, caffeine, and a healthy disregard for conventional wisdom.*`,
     ],
-
     creative: [
-      // Variation 1: Poetic Journey
       `# 🌟 ${projectName}: A Digital Odyssey 🌟
 
 ## The Genesis of Innovation
@@ -623,8 +561,6 @@ Become part of our artistic journey. Add your voice to our chorus, your vision t
 
 ---
 ✨ Crafted with intention, nurtured with care, shared with love ✨`,
-
-      // Variation 2: Fantasy Adventure
       `# ⚔️ The ${projectName} Chronicles ⚔️
 
 ## The Legend Begins
@@ -680,8 +616,6 @@ After long days of coding battles, adventurers gather in our tavern to share tal
 *May your code compile on the first try, and may your deployments be ever successful!*
 
 🏰 *Built in the great halls of Open Source, blessed by the Code Gods* 🏰`,
-
-      // Variation 3: Artistic Manifesto
       `# 🎨 ${projectName}: A Digital Renaissance 🎨
 
 ## The Artist's Vision
@@ -737,9 +671,7 @@ We believe that software should not only solve problems but also elevate the hum
 ---
 🎨 *Created by artists who happen to code, for humans who happen to use computers* 🎨`,
     ],
-
     minimal: [
-      // Variation 1: Extreme Minimal
       `# ${projectName}
 
 ${projectPurpose || "Essential functionality."}
@@ -756,8 +688,6 @@ npm start
 \`\`\`
 
 ## Done.`,
-
-      // Variation 2: Bullet Points
       `# ${projectName}
 
 • ${projectPurpose || "Core functionality"}
@@ -778,8 +708,6 @@ npm start
 • Issues: GitHub
 • Docs: README
 • Help: Community`,
-
-      // Variation 3: Command Style
       `# ${projectName}
 
 Quick. Simple. Done.
@@ -794,9 +722,7 @@ Works.
 
 MIT License.`,
     ],
-
     detailed: [
-      // Variation 1: Academic Style
       `# ${projectName}: Comprehensive Technical Analysis
 
 ## Abstract
@@ -1007,8 +933,6 @@ Systematic approach to applying updates:
 **Document Version**: 1.0  
 **Last Updated**: ${new Date().toLocaleDateString()}  
 **Maintained By**: ${projectName} Development Team`,
-
-      // Variation 2: Encyclopedia Entry
       `# ${projectName}: Complete Reference Guide
 
 ## Historical Context and Development
@@ -1200,11 +1124,7 @@ Detailed procedures for community participation:
     ],
   }
 
-  // Get the variations for the selected vibe
   const variations = fallbackVariations[vibe as keyof typeof fallbackVariations] || fallbackVariations.professional
-
-  // Use rewriteCount to cycle through variations
   const variationIndex = (rewriteCount - 1) % variations.length
-
   return variations[variationIndex]
 }
