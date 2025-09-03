@@ -52,7 +52,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       } else {
         toast({
           title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
-          description: "You now have total 5 README generations per day!",
+          description: "You now have 10 README generations per day!",
         })
       }
 
@@ -120,7 +120,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     </div>
                     <span>Join README Garden</span>
                   </div>
-                  <p className="text-sm font-normal text-muted-foreground">Get 5 README generations per day</p>
+                  <p className="text-sm font-normal text-muted-foreground">Get 10 README generations per day</p>
                 </CardTitle>
               </CardHeader>
               <CardContent>

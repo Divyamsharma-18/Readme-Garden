@@ -1,0 +1,2 @@
+This file is a placeholder to remind you to configure PayPal webhook URL in your PayPal App Settings.
+For production, add signature verification for the /api/paypal/webhook route.

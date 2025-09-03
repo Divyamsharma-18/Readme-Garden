@@ -162,8 +162,8 @@ export default function HomePage() {
             className="min-h-screen"
           >
             {/* Header for Marketing Page */}
-            <header className="fixed top-0 left-0 right-0 z-[60] py-3 px-4 sm:px-6 backdrop-blur-sm bg-black/20">
-              <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <header className="fixed top-0 left-0 right-0 py-3 z-[60] px-4 sm:px-6 backdrop-blur-sm bg-black/20 py-3">
+              <div className="max-w-7xl mx-auto flex justify-between items-center py-0">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -187,7 +187,7 @@ export default function HomePage() {
                     onClick={handleStarOnGitHub}
                     className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
                   >
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
                     <span className="hidden xs:inline">Star on </span>GitHub
                   </Button>
                 </div>

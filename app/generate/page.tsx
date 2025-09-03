@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, Star, User, ArrowLeft } from "lucide-react"
+import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,8 +18,6 @@ import UserProfile from "@/components/user-profile"
 import Footer from "@/components/footer"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
-
-// Markdown rendering imports
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
@@ -33,9 +31,27 @@ const vibeOptions = [
   { value: "detailed", label: "📚 Detailed", description: "Comprehensive and thorough" },
 ]
 
-// Daily usage caps
-const UNAUTH_DAILY_LIMIT = 3 // 3 uses before sign up
-const AUTH_DAILY_LIMIT = 5 // total 5 after sign in (2 more)
+// New policy
+const ANON_TOTAL_LIMIT = 3 // per device (never resets)
+const FREE_EMAIL_DEVICE_LIMIT = 5 // per email+device (never resets)
+const PRO_DAILY_LIMIT = 5 // per day for Pro
+
+// Storage keys
+const DEVICE_ID_KEY = "readme-device-id-v1"
+const ANON_TOTAL_KEY = "readme-usage-total-anon-v1"
+
+function getOrCreateDeviceId() {
+  let id = localStorage.getItem(DEVICE_ID_KEY)
+  if (!id) {
+    id = globalThis.crypto?.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)
+    localStorage.setItem(DEVICE_ID_KEY, id)
+  }
+  return id
+}
+
+function emailDeviceKey(email: string, deviceId: string) {
+  return `readme-usage-total-email-device-v1:${email}:${deviceId}`
+}
 
 export default function GeneratePage() {
   const [repoUrl, setRepoUrl] = useState("")
@@ -46,84 +62,153 @@ export default function GeneratePage() {
   const [isRewriting, setIsRewriting] = useState(false)
   const [generatedReadme, setGeneratedReadme] = useState("")
   const [rewriteCount, setRewriteCount] = useState(0)
-  const [unauthDailyUsageCount, setUnauthDailyUsageCount] = useState(0)
-  const [dailyUsageCount, setDailyUsageCount] = useState(0)
+
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userData, setUserData] = useState<{ username: string; email: string } | null>(null)
+  const [userData, setUserData] = useState<{ username: string; email: string; id?: string } | null>(null)
+
   const [activeTab, setActiveTab] = useState("preview")
   const [mounted, setMounted] = useState(false)
+  const [deviceId, setDeviceId] = useState<string>("")
+  const [anonTotalCount, setAnonTotalCount] = useState(0)
+  const [emailDeviceTotalCount, setEmailDeviceTotalCount] = useState(0)
+
+  // Pro server-authoritative state
+  const [isPro, setIsPro] = useState(false)
+  const [proRemainingToday, setProRemainingToday] = useState(0)
+
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
 
-  const getRemainingUses = () => {
-    if (!isAuthenticated) {
-      return Math.max(0, UNAUTH_DAILY_LIMIT - unauthDailyUsageCount)
-    } else {
-      return Math.max(0, AUTH_DAILY_LIMIT - dailyUsageCount)
-    }
-  }
-
   useEffect(() => {
     setMounted(true)
-    const today = new Date().toDateString()
+    // Ensure device id
+    const id = getOrCreateDeviceId()
+    setDeviceId(id)
 
+    // Load anon total from device
+    const anonTotal = Number.parseInt(localStorage.getItem(ANON_TOTAL_KEY) || "0")
+    setAnonTotalCount(isNaN(anonTotal) ? 0 : anonTotal)
+
+    // Check auth
     const checkSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession()
       if (session?.user) {
+        const username = session.user.user_metadata?.full_name || session.user.email || "User"
+        const email = session.user.email || "user@example.com"
         setIsAuthenticated(true)
-        setUserData({
-          username: (session.user as any).user_metadata?.full_name || session.user.email || "User",
-          email: session.user.email || "user@example.com",
-        })
+        setUserData({ username, email, id: session.user.id })
+        // Merge anon usage into email+device usage (cap at 5)
+        const k = emailDeviceKey(email, id)
+        const prev = Number.parseInt(localStorage.getItem(k) || "0")
+        const merged = Math.min(FREE_EMAIL_DEVICE_LIMIT, prev + anonTotal)
+        localStorage.setItem(k, String(merged))
+        setEmailDeviceTotalCount(merged)
+        // Fetch pro status
+        fetchProStatus(session.user.id)
       } else {
         setIsAuthenticated(false)
         setUserData(null)
       }
     }
-
     checkSession()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
+        const username = session.user.user_metadata?.full_name || session.user.email || "User"
+        const email = session.user.email || "user@example.com"
         setIsAuthenticated(true)
-        setUserData({
-          username: session.user.user_metadata?.full_name || session.user.email || "User",
-          email: session.user.email || "user@example.com",
-        })
+        setUserData({ username, email, id: session.user.id })
+        const k = emailDeviceKey(email, id)
+        const prev = Number.parseInt(localStorage.getItem(k) || "0")
+        const currAnon = Number.parseInt(localStorage.getItem(ANON_TOTAL_KEY) || "0")
+        const merged = Math.min(FREE_EMAIL_DEVICE_LIMIT, prev + currAnon)
+        localStorage.setItem(k, String(merged))
+        setEmailDeviceTotalCount(merged)
+        fetchProStatus(session.user.id)
       } else {
         setIsAuthenticated(false)
         setUserData(null)
+        setIsPro(false)
+        setProRemainingToday(0)
       }
     })
-
-    // Usage count logic
-    const lastAuthUsageDate = localStorage.getItem("readme-last-usage-date-auth")
-    const authDailyCount = localStorage.getItem("readme-daily-usage-count-auth")
-    if (lastAuthUsageDate !== today) {
-      setDailyUsageCount(0)
-      localStorage.setItem("readme-daily-usage-count-auth", "0")
-      localStorage.setItem("readme-last-usage-date-auth", today)
-    } else {
-      setDailyUsageCount(authDailyCount ? Number.parseInt(authDailyCount) : 0)
-    }
-
-    const lastUnauthUsageDate = localStorage.getItem("readme-last-usage-date-unauth")
-    const unauthCount = localStorage.getItem("readme-daily-usage-count-unauth")
-    if (lastUnauthUsageDate !== today) {
-      setUnauthDailyUsageCount(0)
-      localStorage.setItem("readme-daily-usage-count-unauth", "0")
-      localStorage.setItem("readme-last-usage-date-unauth", today)
-    } else {
-      setUnauthDailyUsageCount(unauthCount ? Number.parseInt(unauthCount) : 0)
-    }
 
     return () => {
       authListener?.subscription?.unsubscribe?.()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Load email+device count when email or device id set
+  useEffect(() => {
+    if (isAuthenticated && userData?.email && deviceId) {
+      const k = emailDeviceKey(userData.email, deviceId)
+      const v = Number.parseInt(localStorage.getItem(k) || "0")
+      setEmailDeviceTotalCount(isNaN(v) ? 0 : v)
+    }
+  }, [isAuthenticated, userData?.email, deviceId])
+
+  const fetchProStatus = async (uid: string) => {
+    try {
+      const url = new URL("/api/usage/status", window.location.origin)
+      url.searchParams.set("userId", uid)
+      const res = await fetch(url.toString())
+      const data = await res.json()
+      if (data.isPro) {
+        setIsPro(true)
+        setProRemainingToday(data.remainingToday ?? 0)
+      } else {
+        setIsPro(false)
+        setProRemainingToday(0)
+      }
+    } catch (e) {
+      console.warn("Failed to fetch pro status")
+    }
+  }
+
+  const getRemainingUses = () => {
+    if (isPro) {
+      return proRemainingToday
+    }
+    if (isAuthenticated && userData?.email) {
+      return Math.max(0, FREE_EMAIL_DEVICE_LIMIT - emailDeviceTotalCount)
+    }
+    return Math.max(0, ANON_TOTAL_LIMIT - anonTotalCount)
+  }
+
+  const consumeUse = async () => {
+    if (isPro && userData?.id) {
+      const res = await fetch("/api/usage/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userData.id }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Pro usage limit reached")
+      }
+      const data = await res.json()
+      setProRemainingToday(data.remainingToday ?? Math.max(0, proRemainingToday - 1))
+      return
+    }
+
+    if (isAuthenticated && userData?.email) {
+      const k = emailDeviceKey(userData.email, deviceId)
+      const prev = Number.parseInt(localStorage.getItem(k) || "0") || 0
+      const next = Math.min(FREE_EMAIL_DEVICE_LIMIT, prev + 1)
+      localStorage.setItem(k, String(next))
+      setEmailDeviceTotalCount(next)
+      return
+    }
+
+    // anonymous
+    const nextAnon = Math.min(ANON_TOTAL_LIMIT, anonTotalCount + 1)
+    localStorage.setItem(ANON_TOTAL_KEY, String(nextAnon))
+    setAnonTotalCount(nextAnon)
+  }
 
   const handleGenerate = async () => {
     if (!repoUrl || !selectedVibe) {
@@ -135,19 +220,24 @@ export default function GeneratePage() {
       return
     }
 
-    const remainingUses = getRemainingUses()
-    if (remainingUses <= 0) {
+    const remaining = getRemainingUses()
+    if (remaining <= 0) {
       if (!isAuthenticated) {
         setShowAuthModal(true)
-        return
-      } else {
+      } else if (!isPro) {
         toast({
-          title: "Daily Limit Reached",
-          description: `You've used all ${AUTH_DAILY_LIMIT} generations for today. Come back tomorrow!`,
+          title: "Limit reached",
+          description: "You've used all 5 free uses on this email + device.",
           variant: "destructive",
         })
-        return
+      } else {
+        toast({
+          title: "Daily limit reached",
+          description: "You've used all 5 Pro uses for today.",
+          variant: "destructive",
+        })
       }
+      return
     }
 
     setIsGenerating(true)
@@ -159,37 +249,18 @@ export default function GeneratePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoUrl, vibe: selectedVibe, liveDemoUrl, projectPurpose }),
       })
-
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || "Failed to generate README")
       }
-
       const data = await response.json()
+      if (!data.readme) throw new Error("No README content received")
 
-      if (!data.readme) {
-        throw new Error("No README content received")
-      }
+      // consume one use after success
+      await consumeUse()
 
       setGeneratedReadme(data.readme)
-
-      const today = new Date().toDateString()
-      if (!isAuthenticated) {
-        const newCount = unauthDailyUsageCount + 1
-        setUnauthDailyUsageCount(newCount)
-        localStorage.setItem("readme-daily-usage-count-unauth", newCount.toString())
-        localStorage.setItem("readme-last-usage-date-unauth", today)
-      } else {
-        const newDailyCount = dailyUsageCount + 1
-        setDailyUsageCount(newDailyCount)
-        localStorage.setItem("readme-daily-usage-count-auth", newDailyCount.toString())
-        localStorage.setItem("readme-last-usage-date-auth", today)
-      }
-
-      toast({
-        title: "README Generated! 🎉",
-        description: "Your beautiful README is ready!",
-      })
+      toast({ title: "README Generated! 🎉", description: "Your beautiful README is ready!" })
     } catch (error) {
       toast({
         title: "Generation Failed",
@@ -203,28 +274,29 @@ export default function GeneratePage() {
 
   const handleRewrite = useCallback(async () => {
     if (!generatedReadme || !selectedVibe) {
-      toast({
-        title: "Nothing to Rewrite",
-        description: "Please generate a README first.",
-        variant: "destructive",
-      })
+      toast({ title: "Nothing to Rewrite", description: "Please generate a README first.", variant: "destructive" })
       return
     }
 
-    const remainingUsesNow = getRemainingUses()
-    if (remainingUsesNow <= 0) {
+    const remaining = getRemainingUses()
+    if (remaining <= 0) {
       if (!isAuthenticated) {
         setShowAuthModal(true)
+      } else if (!isPro) {
+        toast({
+          title: "Limit reached",
+          description: "You've used all 5 free uses on this email + device.",
+          variant: "destructive",
+        })
       } else {
         toast({
-          title: "Daily Limit Reached",
-          description: `You've used all ${AUTH_DAILY_LIMIT} generations for today. Come back tomorrow!`,
+          title: "Daily limit reached",
+          description: "You've used all 5 Pro uses for today.",
           variant: "destructive",
         })
       }
       return
     }
-
     if (isRewriting) return
 
     setIsRewriting(true)
@@ -234,10 +306,7 @@ export default function GeneratePage() {
     try {
       const response = await fetch("/api/rewrite-readme", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-        },
+        headers: { "Content-Type": "application/json", "Cache-Control": "no-cache" },
         body: JSON.stringify({
           content: generatedReadme,
           vibe: selectedVibe,
@@ -246,35 +315,18 @@ export default function GeneratePage() {
           rewriteCount: currentRewriteCount,
         }),
       })
-
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || "Failed to rewrite README")
       }
-
       const data = await response.json()
+      if (!data.rewrittenReadme) throw new Error("No rewritten content received")
 
-      if (!data.rewrittenReadme) {
-        throw new Error("No rewritten content received")
-      }
+      await new Promise((r) => setTimeout(r, 100))
+      // consume one use after success
+      await consumeUse()
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
       setGeneratedReadme(data.rewrittenReadme)
-
-      // Charge one use credit on successful rewrite
-      const today = new Date().toDateString()
-      if (!isAuthenticated) {
-        const newCount = unauthDailyUsageCount + 1
-        setUnauthDailyUsageCount(newCount)
-        localStorage.setItem("readme-daily-usage-count-unauth", newCount.toString())
-        localStorage.setItem("readme-last-usage-date-unauth", today)
-      } else {
-        const newDailyCount = dailyUsageCount + 1
-        setDailyUsageCount(newDailyCount)
-        localStorage.setItem("readme-daily-usage-count-auth", newDailyCount.toString())
-        localStorage.setItem("readme-last-usage-date-auth", today)
-      }
-
       toast({
         title: `README Rewritten! ✨ (${currentRewriteCount})`,
         description: "Your README has been completely refreshed!",
@@ -286,9 +338,7 @@ export default function GeneratePage() {
         variant: "destructive",
       })
     } finally {
-      setTimeout(() => {
-        setIsRewriting(false)
-      }, 200)
+      setTimeout(() => setIsRewriting(false), 200)
     }
   }, [
     generatedReadme,
@@ -299,16 +349,15 @@ export default function GeneratePage() {
     rewriteCount,
     toast,
     isAuthenticated,
-    unauthDailyUsageCount,
-    dailyUsageCount,
+    isPro,
+    anonTotalCount,
+    emailDeviceTotalCount,
+    proRemainingToday,
   ])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedReadme)
-    toast({
-      title: "Copied! 📋",
-      description: "README copied to clipboard!",
-    })
+    toast({ title: "Copied! 📋", description: "README copied to clipboard!" })
   }
 
   const downloadReadme = () => {
@@ -321,109 +370,56 @@ export default function GeneratePage() {
     URL.revokeObjectURL(url)
   }
 
-  const handleStarOnGitHub = () => {
-    window.open("https://github.com/Divyamsharma-18/Readme-Garden", "_blank")
-  }
+  const { theme: curTheme } = useTheme()
+  const isDark = curTheme === "dark"
 
-  // Carry over today's unauth usage so sign-in only grants 2 more (total 5)
+  const remainingUses = getRemainingUses()
+  const badgeText = useMemo(() => {
+    if (isPro) return `${remainingUses}/${PRO_DAILY_LIMIT} Uses Today`
+    if (isAuthenticated) return `${remainingUses}/${FREE_EMAIL_DEVICE_LIMIT} Free Uses (email+device)`
+    return `${remainingUses}/${ANON_TOTAL_LIMIT} Free Uses (device)`
+  }, [isPro, isAuthenticated, remainingUses])
+
+  const toggleTheme = () => setTheme(isDark ? "light" : "dark")
+
   const handleLogin = async (user: { id: string; email: string; name: string }) => {
     setIsAuthenticated(true)
-    setUserData({ username: user.name, email: user.email })
+    setUserData({ username: user.name, email: user.email, id: user.id })
     setShowAuthModal(false)
-
-    const today = new Date().toDateString()
-    const unauthCount = Number.parseInt(localStorage.getItem("readme-daily-usage-count-unauth") || "0")
-    const lastUnauthDate = localStorage.getItem("readme-last-usage-date-unauth")
-
-    // If it's the same day, carry usage; otherwise reset
-    const carried = lastUnauthDate === today ? Math.min(unauthCount, AUTH_DAILY_LIMIT) : 0
-    setDailyUsageCount(carried)
-    localStorage.setItem("readme-daily-usage-count-auth", carried.toString())
-    localStorage.setItem("readme-last-usage-date-auth", today)
+    // Merge anon usage into email+device usage
+    const id = getOrCreateDeviceId()
+    const prevEmailDevice = Number.parseInt(localStorage.getItem(emailDeviceKey(user.email, id)) || "0")
+    const anon = Number.parseInt(localStorage.getItem(ANON_TOTAL_KEY) || "0")
+    const merged = Math.min(
+      FREE_EMAIL_DEVICE_LIMIT,
+      (isNaN(prevEmailDevice) ? 0 : prevEmailDevice) + (isNaN(anon) ? 0 : anon),
+    )
+    localStorage.setItem(emailDeviceKey(user.email, id), String(merged))
+    setEmailDeviceTotalCount(merged)
+    await fetchProStatus(user.id)
   }
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      toast({
-        title: "Logout Failed",
-        description: error.message,
-        variant: "destructive",
-      })
+      toast({ title: "Logout Failed", description: error.message, variant: "destructive" })
     } else {
       setIsAuthenticated(false)
       setUserData(null)
-      toast({
-        title: "Logged out successfully",
-        description: "See you next time!",
-      })
+      setIsPro(false)
+      setProRemainingToday(0)
+      toast({ title: "Logged out successfully", description: "See you next time!" })
     }
   }
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }
-
-  if (!mounted) {
-    return null
-  }
-
-  const isDark = theme === "dark"
-  const remainingUses = getRemainingUses()
+  if (!mounted) return null
 
   return (
     <div className="min-h-screen transition-all duration-700 relative flex flex-col">
-      {/* Dynamic Background */}
+      {/* Background */}
       <div
-        className={`fixed inset-0 transition-all duration-700 ${
-          isDark
-            ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
-            : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"
-        }`}
+        className={`fixed inset-0 transition-all duration-700 ${isDark ? "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" : "bg-gradient-to-br from-green-50 via-blue-50 to-purple-50"}`}
       />
-
-      {/* Nature Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {!isDark ? (
-          <>
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.8 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-20 h-20 bg-yellow-400 rounded-full animate-pulse shadow-2xl"
-              style={{ boxShadow: "0 0 50px rgba(251, 191, 36, 0.6)" }}
-            />
-          </>
-        ) : (
-          <>
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.9 }}
-              transition={{ duration: 1 }}
-              className="absolute top-10 right-10 w-16 h-16 bg-gray-200 rounded-full shadow-2xl"
-              style={{ boxShadow: "0 0 40px rgba(229, 231, 235, 0.8)" }}
-            />
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.5, 1, 0.5] }}
-                transition={{
-                  duration: 2,
-                  delay: i * 0.3,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{
-                  left: `${15 + i * 7}%`,
-                  top: `${8 + (i % 4) * 12}%`,
-                }}
-              />
-            ))}
-          </>
-        )}
-      </div>
 
       {/* Header */}
       <header className="relative z-10 p-6">
@@ -451,29 +447,24 @@ export default function GeneratePage() {
 
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             <Badge variant="secondary" className="px-2 sm:px-3 py-1 shadow-sm flex text-xs">
+              <span className="hidden lg:inline">{badgeText}</span>
               <span className="lg:hidden">
-                {!isAuthenticated ? `${remainingUses}/${UNAUTH_DAILY_LIMIT}` : `${remainingUses}/${AUTH_DAILY_LIMIT}`}
-              </span>
-              <span className="hidden lg:inline">
-                {!isAuthenticated
-                  ? `${remainingUses}/${UNAUTH_DAILY_LIMIT} Free Uses Today`
-                  : `${remainingUses}/${AUTH_DAILY_LIMIT} Uses Today`}
+                {remainingUses}/{isPro ? PRO_DAILY_LIMIT : isAuthenticated ? FREE_EMAIL_DEVICE_LIMIT : ANON_TOTAL_LIMIT}
               </span>
             </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleStarOnGitHub}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex p-2"
-            >
-              <Star className="w-4 h-4 text-yellow-500" />
-              <span className="hidden lg:inline">Star on GitHub</span>
-            </Button>
+            {!isPro && (
+              <Link href="/pro">
+                <Button variant="outline" size="sm" className="rounded-full bg-transparent flex p-2">
+                  <Crown className="w-4 h-4 text-yellow-500" />
+                  <span className="hidden lg:inline">Go Pro</span>
+                </Button>
+              </Link>
+            )}
             <Button
               variant="outline"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-transparent flex md:flex w-8 h-8 sm:w-10 sm:h-10"
+              className="rounded-full shadow-sm bg-transparent w-8 h-8 sm:w-10 sm:h-10"
             >
               {isDark ? <Sun className="w-3 h-3 sm:w-4 sm:h-4" /> : <Moon className="w-3 h-3 sm:w-4 sm:h-4" />}
             </Button>
@@ -485,13 +476,13 @@ export default function GeneratePage() {
                   onClick={() => setShowAuthModal(true)}
                   className="rounded-full shadow-sm hidden lg:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                 >
-                  Sign In (+2 uses)
+                  Sign In (5 total)
                 </Button>
                 <Button
                   onClick={() => setShowAuthModal(true)}
                   className="rounded-full shadow-sm lg:hidden w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                   size="icon"
-                  aria-label="Sign in to get 2 more daily uses"
+                  aria-label="Sign in"
                 >
                   <User className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
@@ -501,10 +492,10 @@ export default function GeneratePage() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow w-full">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
+          {/* Input */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -528,7 +519,6 @@ export default function GeneratePage() {
                     className="rounded-xl"
                   />
                 </div>
-
                 <div>
                   <label className="text-sm font-medium mb-2 block">Live Demo URL (Optional)</label>
                   <Input
@@ -539,7 +529,6 @@ export default function GeneratePage() {
                     className="rounded-xl"
                   />
                 </div>
-
                 <div>
                   <label className="text-sm font-medium mb-2 block">Project Purpose / Description (Optional)</label>
                   <Textarea
@@ -553,7 +542,6 @@ export default function GeneratePage() {
                     Provide a brief, compelling description of what your project does or the problem it solves.
                   </p>
                 </div>
-
                 <div>
                   <label className="text-sm font-medium mb-2 block">Choose Your Vibe</label>
                   <Select value={selectedVibe} onValueChange={setSelectedVibe}>
@@ -572,7 +560,6 @@ export default function GeneratePage() {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !repoUrl || !selectedVibe || remainingUses <= 0}
@@ -590,11 +577,19 @@ export default function GeneratePage() {
                     </>
                   )}
                 </Button>
+                {!isPro && (
+                  <Link
+                    href="/pro"
+                    className="text-sm text-purple-600 dark:text-purple-300 underline underline-offset-4"
+                  >
+                    Want 5 uses per day? Go Pro
+                  </Link>
+                )}
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Output Section */}
+          {/* Output */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

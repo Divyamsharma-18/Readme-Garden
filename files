@@ -1,0 +1,608 @@
+import { type NextRequest, NextResponse } from "next/server"
+import { generateText } from "ai"
+import { google } from "@ai-sdk/google"
+
+export async function POST(request: NextRequest) {
+  try {
+    const { repoUrl, vibe, liveDemoUrl, projectPurpose } = await request.json()
+
+    if (!repoUrl || !vibe) {
+      return NextResponse.json({ error: "Repository URL and vibe are required" }, { status: 400 })
+    }
+
+    // Extract repo info from URL
+    const urlParts = repoUrl.replace("https://github.com/", "").split("/")
+    const owner = urlParts[0]
+    const repo = urlParts[1]
+
+    if (!owner || !repo) {
+      return NextResponse.json({ error: "Invalid GitHub repository URL" }, { status: 400 })
+    }
+
+    let repoData = {
+      name: repo,
+      description: "A GitHub repository",
+      language: "JavaScript",
+      stargazers_count: 0,
+      forks_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      homepage: null,
+      topics: [],
+      license: null,
+    }
+
+    let contents: any[] = []
+    let languages: Record<string, number> = { JavaScript: 100 }
+    let existingReadmeContent = ""
+    let packageJsonContent: Record<string, any> = {}
+    let liveDemoTitle: string | null = null
+    let liveDemoMetaDescription: string | null = null
+
+    // Try to fetch repository information from GitHub API (optional)
+    try {
+      const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`)
+      if (repoResponse.ok) {
+        repoData = await repoResponse.json()
+
+        // Fetch contents (top-level files/folders)
+        const contentsResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents`)
+        if (contentsResponse.ok) {
+          contents = await contentsResponse.json()
+        }
+
+        // Fetch languages
+        const languagesResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/languages`)
+        if (languagesResponse.ok) {
+          languages = await languagesResponse.json()
+        }
+
+        // Attempt to fetch existing README.md content
+        const readmeFile = contents.find((item: any) => item.name.toLowerCase() === "readme.md" && item.type === "file")
+        if (readmeFile && readmeFile.download_url) {
+          const readmeResponse = await fetch(readmeFile.download_url)
+          if (readmeResponse.ok) {
+            existingReadmeContent = await readmeResponse.text()
+          }
+        }
+
+        // Attempt to fetch package.json content
+        const packageJsonFile = contents.find(
+          (item: any) => item.name.toLowerCase() === "package.json" && item.type === "file",
+        )
+        if (packageJsonFile && packageJsonFile.download_url) {
+          const packageJsonResponse = await fetch(packageJsonFile.download_url)
+          if (packageJsonResponse.ok) {
+            try {
+              packageJsonContent = await packageJsonResponse.json()
+            } catch (parseError) {
+              console.warn("Failed to parse package.json:", parseError)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("GitHub API fetch failed, using defaults:", error)
+    }
+
+    // Attempt to fetch and parse live demo URL for title and meta description
+    if (liveDemoUrl) {
+      try {
+        const liveDemoResponse = await fetch(liveDemoUrl)
+        if (liveDemoResponse.ok) {
+          const htmlContent = await liveDemoResponse.text()
+          // Extract title
+          const titleMatch = htmlContent.match(/<title>(.*?)<\/title>/i)
+          if (titleMatch && titleMatch[1]) {
+            liveDemoTitle = titleMatch[1].trim()
+          }
+          // Extract meta description
+          const metaDescriptionMatch = htmlContent.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i)
+          if (metaDescriptionMatch && metaDescriptionMatch[1]) {
+            liveDemoMetaDescription = metaDescriptionMatch[1].trim()
+          }
+        } else {
+          console.warn(`Failed to fetch live demo URL ${liveDemoUrl}: ${liveDemoResponse.status}`)
+        }
+      } catch (error) {
+        console.warn(`Error fetching or parsing live demo URL ${liveDemoUrl}:`, error)
+      }
+    }
+
+    // Generate README based on vibe with VERY different prompts
+    const vibePrompts = {
+      professional: `Create a PROFESSIONAL, corporate-style README that's clean, formal, and business-oriented. Use:
+      - Formal language and corporate terminology
+      - Clear section headers with professional structure
+      - Technical specifications and requirements
+      - Professional badges and shields
+      - Formal installation and deployment instructions
+      - Corporate contribution guidelines
+      - Professional contact information
+      - No emojis, keep it strictly business`,
+
+      friendly: `Create a WARM and WELCOMING README that feels like talking to a helpful friend. Use:
+      - Conversational, approachable language
+      - Encouraging and supportive tone
+      - Helpful tips and friendly advice
+      - Welcome messages for new contributors
+      - Personal touches and community feel
+      - Gentle guidance for beginners
+      - Warm closing messages
+      - Use friendly emojis sparingly (😊, 👋, 🤝)`,
+
+      humorous: `Create a FUN and WITTY README that makes people smile while being informative. Use:
+      - Clever jokes and programming puns
+      - Funny analogies and metaphors
+      - Witty section headers and descriptions
+      - Humorous installation instructions
+      - Playful warnings and notes
+      - Entertaining examples and use cases
+      - Funny contributor guidelines
+      - Use fun emojis (😄, 🎉, 🚀, 🎯, 🔥)`,
+
+      creative: `Create an ARTISTIC and EXPRESSIVE README that's visually stunning and unique. Use:
+      - Creative formatting and visual elements
+      - Artistic section dividers and headers
+      - Colorful and expressive language
+      - Creative metaphors and storytelling
+      - Unique project descriptions
+      - Artistic installation guides
+      - Creative examples and demos
+      - Abundant creative emojis (🎨, ✨, 🌟, 🎭, 🎪)`,
+
+      minimal: `Create a CLEAN and SIMPLE README with just the essentials. Use:
+      - Concise, direct language
+      - Minimal sections (only what's necessary)
+      - Short, clear sentences
+      - Simple installation steps
+      - Basic usage examples
+      - Essential information only
+      - Clean, uncluttered layout
+      - Very few or no emojis`,
+
+      detailed: `Create a COMPREHENSIVE and THOROUGH README with extensive documentation. Use:
+      - In-depth explanations and descriptions
+      - Detailed installation procedures
+      - Comprehensive usage examples
+      - Extensive API documentation
+      - Detailed troubleshooting guides
+      - Complete contribution guidelines
+      - Thorough testing instructions
+      - Educational emojis (📚, 📖, 🔍, 📋, 📊)`,
+    } as const
+
+    const liveDemoContext = liveDemoUrl
+      ? `
+    A live demo URL was provided: ${liveDemoUrl}.
+    ${liveDemoTitle ? `The live demo page title is: "${liveDemoTitle}".` : ""}
+    ${liveDemoMetaDescription ? `The live demo page meta description is: "${liveDemoMetaDescription}".` : ""}
+    Use this information to describe what the live demo showcases and integrate it into the README.
+    `
+      : ""
+
+    const existingReadmeContextPrompt = existingReadmeContent
+      ? `
+    Existing README.md content from the repository (use this to understand the project's existing documentation style, but rewrite it completely to match the chosen vibe):
+    \`\`\`markdown
+    ${existingReadmeContent}
+    \`\`\`
+    `
+      : ""
+
+    const packageJsonContextPrompt =
+      Object.keys(packageJsonContent).length > 0
+        ? `
+    Additional project details from package.json (use these to understand the project's core purpose, technologies, and features):
+    - Project Name (from package.json): ${packageJsonContent.name || "N/A"}
+    - Version: ${packageJsonContent.version || "N/A"}
+    - Description (from packageJsonContent): ${packageJsonContent.description || "N/A"}
+    - Keywords: ${packageJsonContent.keywords?.join(", ") || "N/A"}
+    - Scripts: ${Object.keys(packageJsonContent.scripts || {}).join(", ") || "N/A"}
+    - Dependencies: ${Object.keys(packageJsonContent.dependencies || {}).join(", ") || "N/A"}
+    - Dev Dependencies: ${Object.keys(packageJsonContent.devDependencies || {}).join(", ") || "N/A"}
+    `
+        : ""
+
+    const projectPurposeContext = projectPurpose
+      ? `The user explicitly provided this project purpose: "${projectPurpose}". **Prioritize this information heavily.**`
+      : ""
+
+    const prompt = `
+    ${vibePrompts[vibe as keyof typeof vibePrompts]}
+    
+    Here is all the information gathered about the project. Use ALL of it to understand the project's purpose, features, and what it's about.
+    
+    GitHub Repository Information:
+    - Name: ${repoData.name}
+    - Description: ${repoData.description || "No description provided"}
+    - Primary Language: ${repoData.language || "Not specified"}
+    - All Languages: ${Object.keys(languages).join(", ") || "Not available"}
+    - Stars: ${repoData.stargazers_count}
+    - Forks: ${repoData.forks_count}
+    - Created: ${new Date(repoData.created_at).toLocaleDateString()}
+    - Last Updated: ${new Date(repoData.updated_at).toLocaleDateString()}
+    - Homepage: ${repoData.homepage || "None"}
+    - Topics: ${repoData.topics?.join(", ") || "None"}
+    - License: ${repoData.license?.name || "Not specified"}
+    
+    Project Structure (top-level files/folders):
+    ${contents.length > 0 ? contents.map((item: any) => `- ${item.name} (${item.type})`).join("\n") : "- Standard project structure"}
+    
+    ${existingReadmeContextPrompt}
+    ${packageJsonContextPrompt}
+    ${liveDemoContext}
+    ${projectPurposeContext}
+    
+    Create a UNIQUE README that STRONGLY reflects the ${vibe} vibe. Make it completely different from other vibes.
+    
+    Include these sections (adapt style to vibe):
+    1. Project title and a compelling description. **This description MUST be highly persuasive, benefit-oriented, and 'sell' the project to a potential user or contributor. Elaborate on the core purpose (prioritizing the user-provided 'projectPurpose' if available) to highlight its unique value proposition and how it solves problems or provides benefits.**
+    2. Key features and highlights (infer from all available info)
+    3. Installation/setup instructions
+    4. Usage examples and code snippets
+    5. Configuration options (if applicable)
+    6. Contributing guidelines
+    7. License and legal information
+    8. Support and contact information
+    ${liveDemoUrl ? "9. Live Demo section with the provided URL and a description based on the project's purpose and the scraped live demo content." : ""}
+    
+    IMPORTANT: Return ONLY the markdown content without code block formatting or any conversational text.
+    `
+
+    // Try with Gemini first, fallback to mock generation if API key is missing
+    let text = ""
+
+    try {
+      if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+        const result = await generateText({
+          model: google("gemini-1.5-pro"),
+          prompt,
+          maxTokens: 2500,
+          temperature: 0.8,
+        })
+        text = result.text
+      } else {
+        throw new Error("No Gemini API key")
+      }
+    } catch (error) {
+      console.log("Gemini generation failed, using fallback:", error)
+
+      // Enhanced fallback README generation with distinct vibes
+      text = generateEnhancedFallbackReadme(
+        repoData,
+        vibe,
+        languages,
+        liveDemoUrl,
+        existingReadmeContent,
+        packageJsonContent,
+        liveDemoTitle,
+        liveDemoMetaDescription,
+        owner, // Pass owner to fallback
+        repoUrl, // Pass full repoUrl to fallback
+        projectPurpose,
+      )
+    }
+
+    return NextResponse.json({ readme: text })
+  } catch (error) {
+    console.error("Error generating README:", error)
+    return NextResponse.json({ error: "Failed to generate README. Please try again." }, { status: 500 })
+  }
+}
+
+function generateEnhancedFallbackReadme(
+  repoData: any,
+  vibe: string,
+  languages: any,
+  liveDemoUrl?: string,
+  existingReadmeContent?: string,
+  packageJsonContent?: Record<string, any>,
+  liveDemoTitle?: string | null,
+  liveDemoMetaDescription?: string | null,
+  owner?: string,
+  fullRepoUrl?: string,
+  projectPurpose?: string,
+) {
+  const primaryLanguage = Object.keys(languages)[0] || repoData.language || "JavaScript"
+
+  // Synthesize a compelling description, prioritizing user input
+  let synthesizedDescription = projectPurpose || repoData.description || packageJsonContent?.description || ""
+  if (!synthesizedDescription) {
+    if (existingReadmeContent) {
+      const existingReadmeFirstParagraph = existingReadmeContent.split("\n\n")[0]?.trim()
+      if (existingReadmeFirstParagraph && existingReadmeFirstParagraph.length > 50) {
+        synthesizedDescription = existingReadmeFirstParagraph
+      }
+    }
+  }
+  if (liveDemoMetaDescription) {
+    synthesizedDescription = liveDemoMetaDescription
+  } else if (liveDemoTitle) {
+    synthesizedDescription = `This project is about "${liveDemoTitle}". ${synthesizedDescription}`
+  }
+
+  // Enhance the description with "selling" language for fallback
+  let compellingDescription = synthesizedDescription
+  if (synthesizedDescription.length > 0) {
+    switch (vibe) {
+      case "professional":
+        compellingDescription = `Unlock the full potential of your workflow with this robust solution. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This cutting-edge solution")}.`
+        break
+      case "friendly":
+        compellingDescription = `Get ready to simplify your life and boost your productivity! ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This friendly tool")}.`
+        break
+      case "humorous":
+        compellingDescription = `Tired of the same old problems? This project is here to save the day (and maybe make you chuckle)! ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This hilarious yet powerful tool")}.`
+        break
+      case "creative":
+        compellingDescription = `Dive into a world where innovation meets artistry. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This visionary creation")}.`
+        break
+      case "minimal":
+        compellingDescription = `Achieve more with less. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This streamlined solution")}.`
+        break
+      case "detailed":
+        compellingDescription = `Explore the depths of comprehensive functionality. ${synthesizedDescription.replace(/^(A|This) (project|tool|solution)/i, "This meticulously crafted system")}.`
+        break
+      default:
+        compellingDescription = `Discover the power of this innovative project. ${synthesizedDescription}.`
+    }
+  } else {
+    compellingDescription =
+      "This project is designed to empower your development journey, offering innovative solutions and seamless integration."
+  }
+
+  const inferredFeatures =
+    packageJsonContent?.keywords?.length > 0
+      ? `Key features include: ${packageJsonContent.keywords.join(", ")}.`
+      : "It offers a range of functionalities to solve common problems."
+
+  const liveDemoSection = liveDemoUrl
+    ? `
+## Live Demo 🚀
+
+Experience the project live here: [${liveDemoTitle || repoData.name + " Live"}](${liveDemoUrl})
+${liveDemoMetaDescription ? `\n> ${liveDemoMetaDescription}` : ""}
+`
+    : ""
+
+  // Use the actual repo URL if available, otherwise fallback to a generic placeholder
+  const cloneUrl = fullRepoUrl || `https://github.com/${owner || "user"}/${repoData.name}.git`
+
+  const vibeTemplates = {
+    professional: `# ${repoData.name}
+
+${compellingDescription}
+
+## Technical Specifications
+
+- **Primary Technology**: ${primaryLanguage}
+- **Repository Status**: Active Development
+- **License**: ${repoData.license?.name || "MIT License"}
+${liveDemoSection}
+## Installation Requirements
+
+\`\`\`bash
+git clone ${cloneUrl}
+cd ${repoData.name}
+npm install --production
+\`\`\`
+
+## Implementation Guide
+
+\`\`\`${primaryLanguage.toLowerCase()}
+const ${repoData.name} = require('./${repoData.name}');
+
+// Initialize the module
+const instance = new ${repoData.name}();
+const result = instance.execute();
+\`\`\`
+
+## Corporate Contribution Guidelines
+
+1. Fork the repository
+2. Create feature branch following naming conventions
+3. Implement changes with comprehensive testing
+4. Submit pull request with detailed documentation
+5. Await code review and approval
+
+## Support and Maintenance
+
+For technical support, please contact the development team through official channels.
+
+---
+
+© ${new Date().getFullYear()} ${repoData.name} Development Team. All rights reserved.`,
+
+    friendly: `# Welcome to ${repoData.name}! 👋
+
+${compellingDescription} We hope you'll find it useful! ${inferredFeatures}
+
+We're using ${primaryLanguage} as our main language, and we think you'll really enjoy working with it!
+${liveDemoSection}
+## Getting Started (Don't Worry, It's Easy!) 🚀
+
+\`\`\`bash
+# First, let's get the code
+git clone ${cloneUrl}
+cd ${repoData.name}
+
+# Now install the dependencies (grab a coffee while this runs!)
+npm install
+\`\`\`
+
+## How to Use It 🤝
+
+\`\`\`${primaryLanguage.toLowerCase()}
+// Here's a simple example to get you started
+import ${repoData.name} from './${repoData.name}'
+
+// This is the fun part!
+const result = ${repoData.name}()
+console.log('Look what we made:', result)
+\`\`\`
+
+## Want to Help Out? We'd Love That! 💝
+
+We're always excited to welcome new contributors! Here's how you can join our friendly community:
+
+1. Fork this repo (you've got this!)
+2. Create your feature branch
+3. Make your awesome changes
+4. Share it with us via a pull request
+
+Don't be shy - we're here to help if you get stuck! 
+
+## Questions? We're Here for You! 🤗
+
+Feel free to reach out anytime. We love hearing from our users!
+
+Made with ❤️ by our amazing community`,
+
+    humorous: `# ${repoData.name} 🎭
+
+*Because regular code is too mainstream* 😎
+
+## What Does This Thing Do? 🤔
+
+${compellingDescription} ${inferredFeatures}
+
+Built with ${primaryLanguage} because we're rebels like that. 🔥
+${liveDemoSection}
+## Installation (AKA "The Ritual") 🧙‍♂️
+
+\`\`\`bash
+git clone ${cloneUrl}
+cd ${repoData.name}
+npm install
+\`\`\`
+
+## Usage (The Fun Part!) 🎪
+
+\`\`\`${primaryLanguage.toLowerCase()}
+// Behold, the magic happens here!
+import ${repoData.name} from './${repoData.name}'
+
+// This line does more than you think
+const magic = ${repoData.name}()
+
+// Prepare to be amazed
+console.log('🎉 Ta-da!', magic)
+\`\`\`
+
+## Contributing (Join the Circus!) 🎪
+
+Fork it, branch it, code it, PR it. We’ll bring the confetti!`,
+
+    creative: `# ✨ ${repoData.name} ✨
+
+${compellingDescription}
+
+## 🌟 The Vision
+
+Crafted with ${primaryLanguage}, this project blends imagination with engineering.
+${liveDemoSection}
+## 🎭 Installation Symphony
+
+\`\`\`bash
+git clone ${cloneUrl}
+cd ${repoData.name}
+npm install
+\`\`\`
+
+## 🎪 The Performance
+
+\`\`\`${primaryLanguage.toLowerCase()}
+import { ${repoData.name} } from './${repoData.name}'
+const artwork = new ${repoData.name}()
+const masterpiece = artwork.create()
+console.log('🎨 Behold:', masterpiece)
+\`\`\`
+
+## 🤝 Join the Creative Collective
+
+Fork → Branch → Create → Share`,
+
+    minimal: `# ${repoData.name}
+
+${compellingDescription}
+${liveDemoSection}
+## Install
+\`\`\`bash
+git clone ${cloneUrl}
+cd ${repoData.name}
+npm install
+\`\`\`
+
+## Use
+\`\`\`${primaryLanguage.toLowerCase()}
+import ${repoData.name} from './${repoData.name}'
+const result = ${repoData.name}()
+\`\`\`
+
+## License
+${repoData.license?.name || "MIT"}`,
+
+    detailed: `# ${repoData.name} - Comprehensive Documentation 📚
+
+${compellingDescription}
+
+## Table of Contents 📋
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Configuration](#configuration)
+4. [Usage Examples](#usage-examples)
+5. [API Reference](#api-reference)
+6. [Contributing](#contributing)
+7. [Testing](#testing)
+8. [Troubleshooting](#troubleshooting)
+9. [License](#license)
+${liveDemoUrl ? "10. [Live Demonstration](#live-demonstration)" : ""}
+
+## Features 🌟
+
+- ✅ Primary feature implementation
+- ✅ Secondary feature support
+- ✅ Error handling and validation
+- ✅ Performance optimization
+${liveDemoSection}
+## Installation 📦
+
+\`\`\`bash
+git clone ${cloneUrl}
+cd ${repoData.name}
+npm install
+\`\`\`
+
+## Usage Examples 💡
+
+\`\`\`${primaryLanguage.toLowerCase()}
+const ${repoData.name} = require('./${repoData.name}')
+const instance = new ${repoData.name}()
+const result = instance.execute()
+console.log('Result:', result)
+\`\`\`
+
+## Contributing 🤝
+
+Please open an issue or PR. Follow conventional commits and ensure tests pass.
+
+## Testing 🧪
+
+\`\`\`bash
+npm test
+\`\`\`
+
+## Troubleshooting 🔧
+
+- Check Node.js version
+- Clear node_modules and reinstall
+- Verify environment variables
+
+## License 📄
+
+${repoData.license?.name || "MIT License"}`,
+  }
+
+  return vibeTemplates[vibe as keyof typeof vibeTemplates] || vibeTemplates.professional
+}
