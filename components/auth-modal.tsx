@@ -382,7 +382,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       maxLength="6"
-                      className="rounded-xl text-center text-lg tracking-widest"
+                      className="rounded-xl text-center text-sm tracking-widest"
                     />
                     <Button
                       onClick={handleVerifyOTP}
