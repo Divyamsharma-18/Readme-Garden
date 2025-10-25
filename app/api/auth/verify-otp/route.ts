@@ -14,26 +14,31 @@ const supabaseServer = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const { email, token } = await request.json()
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
+    if (!email || !token) {
+      return NextResponse.json({ error: "Email and OTP token are required" }, { status: 400 })
     }
 
-    const { data, error } = await supabaseServer.auth.signInWithPassword({
+    // Verify the OTP token
+    const { data, error } = await supabaseServer.auth.verifyOtp({
       email,
-      password,
+      token,
+      type: "email",
     })
 
     if (error) {
-      let cleanErrorMessage = "Invalid login credentials"
+      console.error("OTP verification error:", error)
+      let cleanErrorMessage = "Invalid or expired OTP"
 
       const errorText = error.message?.toLowerCase() || ""
 
-      if (errorText.includes("email") && errorText.includes("not") && errorText.includes("confirmed")) {
-        cleanErrorMessage = "Please check your email to confirm your account"
-      } else if (errorText.includes("too many")) {
-        cleanErrorMessage = "Too many login attempts. Please try again later"
+      if (errorText.includes("expired")) {
+        cleanErrorMessage = "OTP has expired. Please request a new one."
+      } else if (errorText.includes("invalid")) {
+        cleanErrorMessage = "Invalid OTP. Please check and try again."
+      } else if (errorText.includes("mismatch")) {
+        cleanErrorMessage = "OTP does not match. Please try again."
       }
 
       return NextResponse.json({ error: cleanErrorMessage }, { status: 401 })
@@ -52,7 +57,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Sign in error:", error)
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+    console.error("OTP verification error:", error)
+    return NextResponse.json({ error: "OTP verification failed" }, { status: 500 })
   }
 }

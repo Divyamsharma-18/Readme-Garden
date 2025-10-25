@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   keywords: "README, GitHub, AI, documentation, generator, markdown",
   icons: {
     icon: "/icon.png",
-  }
+  },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
