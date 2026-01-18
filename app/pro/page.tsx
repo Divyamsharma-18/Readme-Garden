@@ -20,6 +20,7 @@ export default function ProPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    // First, get the current session
     const getInitialSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
@@ -33,7 +34,6 @@ export default function ProPage() {
     }
 
     getInitialSession()
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const id = session?.user?.id || null
       setUserId(id)
