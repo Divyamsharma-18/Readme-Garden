@@ -185,7 +185,7 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-3"
+                    className="rounded-full !gap-1 shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-3"
                   >
                     <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
                     <span className="hidden xs:inline">Star on </span>GitHub
