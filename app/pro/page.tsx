@@ -181,7 +181,7 @@ export default function ProPage() {
             <Button 
               onClick={startUPICheckout} 
               disabled={loading} 
-              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
             >
               <CreditCard className="w-4 h-4 mr-2" />
               {loading ? "Processing..." : "UPI (₹399)"}
