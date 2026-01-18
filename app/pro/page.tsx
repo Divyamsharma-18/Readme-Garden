@@ -34,6 +34,8 @@ export default function ProPage() {
     }
 
     getInitialSession()
+
+    // Also listen for auth state changes (user signs in/out)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const id = session?.user?.id || null
       setUserId(id)
@@ -61,14 +63,17 @@ export default function ProPage() {
         throw new Error(data.error || "Failed to start checkout")
       }
 
+      // Prefer opening PayPal in a new tab to avoid iframe/sandbox blocking in previews
       const win = window.open(data.approvalUrl, "_blank", "noopener,noreferrer")
       if (!win) {
+        // Popup blocked; try top-level navigation as a fallback
         try {
           if (window.top) {
             window.top.location.href = data.approvalUrl
             return
           }
         } catch {
+          // Cross-origin top navigation blocked; use current window
           window.location.href = data.approvalUrl
           return
         }
@@ -101,9 +106,12 @@ export default function ProPage() {
         throw new Error(data.error || "Failed to create UPI payment")
       }
 
+      // For UPI, we generate a QR code or show payment instructions
+      // For now, we'll show a modal with UPI details and redirect after confirmation
       const message = `Send ₹${data.amount} via UPI to ${data.upiId}\n\nTransaction Ref: ${data.transactionRef}`
       
       if (confirm(`Complete payment via UPI:\n\n${message}\n\nTap OK when payment is completed.`)) {
+        // After user confirms, redirect to success
         window.location.href = data.paymentLink
       }
     } catch (e) {
@@ -117,7 +125,7 @@ export default function ProPage() {
     }
   }
 
-  const startCheckout = startPayPalCheckout; 
+  const startCheckout = startPayPalCheckout; // Declare startCheckout variable
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6">
