@@ -5,10 +5,11 @@ import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, CreditCard, Shield, Sparkles } from "lucide-react"
+import { Check, CreditCard, Shield, Sparkles, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import QRCode from "qrcode"
 
 export default function ProPage() {
   const { theme } = useTheme()
@@ -18,26 +19,32 @@ export default function ProPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [sessionLoaded, setSessionLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showQRModal, setShowQRModal] = useState(false)
+  const [qrCode, setQRCode] = useState<string>("")
+  const [upiDetails, setUpiDetails] = useState<any>(null)
 
   useEffect(() => {
-    // First, get the current session
-    const getInitialSession = async () => {
+    // Set session loaded to true immediately to allow clicks while checking auth
+    setSessionLoaded(true)
+
+    // Check current session
+    const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
         const id = data.session?.user?.id || null
+        console.log("[v0] Session user ID:", id)
         setUserId(id)
       } catch (error) {
-        console.error("[v0] Error getting initial session:", error)
-      } finally {
-        setSessionLoaded(true)
+        console.error("[v0] Error getting session:", error)
       }
     }
 
-    getInitialSession()
+    checkSession()
 
-    // Also listen for auth state changes (user signs in/out)
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const id = session?.user?.id || null
+      console.log("[v0] Auth state changed, user ID:", id)
       setUserId(id)
     })
 
@@ -106,14 +113,13 @@ export default function ProPage() {
         throw new Error(data.error || "Failed to create UPI payment")
       }
 
-      // For UPI, we generate a QR code or show payment instructions
-      // For now, we'll show a modal with UPI details and redirect after confirmation
-      const message = `Send ₹${data.amount} via UPI to ${data.upiId}\n\nTransaction Ref: ${data.transactionRef}`
+      // Generate QR code for UPI
+      const upiString = `upi://pay?pa=${data.upiId}&pn=ReadmeGarden&am=${data.amount}&tn=Pro%20Access&tr=${data.transactionRef}`
+      const qr = await QRCode.toDataURL(upiString, { width: 300 })
       
-      if (confirm(`Complete payment via UPI:\n\n${message}\n\nTap OK when payment is completed.`)) {
-        // After user confirms, redirect to success
-        window.location.href = data.paymentLink
-      }
+      setUpiDetails(data)
+      setQRCode(qr)
+      setShowQRModal(true)
     } catch (e) {
       toast({
         title: "UPI Checkout failed",
@@ -122,6 +128,13 @@ export default function ProPage() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const confirmUPIPayment = async () => {
+    if (upiDetails?.paymentLink) {
+      setShowQRModal(false)
+      window.location.href = upiDetails.paymentLink
     }
   }
 
@@ -159,26 +172,23 @@ export default function ProPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               onClick={startPayPalCheckout} 
-              disabled={loading || !sessionLoaded || !userId} 
+              disabled={loading} 
               className="w-full sm:flex-1 rounded-xl"
-              title={!userId ? "Please sign in first" : ""}
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              {!sessionLoaded ? "Loading..." : loading ? "Starting..." : "PayPal ($5)"}
+              {loading ? "Processing..." : "PayPal ($5)"}
             </Button>
             <Button 
               onClick={startUPICheckout} 
-              disabled={loading || !sessionLoaded || !userId} 
+              disabled={loading} 
               className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
-              title={!userId ? "Please sign in first" : ""}
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              {!sessionLoaded ? "Loading..." : loading ? "Starting..." : "UPI (₹399)"}
+              {loading ? "Processing..." : "UPI (₹399)"}
             </Button>
             <Button 
               variant="outline" 
               onClick={() => router.push("/generate")} 
-              disabled={!sessionLoaded}
               className="w-full sm:flex-1 rounded-xl"
             >
               Back
@@ -187,6 +197,54 @@ export default function ProPage() {
           <p className="text-xs text-muted-foreground text-center">Choose your preferred payment method. Both unlock 30 days Pro access.</p>
         </CardContent>
       </Card>
+
+      {/* UPI QR Code Modal */}
+      {showQRModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md bg-white dark:bg-gray-900">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>UPI Payment</CardTitle>
+              <button 
+                onClick={() => setShowQRModal(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Scan QR Code with any UPI app</p>
+                {qrCode && (
+                  <div className="flex justify-center">
+                    <img src={qrCode || "/placeholder.svg"} alt="UPI QR Code" className="w-64 h-64" />
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Or pay manually:</p>
+                <p className="font-mono text-sm font-semibold">{upiDetails?.upiId}</p>
+                <p className="text-xs text-muted-foreground">Amount: ₹{upiDetails?.amount}</p>
+                <p className="text-xs text-muted-foreground">Ref: {upiDetails?.transactionRef}</p>
+              </div>
+
+              <Button 
+                onClick={confirmUPIPayment}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                I've Completed Payment
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setShowQRModal(false)}
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
