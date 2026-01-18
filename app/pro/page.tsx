@@ -27,7 +27,7 @@ export default function ProPage() {
     getSession()
   }, [])
 
-  const startCheckout = async () => {
+  const startPayPalCheckout = async () => {
     if (!userId) {
       toast({ title: "Sign in required", description: "Please sign in to upgrade to Pro.", variant: "destructive" })
       return
@@ -43,18 +43,14 @@ export default function ProPage() {
       if (!res.ok || !data.approvalUrl) {
         throw new Error(data.error || "Failed to start checkout")
       }
-
-      // Prefer opening PayPal in a new tab to avoid iframe/sandbox blocking in previews
       const win = window.open(data.approvalUrl, "_blank", "noopener,noreferrer")
       if (!win) {
-        // Popup blocked; try top-level navigation as a fallback
         try {
           if (window.top) {
             window.top.location.href = data.approvalUrl
             return
           }
         } catch {
-          // Cross-origin top navigation blocked; use current window
           window.location.href = data.approvalUrl
           return
         }
@@ -70,6 +66,39 @@ export default function ProPage() {
     }
   }
 
+  const startUPICheckout = async () => {
+    if (!userId) {
+      toast({ title: "Sign in required", description: "Please sign in to upgrade to Pro.", variant: "destructive" })
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch("/api/upi/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create UPI payment")
+      }
+      const message = `Send ₹${data.amount} via UPI to ${data.upiId}\n\nTransaction Ref: ${data.transactionRef}`
+      
+      if (confirm(`Complete payment via UPI:\n\n${message}\n\nTap OK when payment is completed.`)) {
+        window.location.href = data.paymentLink
+      }
+    } catch (e) {
+      toast({
+        title: "UPI Checkout failed",
+        description: e instanceof Error ? e.message : "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const startCheckout = startPayPalCheckout; 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6">
       <Card className="w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
@@ -100,15 +129,19 @@ export default function ProPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={startCheckout} disabled={loading} className="w-full sm:w-auto rounded-xl">
+            <Button onClick={startPayPalCheckout} disabled={loading} className="w-full sm:flex-1 rounded-xl">
               <CreditCard className="w-4 h-4 mr-2" />
-              {loading ? "Starting Checkout..." : "Pay with PayPal"}
+              {loading ? "Starting..." : "PayPal ($5)"}
             </Button>
-            <Button variant="outline" onClick={() => router.push("/generate")} className="w-full sm:w-auto rounded-xl">
-              Back to Generate
+            <Button onClick={startUPICheckout} disabled={loading} className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700">
+              <CreditCard className="w-4 h-4 mr-2" />
+              {loading ? "Starting..." : "UPI (₹399)"}
+            </Button>
+            <Button variant="outline" onClick={() => router.push("/generate")} className="w-full sm:flex-1 rounded-xl">
+              Back
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">Note: UPI (₹399) planned for future.</p>
+          <p className="text-xs text-muted-foreground text-center">Choose your preferred payment method. Both unlock 30 days Pro access.</p>
         </CardContent>
       </Card>
     </div>
