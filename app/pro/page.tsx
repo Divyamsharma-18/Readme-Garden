@@ -20,19 +20,28 @@ export default function ProPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const getSession = async () => {
+    const getInitialSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
         const id = data.session?.user?.id || null
         setUserId(id)
-        console.log("[v0] Session loaded, userId:", id)
       } catch (error) {
-        console.log("[v0] Error getting session:", error)
+        console.error("[v0] Error getting initial session:", error)
       } finally {
         setSessionLoaded(true)
       }
     }
-    getSession()
+
+    getInitialSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const id = session?.user?.id || null
+      setUserId(id)
+    })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
   }, [])
 
   const startPayPalCheckout = async () => {
@@ -51,6 +60,7 @@ export default function ProPage() {
       if (!res.ok || !data.approvalUrl) {
         throw new Error(data.error || "Failed to start checkout")
       }
+
       const win = window.open(data.approvalUrl, "_blank", "noopener,noreferrer")
       if (!win) {
         try {
