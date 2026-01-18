@@ -16,13 +16,21 @@ export default function ProPage() {
   const { toast } = useToast()
   const router = useRouter()
   const [userId, setUserId] = useState<string | null>(null)
+  const [sessionLoaded, setSessionLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const getSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      const id = data.session?.user?.id || null
-      setUserId(id)
+      try {
+        const { data } = await supabase.auth.getSession()
+        const id = data.session?.user?.id || null
+        setUserId(id)
+        console.log("[v0] Session loaded, userId:", id)
+      } catch (error) {
+        console.log("[v0] Error getting session:", error)
+      } finally {
+        setSessionLoaded(true)
+      }
     }
     getSession()
   }, [])
@@ -82,6 +90,7 @@ export default function ProPage() {
       if (!res.ok) {
         throw new Error(data.error || "Failed to create UPI payment")
       }
+
       const message = `Send ₹${data.amount} via UPI to ${data.upiId}\n\nTransaction Ref: ${data.transactionRef}`
       
       if (confirm(`Complete payment via UPI:\n\n${message}\n\nTap OK when payment is completed.`)) {
@@ -99,6 +108,7 @@ export default function ProPage() {
   }
 
   const startCheckout = startPayPalCheckout; 
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6">
       <Card className="w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
@@ -129,15 +139,30 @@ export default function ProPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={startPayPalCheckout} disabled={loading} className="w-full sm:flex-1 rounded-xl">
+            <Button 
+              onClick={startPayPalCheckout} 
+              disabled={loading || !sessionLoaded || !userId} 
+              className="w-full sm:flex-1 rounded-xl"
+              title={!userId ? "Please sign in first" : ""}
+            >
               <CreditCard className="w-4 h-4 mr-2" />
-              {loading ? "Starting..." : "PayPal ($5)"}
+              {!sessionLoaded ? "Loading..." : loading ? "Starting..." : "PayPal ($5)"}
             </Button>
-            <Button onClick={startUPICheckout} disabled={loading} className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700">
+            <Button 
+              onClick={startUPICheckout} 
+              disabled={loading || !sessionLoaded || !userId} 
+              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
+              title={!userId ? "Please sign in first" : ""}
+            >
               <CreditCard className="w-4 h-4 mr-2" />
-              {loading ? "Starting..." : "UPI (₹399)"}
+              {!sessionLoaded ? "Loading..." : loading ? "Starting..." : "UPI (₹399)"}
             </Button>
-            <Button variant="outline" onClick={() => router.push("/generate")} className="w-full sm:flex-1 rounded-xl">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push("/generate")} 
+              disabled={!sessionLoaded}
+              className="w-full sm:flex-1 rounded-xl"
+            >
               Back
             </Button>
           </div>
