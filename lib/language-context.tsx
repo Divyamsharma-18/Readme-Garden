@@ -34,6 +34,55 @@ export const translations: Record<Language, Record<string, string>> = {
     "home.signout": "Sign Out",
     "home.welcome": "Welcome",
 
+    // Hero Section
+    "hero.title1": "Stop Staring at",
+    "hero.title2": "Blank READMEs",
+    "hero.description": "Turn your GitHub repos from \"meh\" to \"wow\" in 10 seconds. Choose your vibe, let AI do the magic.",
+    "hero.badge1": "30-second generation",
+    "hero.badge2": "6 unique vibes",
+    "hero.badge3": "1000+ developers",
+    "hero.cta": "Grow My README",
+    "hero.tagline": "Free forever • No signup required • 5 generations daily",
+
+    // Vibes Section
+    "vibes.title1": "Choose Your",
+    "vibes.title2": "Personality",
+    "vibes.description": "Every project has a personality. Let your README reflect yours with our unique vibe system.",
+    "vibes.professional": "Professional",
+    "vibes.professional_desc": "Clean, corporate, and to-the-point",
+    "vibes.humorous": "Humorous",
+    "vibes.humorous_desc": "Professional with jokes and wit",
+    "vibes.creative": "Creative",
+    "vibes.creative_desc": "Artistic and expressive",
+    "vibes.preview": "README Preview",
+
+    // Features Section
+    "features.title1": "Everything You Need to",
+    "features.title2": "Shine",
+    "features.feature1": "Smart Analysis",
+    "features.feature1_desc": "Analyzes your GitHub repo, package.json, and live demos to understand your project",
+    "features.feature2": "6 Unique Vibes",
+    "features.feature2_desc": "Professional, Friendly, Humorous, Creative, Minimal, or Detailed - match your style",
+    "features.feature3": "AI Rewrite Magic",
+    "features.feature3_desc": "Not happy? Hit rewrite and get a completely different version in the same vibe",
+    "features.feature4": "One-Click Actions",
+    "features.feature4_desc": "Copy to clipboard, download as .md, or edit inline - whatever works for you",
+    "features.feature5": "Lightning Fast",
+    "features.feature5_desc": "Generate comprehensive READMEs in under 10 seconds, not in 30 minutes",
+    "features.feature6": "Always Improving",
+    "features.feature6_desc": "Regular updates, new vibes, and features based on community feedback",
+
+    // CTA Section
+    "cta.title1": "Ready to Grow Your",
+    "cta.title2": "README Garden?",
+    "cta.description": "Join thousands of developers who've transformed their GitHub presence. Start growing beautiful documentation today.",
+    "cta.button": "Start Growing Now",
+    "cta.tagline": "No credit card required • Free forever • Takes 10 seconds",
+
+    // Footer
+    "footer.made_with": "Made with",
+    "footer.by": "by",
+
     // Pro Page
     "pro.title": "Upgrade to Pro",
     "pro.description": "Unlock unlimited README generations and advanced features",
@@ -113,6 +162,55 @@ export const translations: Record<Language, Record<string, string>> = {
     "home.remaining": "Verbleibende Einsätze heute",
     "home.signout": "Abmelden",
     "home.welcome": "Willkommen",
+
+    // Hero Section
+    "hero.title1": "Höre auf, auf",
+    "hero.title2": "leere READMEs zu starren",
+    "hero.description": "Verwandle deine GitHub-Repos in 10 Sekunden von \"meh\" zu \"wow\". Wähle deinen Vibe und lass die KI die Magie wirken.",
+    "hero.badge1": "30-Sekunden-Generierung",
+    "hero.badge2": "6 einzigartige Vibes",
+    "hero.badge3": "1000+ Entwickler",
+    "hero.cta": "Meine README vergrößern",
+    "hero.tagline": "Kostenlos für immer • Keine Registrierung erforderlich • 5 Generierungen täglich",
+
+    // Vibes Section
+    "vibes.title1": "Wähle deine",
+    "vibes.title2": "Persönlichkeit",
+    "vibes.description": "Jedes Projekt hat eine Persönlichkeit. Lass deine README deine mit unserem einzigartigen Vibe-System widerspiegeln.",
+    "vibes.professional": "Professionell",
+    "vibes.professional_desc": "Sauber, geschäftlich und auf den Punkt gebracht",
+    "vibes.humorous": "Humorvoll",
+    "vibes.humorous_desc": "Professionell mit Witzen und Witz",
+    "vibes.creative": "Kreativ",
+    "vibes.creative_desc": "Künstlerisch und ausdrucksstark",
+    "vibes.preview": "README-Vorschau",
+
+    // Features Section
+    "features.title1": "Alles, was du brauchst zum",
+    "features.title2": "Glänzen",
+    "features.feature1": "Intelligente Analyse",
+    "features.feature1_desc": "Analysiert dein GitHub-Repo, package.json und Live-Demos, um dein Projekt zu verstehen",
+    "features.feature2": "6 einzigartige Vibes",
+    "features.feature2_desc": "Professionell, Freundlich, Humorvoll, Kreativ, Minimal oder Detailliert - wähle deinen Stil",
+    "features.feature3": "KI-Umschreibungs-Magie",
+    "features.feature3_desc": "Nicht zufrieden? Drücke umschreiben und erhalte eine völlig neue Version im gleichen Vibe",
+    "features.feature4": "One-Click-Aktionen",
+    "features.feature4_desc": "In Zwischenablage kopieren, als .md herunterladen oder inline bearbeiten - was auch immer du brauchst",
+    "features.feature5": "Blitzschnell",
+    "features.feature5_desc": "Generiere umfassende READMEs in unter 10 Sekunden, nicht in 30 Minuten",
+    "features.feature6": "Ständig verbessert",
+    "features.feature6_desc": "Regelmäßige Updates, neue Vibes und Funktionen basierend auf Community-Feedback",
+
+    // CTA Section
+    "cta.title1": "Bereit, dein",
+    "cta.title2": "README Garden zu vergrößern?",
+    "cta.description": "Tritt Tausenden von Entwicklern bei, die ihre GitHub-Präsenz transformiert haben. Beginne heute mit schöner Dokumentation.",
+    "cta.button": "Jetzt anfangen zu wachsen",
+    "cta.tagline": "Keine Kreditkarte erforderlich • Kostenlos für immer • Dauert 10 Sekunden",
+
+    // Footer
+    "footer.made_with": "Erstellt mit",
+    "footer.by": "von",
 
     // Pro Page
     "pro.title": "Upgrade auf Pro",

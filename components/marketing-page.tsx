@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
 import Footer from "@/components/footer"
+import { useLanguage } from "@/lib/language-context"
 
 interface MarketingPageProps {
   onGetStarted: () => void
@@ -45,6 +46,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
   const [mounted, setMounted] = useState(false)
   const [currentVibeIndex, setCurrentVibeIndex] = useState(0)
   const { theme } = useTheme()
+  const { t } = useLanguage()
 
   useEffect(() => {
     setMounted(true)
@@ -109,10 +111,10 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   <Github className="w-10 h-10 text-white" />
                 </motion.div>
                 <h1 className="text-3xl sm:text-3xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                  README Garden
+                  {t("header.title")}
                 </h1>
               </div>
-              <p className="text-base sm:text-lg text-purple-300">Where boring docs go to bloom 🌱</p>
+              <p className="text-base sm:text-lg text-purple-300">{t("header.subtitle")}</p>
             </motion.div>
 
             <motion.div
@@ -122,13 +124,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="mb-12"
             >
               <h2 className="text-3xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight text-white">
-                Stop Staring at{" "}
+                {t("hero.title1")}{" "}
                 <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-                  Blank READMEs
+                  {t("hero.title2")}
                 </span>
               </h2>
               <p className="text-xl md:text-2xl text-purple-200 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-                Turn your GitHub repos from "meh" to "wow" in 10 seconds. Choose your vibe, let AI do the magic.
+                {t("hero.description")}
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -137,20 +139,20 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  30-second generation
+                  {t("hero.badge1")}
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
                 >
-                  <Palette className="w-4 h-4 mr-2" />6 unique vibes
+                  <Palette className="w-4 h-4 mr-2" />{t("hero.badge2")}
                 </Badge>
                 <Badge
                   variant="secondary"
                   className="px-4 py-2 text-sm bg-purple-900/50 text-purple-200 border-purple-700"
                 >
                   <Users className="w-4 h-4 mr-2" />
-                  1000+ developers
+                  {t("hero.badge3")}
                 </Badge>
               </div>
 
@@ -161,12 +163,12 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-4 sm:px-8 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4 text-white" />
-                  <span className="whitespace-nowrap text-white">Grow My README</span>
+                  <span className="whitespace-nowrap text-white">{t("hero.cta")}</span>
                   <ArrowRight className="w-4 h-4 text-white" />
                 </Button>
               </motion.div>
 
-              <p className="text-sm text-purple-300 mt-4">Free forever • No signup required • 5 generations daily</p>
+              <p className="text-sm text-purple-300 mt-4">{t("hero.tagline")}</p>
             </motion.div>
           </div>
         </section>
@@ -182,13 +184,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="text-center mb-16"
             >
               <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-                Choose Your{" "}
+                {t("vibes.title1")}{" "}
                 <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Personality
+                  {t("vibes.title2")}
                 </span>
               </h3>
               <p className="text-xl text-purple-200 max-w-2xl mx-auto">
-                Every project has a personality. Let your README reflect yours with our unique vibe system.
+                {t("vibes.description")}
               </p>
             </motion.div>
 
@@ -279,9 +281,9 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               className="text-center mb-16"
             >
               <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-                Everything You Need to{" "}
+                {t("features.title1")}{" "}
                 <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                  Shine
+                  {t("features.title2")}
                 </span>
               </h3>
             </motion.div>
@@ -290,38 +292,38 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               {[
                 {
                   icon: <Code className="w-8 h-8" />,
-                  title: "Smart Analysis",
-                  description: "Analyzes your GitHub repo, package.json, and live demos to understand your project",
+                  title: t("features.feature1"),
+                  description: t("features.feature1_desc"),
                   color: "from-blue-500 to-cyan-500",
                 },
                 {
                   icon: <Palette className="w-8 h-8" />,
-                  title: "6 Unique Vibes",
-                  description: "Professional, Friendly, Humorous, Creative, Minimal, or Detailed - match your style",
+                  title: t("features.feature2"),
+                  description: t("features.feature2_desc"),
                   color: "from-purple-500 to-pink-500",
                 },
                 {
                   icon: <RefreshCw className="w-8 h-8" />,
-                  title: "AI Rewrite Magic",
-                  description: "Not happy? Hit rewrite and get a completely different version in the same vibe",
+                  title: t("features.feature3"),
+                  description: t("features.feature3_desc"),
                   color: "from-green-500 to-emerald-500",
                 },
                 {
                   icon: <Copy className="w-8 h-8" />,
-                  title: "One-Click Actions",
-                  description: "Copy to clipboard, download as .md, or edit inline - whatever works for you",
+                  title: t("features.feature4"),
+                  description: t("features.feature4_desc"),
                   color: "from-orange-500 to-red-500",
                 },
                 {
                   icon: <Zap className="w-8 h-8" />,
-                  title: "Lightning Fast",
-                  description: "Generate comprehensive READMEs in under 10 seconds, not in 30 minutes",
+                  title: t("features.feature5"),
+                  description: t("features.feature5_desc"),
                   color: "from-yellow-500 to-orange-500",
                 },
                 {
                   icon: <Star className="w-8 h-8" />,
-                  title: "Always Improving",
-                  description: "Regular updates, new vibes, and features based on community feedback",
+                  title: t("features.feature6"),
+                  description: t("features.feature6_desc"),
                   color: "from-indigo-500 to-purple-500",
                 },
               ].map((feature, index) => (
@@ -359,14 +361,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
             <Card className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 border-purple-500/30 shadow-2xl shadow-purple-500/20">
               <CardContent className="p-12">
                 <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-                  Ready to Grow Your{" "}
+                  {t("cta.title1")}{" "}
                   <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                    README Garden?
+                    {t("cta.title2")}
                   </span>
                 </h3>
                 <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
-                  Join thousands of developers who've transformed their GitHub presence. Start growing beautiful
-                  documentation today.
+                  {t("cta.description")}
                 </p>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -376,13 +377,13 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-3  sm:px-12 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-sm sm:text-lg border border-purple-500/50 w-full sm:w-auto max-w-[280px] sm:max-w-none mx-auto flex items-center justify-center gap-1 sm:gap-2"
                   >
                     <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="whitespace-nowrap text-xs sm:text-lg">Start Growing Now</span>
+                    <span className="whitespace-nowrap text-xs sm:text-lg">{t("cta.button")}</span>
                     <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                   </Button>
                 </motion.div>
 
                 <p className="text-sm text-purple-300 mt-6">
-                  No credit card required • Free forever • Takes 10 seconds
+                  {t("cta.tagline")}
                 </p>
               </CardContent>
             </Card>
