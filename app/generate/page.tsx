@@ -21,6 +21,8 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
+import { useLanguage } from "@/lib/language-context"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 const vibeOptions = [
   { value: "professional", label: "🎯 Professional", description: "Clean, corporate, and to-the-point" },
@@ -79,6 +81,7 @@ export default function GeneratePage() {
 
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
+  const { t } = useLanguage()
 
   useEffect(() => {
     setMounted(true)
@@ -213,8 +216,8 @@ export default function GeneratePage() {
   const handleGenerate = async () => {
     if (!repoUrl || !selectedVibe) {
       toast({
-        title: "Missing Information",
-        description: "Please enter a repository URL and select a vibe.",
+        title: t("generate.missingInfo"),
+        description: t("generate.missingInfoDesc"),
         variant: "destructive",
       })
       return
@@ -226,14 +229,14 @@ export default function GeneratePage() {
         setShowAuthModal(true)
       } else if (!isPro) {
         toast({
-          title: "Limit reached",
-          description: "You've used all 5 free uses on this email + device.",
+          title: t("generate.limitReached"),
+          description: t("generate.limitReachedFree"),
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Daily limit reached",
-          description: "You've used all 5 Pro uses for today.",
+          title: t("generate.limitReached"),
+          description: t("generate.limitReachedPro"),
           variant: "destructive",
         })
       }
@@ -251,7 +254,7 @@ export default function GeneratePage() {
       })
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to generate README")
+        throw new Error(errorData.error || t("generate.generationFailed"))
       }
       const data = await response.json()
       if (!data.readme) throw new Error("No README content received")
@@ -260,10 +263,10 @@ export default function GeneratePage() {
       await consumeUse()
 
       setGeneratedReadme(data.readme)
-      toast({ title: "README Generated! 🎉", description: "Your beautiful README is ready!" })
+      toast({ title: `${t("generate.generationSuccess")} 🎉`, description: t("generate.generationSuccessDesc") })
     } catch (error) {
       toast({
-        title: "Generation Failed",
+        title: t("generate.generationFailed"),
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
@@ -274,7 +277,7 @@ export default function GeneratePage() {
 
   const handleRewrite = useCallback(async () => {
     if (!generatedReadme || !selectedVibe) {
-      toast({ title: "Nothing to Rewrite", description: "Please generate a README first.", variant: "destructive" })
+      toast({ title: t("generate.rewriteNothing"), description: t("generate.rewriteNothingDesc"), variant: "destructive" })
       return
     }
 
@@ -284,14 +287,14 @@ export default function GeneratePage() {
         setShowAuthModal(true)
       } else if (!isPro) {
         toast({
-          title: "Limit reached",
-          description: "You've used all 5 free uses on this email + device.",
+          title: t("generate.limitReached"),
+          description: t("generate.limitReachedFree"),
           variant: "destructive",
         })
       } else {
         toast({
-          title: "Daily limit reached",
-          description: "You've used all 5 Pro uses for today.",
+          title: t("generate.limitReached"),
+          description: t("generate.limitReachedPro"),
           variant: "destructive",
         })
       }
@@ -317,7 +320,7 @@ export default function GeneratePage() {
       })
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to rewrite README")
+        throw new Error(errorData.error || t("generate.rewriteFailed"))
       }
       const data = await response.json()
       if (!data.rewrittenReadme) throw new Error("No rewritten content received")
@@ -328,12 +331,12 @@ export default function GeneratePage() {
 
       setGeneratedReadme(data.rewrittenReadme)
       toast({
-        title: `README Rewritten! ✨ (${currentRewriteCount})`,
-        description: "Your README has been completely refreshed!",
+        title: `${t("generate.rewriteSuccess")} ✨ (${currentRewriteCount})`,
+        description: t("generate.rewriteSuccessDesc"),
       })
     } catch (error) {
       toast({
-        title: "Rewrite Failed",
+        title: t("generate.rewriteFailed"),
         description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
         variant: "destructive",
       })
@@ -357,7 +360,7 @@ export default function GeneratePage() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedReadme)
-    toast({ title: "Copied! 📋", description: "README copied to clipboard!" })
+    toast({ title: `${t("generate.copied")} 📋`, description: t("generate.copy") })
   }
 
   const downloadReadme = () => {
@@ -375,10 +378,10 @@ export default function GeneratePage() {
 
   const remainingUses = getRemainingUses()
   const badgeText = useMemo(() => {
-    if (isPro) return `${remainingUses}/${PRO_DAILY_LIMIT} Uses Today`
-    if (isAuthenticated) return `${remainingUses}/${FREE_EMAIL_DEVICE_LIMIT} Free Uses (email+device)`
-    return `${remainingUses}/${ANON_TOTAL_LIMIT} Free Uses (device)`
-  }, [isPro, isAuthenticated, remainingUses])
+    if (isPro) return `${remainingUses}/${PRO_DAILY_LIMIT} ${t("generate.usesToday")}`
+    if (isAuthenticated) return `${remainingUses}/${FREE_EMAIL_DEVICE_LIMIT} ${t("generate.freeUses")}`
+    return `${remainingUses}/${ANON_TOTAL_LIMIT} ${t("generate.deviceUses")}`
+  }, [isPro, isAuthenticated, remainingUses, t])
 
   const toggleTheme = () => setTheme(isDark ? "light" : "dark")
 
@@ -402,13 +405,13 @@ export default function GeneratePage() {
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      toast({ title: "Logout Failed", description: error.message, variant: "destructive" })
+      toast({ title: t("generate.logoutFailed"), description: error.message, variant: "destructive" })
     } else {
       setIsAuthenticated(false)
       setUserData(null)
       setIsPro(false)
       setProRemainingToday(0)
-      toast({ title: "Logged out successfully", description: "See you next time!" })
+      toast({ title: t("generate.logoutSuccess"), description: t("generate.logoutSuccessDesc") })
     }
   }
 
@@ -438,9 +441,9 @@ export default function GeneratePage() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                  README Garden
+                  {t("header.title")}
                 </h1>
-                <p className="text-sm text-muted-foreground">Grow beautiful READMEs with AI magic</p>
+                <p className="text-sm text-muted-foreground">{t("generate.growBeautiful")}</p>
               </div>
             </Link>
           </motion.div>
@@ -456,10 +459,11 @@ export default function GeneratePage() {
               <Link href="/pro">
                 <Button variant="outline" size="sm" className="rounded-full bg-transparent flex p-2">
                   <Crown className="w-4 h-4 text-yellow-500" />
-                  <span className="hidden lg:inline">Go Pro</span>
+                  <span className="hidden lg:inline">{t("generate.goPro")}</span>
                 </Button>
               </Link>
             )}
+            <LanguageSwitcher />
             <Button
               variant="outline"
               size="icon"
@@ -476,7 +480,7 @@ export default function GeneratePage() {
                   onClick={() => setShowAuthModal(true)}
                   className="rounded-full shadow-sm hidden lg:flex bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                 >
-                  Sign In (5 total)
+                  {t("generate.signIn")}
                 </Button>
                 <Button
                   onClick={() => setShowAuthModal(true)}
@@ -506,24 +510,24 @@ export default function GeneratePage() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-purple-500" />
-                  <span>Create Your README</span>
+                  <span>{t("generate.generate")}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Repository URL</label>
-                  <Input
-                    placeholder="https://github.com/username/repository"
-                    value={repoUrl}
-                    onChange={(e) => setRepoUrl(e.target.value)}
+                  <label className="text-sm font-medium mb-2 block">{t("generate.projectPurpose")}</label>
+                  <Textarea
+                    placeholder={t("generate.projectPurposePlaceholder")}
+                    value={projectPurpose}
+                    onChange={(e) => setProjectPurpose(e.target.value)}
                     className="rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Live Demo URL (Optional)</label>
+                  <label className="text-sm font-medium mb-2 block">{t("generate.liveDemo")}</label>
                   <Input
                     type="url"
-                    placeholder="https://your-live-demo.vercel.app"
+                    placeholder={t("generate.liveDemoPlaceholder")}
                     value={liveDemoUrl}
                     onChange={(e) => setLiveDemoUrl(e.target.value)}
                     className="rounded-xl"
