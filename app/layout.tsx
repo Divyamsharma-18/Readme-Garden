@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { LanguageProvider } from "@/lib/language-context"
 
 import { Analytics } from "@vercel/analytics/next";
 
@@ -29,8 +30,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false}>
-          {children}
-          <Toaster />
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

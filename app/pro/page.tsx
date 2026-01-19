@@ -10,12 +10,14 @@ import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import QRCode from "qrcode"
+import { useLanguage } from "@/lib/language-context"
 
 export default function ProPage() {
   const { theme } = useTheme()
   const isDark = theme === "dark"
   const { toast } = useToast()
   const router = useRouter()
+  const { t } = useLanguage()
   const [userId, setUserId] = useState<string | null>(null)
   const [sessionLoaded, setSessionLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -55,7 +57,7 @@ export default function ProPage() {
 
   const startPayPalCheckout = async () => {
     if (!userId) {
-      toast({ title: "Sign in required", description: "Please sign in to upgrade to Pro.", variant: "destructive" })
+      toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
     setLoading(true)
@@ -87,8 +89,8 @@ export default function ProPage() {
       }
     } catch (e) {
       toast({
-        title: "Checkout failed",
-        description: e instanceof Error ? e.message : "Unknown error",
+        title: t("error.title"),
+        description: e instanceof Error ? e.message : t("common.loading"),
         variant: "destructive",
       })
     } finally {
@@ -98,7 +100,7 @@ export default function ProPage() {
 
   const startUPICheckout = async () => {
     if (!userId) {
-      toast({ title: "Sign in required", description: "Please sign in to upgrade to Pro.", variant: "destructive" })
+      toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
     setLoading(true)
@@ -122,8 +124,8 @@ export default function ProPage() {
       setShowQRModal(true)
     } catch (e) {
       toast({
-        title: "UPI Checkout failed",
-        description: e instanceof Error ? e.message : "Unknown error",
+        title: t("error.title"),
+        description: e instanceof Error ? e.message : t("common.loading"),
         variant: "destructive",
       })
     } finally {
@@ -145,28 +147,28 @@ export default function ProPage() {
       <Card className="w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">
-            Go Pro <Badge className="ml-2">5 uses/day</Badge>
+            {t("pro.title")} <Badge className="ml-2">5 {t("common.loading").toLowerCase()}</Badge>
           </CardTitle>
-          <p className="text-muted-foreground mt-2">Unlimited days? Not yet. But 5 fresh seeds bloom every day 🌱</p>
+          <p className="text-muted-foreground mt-2">{t("pro.description")}</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/30">
               <div className="flex items-center gap-2 font-medium">
-                <Check className="w-4 h-4" /> 5 uses per day
+                <Check className="w-4 h-4" /> {t("pro.benefit1")}
               </div>
               <div className="flex items-center gap-2 font-medium mt-1">
-                <Shield className="w-4 h-4" /> 30 days Pro access
+                <Shield className="w-4 h-4" /> {t("pro.benefit3")}
               </div>
               <div className="flex items-center gap-2 font-medium mt-1">
-                <Sparkles className="w-4 h-4" /> Priority improvements
+                <Sparkles className="w-4 h-4" /> {t("pro.benefit2")}
               </div>
             </div>
             <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/30">
               <div className="text-2xl font-bold">
                 $5 <span className="text-sm font-normal text-muted-foreground">/ 30 days</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">Simple checkout with PayPal.</p>
+              <p className="text-sm text-muted-foreground mt-2">{t("pro.note")}</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -176,25 +178,25 @@ export default function ProPage() {
               className="w-full sm:flex-1 rounded-xl"
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              {loading ? "Processing..." : "PayPal ($5)"}
+              {loading ? t("pro.processing") : t("pro.paypal")}
             </Button>
             <Button 
               onClick={startUPICheckout} 
               disabled={loading} 
-              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              {loading ? "Processing..." : "UPI (₹399)"}
+              {loading ? t("pro.processing") : t("pro.upi")}
             </Button>
             <Button 
               variant="outline" 
               onClick={() => router.push("/generate")} 
               className="w-full sm:flex-1 rounded-xl"
             >
-              Back
+              {t("pro.back")}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground text-center">Choose your preferred payment method. Both unlock 30 days Pro access.</p>
+          <p className="text-xs text-muted-foreground text-center">{t("pro.note")}</p>
         </CardContent>
       </Card>
 
@@ -203,7 +205,7 @@ export default function ProPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <Card className="w-full max-w-md bg-white dark:bg-gray-900">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>UPI Payment</CardTitle>
+              <CardTitle>{t("pro.upi")}</CardTitle>
               <button 
                 onClick={() => setShowQRModal(false)}
                 className="text-muted-foreground hover:text-foreground"
@@ -213,7 +215,7 @@ export default function ProPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <p className="text-sm font-medium">Scan QR Code with any UPI app</p>
+                <p className="text-sm font-medium">{t("pro.scanQR")}</p>
                 {qrCode && (
                   <div className="flex justify-center">
                     <img src={qrCode || "/placeholder.svg"} alt="UPI QR Code" className="w-64 h-64" />
@@ -222,24 +224,24 @@ export default function ProPage() {
               </div>
               
               <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg space-y-1">
-                <p className="text-xs font-medium text-muted-foreground">Or pay manually:</p>
+                <p className="text-xs font-medium text-muted-foreground">{t("pro.payManually")}</p>
                 <p className="font-mono text-sm font-semibold">{upiDetails?.upiId}</p>
-                <p className="text-xs text-muted-foreground">Amount: ₹{upiDetails?.amount}</p>
-                <p className="text-xs text-muted-foreground">Ref: {upiDetails?.transactionRef}</p>
+                <p className="text-xs text-muted-foreground">{t("pro.amount")}: ₹{upiDetails?.amount}</p>
+                <p className="text-xs text-muted-foreground">{t("pro.ref")}: {upiDetails?.transactionRef}</p>
               </div>
 
               <Button 
                 onClick={confirmUPIPayment}
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
-                I've Completed Payment
+                {t("pro.complete")}
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => setShowQRModal(false)}
                 className="w-full"
               >
-                Cancel
+                {t("pro.cancel")}
               </Button>
             </CardContent>
           </Card>

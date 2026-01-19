@@ -11,6 +11,8 @@ import IntroAnimation from "@/components/intro-animation"
 import { supabase } from "@/lib/supabase"
 import MarketingPage from "@/components/marketing-page"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/lib/language-context"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -24,6 +26,7 @@ export default function HomePage() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
+  const { t } = useLanguage()
 
   useEffect(() => {
     setMounted(true)
@@ -174,13 +177,14 @@ export default function HomePage() {
                   </div>
                   <div>
                     <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                      README Garden
+                      {t("header.title")}
                     </h1>
-                    <p className="text-xs text-purple-300 hidden sm:block">Where boring docs go to bloom 🌱</p>
+                    <p className="text-xs text-purple-300 hidden sm:block">{t("header.subtitle")}</p>
                   </div>
                 </motion.div>
 
                 <div className="flex items-center space-x-2 sm:space-x-4">
+                  <LanguageSwitcher />
                   <Button
                     variant="outline"
                     size="sm"
@@ -188,7 +192,10 @@ export default function HomePage() {
                     className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
                   >
                     <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
-                    <span className="hidden xs:inline">Star on </span>GitHub
+                    <span className="hidden xs:inline">
+                      {t("header.github").split(" ").slice(0, 2).join(" ")}
+                    </span>
+                    GitHub
                   </Button>
                 </div>
               </div>
