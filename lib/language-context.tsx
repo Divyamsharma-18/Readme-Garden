@@ -178,7 +178,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Header
     "header.title": "README Garden",
     "header.subtitle": "Wo langweilige Dokumentation erblüht 🌱",
-    "header.github": "Auf GitHub bewerten",
+    "header.github": "Stern auf",
     "header.github.short": "GitHub",
 
     // Navigation
