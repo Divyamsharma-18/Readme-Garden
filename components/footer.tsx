@@ -2,8 +2,11 @@
 
 import { motion } from "framer-motion"
 import { Heart, Github, Twitter } from "lucide-react"
+import { useLanguage } from "@/lib/language-context"
 
 export default function Footer() {
+  const { t } = useLanguage()
+
   return (
     <motion.footer
       initial={{ opacity: 0, y: 20 }}
@@ -14,12 +17,12 @@ export default function Footer() {
                  text-center text-sm text-foreground/80"
     >
       <div className="flex items-center justify-center">
-        Made with{" "}
+        {t("footer.made_with")}{" "}
         <Heart
           className="inline-block w-4 h-4 text-red-500 mx-1 animate-pulse relative top-[0.4px]"
           fill="currentColor"
         />
-        by&nbsp;
+        {t("footer.by")}&nbsp;
       </div>
 
       <div className="flex items-center justify-center gap-1.5 mt-1 sm:mt-0">
