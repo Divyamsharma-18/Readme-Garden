@@ -56,7 +56,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       } else {
         toast({
           title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
-          description: "You now have 10 README generations per day!",
+          description: "You now have 5 README generations per day!",
         })
       }
 
@@ -238,7 +238,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     </span>
                   </div>
                   <p className="text-sm font-normal text-muted-foreground">
-                    {authStep === "main" && "Get 10 README generations per day"}
+                    {authStep === "main" && "Get 5 README generations per day"}
                     {authStep === "forgot-password" && "We'll send you an OTP to reset your password"}
                     {authStep === "verify-otp" && "Enter the OTP from your email"}
                   </p>
