@@ -44,7 +44,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "hero.cta": "Grow My README",
     "hero.tagline": "Free forever • No signup required • 5 generations daily",
 
-    // Vibes Section (Home)
+    // Vibes Section
     "vibes.title1": "Choose Your",
     "vibes.title2": "Personality",
     "vibes.description": "Every project has a personality. Let your README reflect yours with our unique vibe system.",
@@ -184,6 +184,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "generate.logoutFailed": "Logout Failed",
     "generate.yourReadme": "Your README",
     "generate.emptyState": "Your beautiful README will appear here",
+
+    // Loading Animation
+    "loading.title": "Growing Your README Garden 🌱",
+    "loading.subtitle": "Crafting your perfect README with AI magic ✨",
+    "loading.bunny.message": "Bunny is hopping to the carrot...",
+    "loading.bunny.action": "munch munch! 😋",
+    "loading.bear.message": "Teddy bear found some honey...",
+    "loading.bear.action": "dipping paw with giggles! 🤭",
+    "loading.bee.message": "Bees are buzzing around flowers...",
+    "loading.bee.action": "landing with sparkly trails! ✨",
+    "loading.cat.message": "Kitty is chasing the yarn ball...",
+    "loading.cat.action": "pouncing with pure joy! 😸",
+    "loading.turtle.message": "Turtle is slowly walking to the leaf...",
+    "loading.turtle.action": "curling up for a cozy nap! 😴",
 
     // Errors
     "error.title": "Error",
@@ -368,6 +382,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "generate.logoutFailed": "Abmeldung fehlgeschlagen",
     "generate.yourReadme": "Deine README",
     "generate.emptyState": "Deine schöne README wird hier erscheinen",
+
+    // Loading Animation
+    "loading.title": "Dein README-Garten wächst 🌱",
+    "loading.subtitle": "Erstelle deine perfekte README mit KI-Magie ✨",
+    "loading.bunny.message": "Häschen hüpft zur Karotte...",
+    "loading.bunny.action": "mampf mampf! 😋",
+    "loading.bear.message": "Teddybär hat Honig gefunden...",
+    "loading.bear.action": "taucht Pfote kichernd ein! 🤭",
+    "loading.bee.message": "Bienen summen um die Blumen...",
+    "loading.bee.action": "landen mit Glitzerspuren! ✨",
+    "loading.cat.message": "Kätzchen jagt das Wollknäuel...",
+    "loading.cat.action": "springt vor purer Freude! 😸",
+    "loading.turtle.message": "Schildkröte kriecht langsam zum Blatt...",
+    "loading.turtle.action": "macht ein gemütliches Nickerchen! 😴",
 
     // Errors
     "error.title": "Fehler",

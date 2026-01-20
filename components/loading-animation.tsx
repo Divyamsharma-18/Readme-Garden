@@ -2,42 +2,43 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
+import { useLanguage } from "@/lib/language-context"
 
 const animations = [
   {
     id: "bunny",
     emoji: "🐰",
     target: "🥕",
-    message: "Bunny is hopping to the carrot...",
-    action: "munch munch! 😋",
+    messageKey: "loading.bunny.message",
+    actionKey: "loading.bunny.action",
   },
   {
     id: "bear",
     emoji: "🧸",
     target: "🍯",
-    message: "Teddy bear found some honey...",
-    action: "dipping paw with giggles! 🤭",
+    messageKey: "loading.bear.message",
+    actionKey: "loading.bear.action",
   },
   {
     id: "bee",
     emoji: "🐝",
     target: "🌼",
-    message: "Bees are buzzing around flowers...",
-    action: "landing with sparkly trails! ✨",
+    messageKey: "loading.bee.message",
+    actionKey: "loading.bee.action",
   },
   {
     id: "cat",
     emoji: "🐱",
     target: "🧶",
-    message: "Kitty is chasing the yarn ball...",
-    action: "pouncing with pure joy! 😸",
+    messageKey: "loading.cat.message",
+    actionKey: "loading.cat.action",
   },
   {
     id: "turtle",
     emoji: "🐢",
     target: "🥬",
-    message: "Turtle is slowly walking to the leaf...",
-    action: "curling up for a cozy nap! 😴",
+    messageKey: "loading.turtle.message",
+    actionKey: "loading.turtle.action",
   },
 ]
 
@@ -45,6 +46,7 @@ export default function LoadingAnimation() {
   const [currentAnimation, setCurrentAnimation] = useState(0)
   const [showSparkles, setShowSparkles] = useState(false)
   const [showAction, setShowAction] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -120,7 +122,7 @@ export default function LoadingAnimation() {
             animate={{ opacity: 1, y: 0 }}
             className="text-xl font-semibold mb-6 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
           >
-            Growing Your README Garden 🌱
+            {t("loading.title")}
           </motion.h3>
 
           <div className="flex items-center justify-center space-x-6 mb-6">
@@ -178,12 +180,12 @@ export default function LoadingAnimation() {
           </div>
 
           <motion.p
-            key={current.message}
+            key={current.messageKey}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-muted-foreground mb-2 text-sm"
           >
-            {current.message}
+            {t(current.messageKey)}
           </motion.p>
 
           <AnimatePresence>
@@ -194,7 +196,7 @@ export default function LoadingAnimation() {
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="text-green-600 dark:text-green-400 font-medium text-sm mb-4"
               >
-                {current.action}
+                {t(current.actionKey)}
               </motion.p>
             )}
           </AnimatePresence>
@@ -214,7 +216,7 @@ export default function LoadingAnimation() {
             transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
             className="text-sm text-muted-foreground"
           >
-            Crafting your perfect README with AI magic ✨
+            {t("loading.subtitle")}
           </motion.p>
 
           {/* Floating hearts */}
