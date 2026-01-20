@@ -24,15 +24,6 @@ import rehypeHighlight from "rehype-highlight"
 import { useLanguage } from "@/lib/language-context"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
-const vibeOptions = [
-  { value: "professional", label: "🎯 Professional", description: "Clean, corporate, and to-the-point" },
-  { value: "friendly", label: "😊 Friendly Professional", description: "Professional with a warm touch" },
-  { value: "humorous", label: "😄 Humorous Professional", description: "Professional with jokes and wit" },
-  { value: "creative", label: "🎨 Creative", description: "Artistic and expressive" },
-  { value: "minimal", label: "✨ Minimal", description: "Simple and clean" },
-  { value: "detailed", label: "📚 Detailed", description: "Comprehensive and thorough" },
-]
-
 // New policy
 const ANON_TOTAL_LIMIT = 3 // per device (never resets)
 const FREE_EMAIL_DEVICE_LIMIT = 5 // per email+device (never resets)
@@ -82,6 +73,15 @@ export default function GeneratePage() {
   const { theme, setTheme } = useTheme()
   const { toast } = useToast()
   const { t } = useLanguage()
+
+  const vibeOptions = useMemo(() => [
+    { value: "professional", label: t("vibe.option.professional.label"), description: t("vibe.option.professional.desc") },
+    { value: "friendly", label: t("vibe.option.friendly.label"), description: t("vibe.option.friendly.desc") },
+    { value: "humorous", label: t("vibe.option.humorous.label"), description: t("vibe.option.humorous.desc") },
+    { value: "creative", label: t("vibe.option.creative.label"), description: t("vibe.option.creative.desc") },
+    { value: "minimal", label: t("vibe.option.minimal.label"), description: t("vibe.option.minimal.desc") },
+    { value: "detailed", label: t("vibe.option.detailed.label"), description: t("vibe.option.detailed.desc") },
+  ], [t])
 
   useEffect(() => {
     setMounted(true)
@@ -356,6 +356,8 @@ export default function GeneratePage() {
     anonTotalCount,
     emailDeviceTotalCount,
     proRemainingToday,
+    getRemainingUses,
+    t
   ])
 
   const copyToClipboard = () => {
@@ -515,12 +517,13 @@ export default function GeneratePage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">{t("generate.projectPurpose")}</label>
-                  <Textarea
-                    placeholder={t("generate.projectPurposePlaceholder")}
-                    value={projectPurpose}
-                    onChange={(e) => setProjectPurpose(e.target.value)}
-                    className="rounded-xl"
+                  <label className="text-sm font-medium mb-2 block">{t("generate.repoUrl")}</label>
+                  <Input
+                      type="url"
+                      placeholder={t("generate.repoPlaceholder")}
+                      value={repoUrl}
+                      onChange={(e) => setRepoUrl(e.target.value)}
+                      className="rounded-xl"
                   />
                 </div>
                 <div>
@@ -534,23 +537,23 @@ export default function GeneratePage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Project Purpose / Description (Optional)</label>
+                  <label className="text-sm font-medium mb-2 block">{t("generate.projectPurposeDescLabel")}</label>
                   <Textarea
-                    placeholder="e.g., A tool to generate beautiful GitHub READMEs using AI."
+                    placeholder={t("generate.projectPurposeExample")}
                     value={projectPurpose}
                     onChange={(e) => setProjectPurpose(e.target.value)}
                     rows={4}
                     className="rounded-xl"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Provide a brief, compelling description of what your project does or the problem it solves.
+                    {t("generate.projectPurposeTooltip")}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Choose Your Vibe</label>
+                  <label className="text-sm font-medium mb-2 block">{t("generate.vibe")}</label>
                   <Select value={selectedVibe} onValueChange={setSelectedVibe}>
                     <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Select a vibe for your README" />
+                      <SelectValue placeholder={t("generate.selectVibePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {vibeOptions.map((option) => (
@@ -572,12 +575,12 @@ export default function GeneratePage() {
                   {isGenerating ? (
                     <>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Growing Your README...
+                      {t("generate.growing")}
                     </>
                   ) : (
                     <>
                       <Wand2 className="w-4 h-4 mr-2" />
-                      Generate README
+                      {t("generate.generate")}
                     </>
                   )}
                 </Button>
@@ -586,7 +589,7 @@ export default function GeneratePage() {
                     href="/pro"
                     className="text-sm text-purple-600 dark:text-purple-300 underline underline-offset-4"
                   >
-                    Want 5 uses per day? Go Pro
+                    {t("generate.wantMore")}
                   </Link>
                 )}
               </CardContent>
@@ -603,7 +606,7 @@ export default function GeneratePage() {
             <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full w-full">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Your README {rewriteCount > 0 && `(v${rewriteCount + 1})`}</CardTitle>
+                  <CardTitle>{t("generate.yourReadme")} {rewriteCount > 0 && `(v${rewriteCount + 1})`}</CardTitle>
                   {generatedReadme && (
                     <div className="flex space-x-2">
                       <Button
@@ -619,15 +622,15 @@ export default function GeneratePage() {
                         ) : (
                           <RefreshCw className="w-3 h-3 mr-0 xs:mr-1" />
                         )}
-                        <span className="hidden xs:inline">AI Rewrite</span>
+                        <span className="hidden xs:inline">{t("generate.aiRewrite")}</span>
                       </Button>
                       <Button variant="outline" size="sm" onClick={copyToClipboard}>
                         <Copy className="w-4 h-4 mr-0 xs:mr-1" />
-                        <span className="hidden xs:inline">Copy</span>
+                        <span className="hidden xs:inline">{t("generate.copy")}</span>
                       </Button>
                       <Button variant="outline" size="sm" onClick={downloadReadme}>
                         <Download className="w-4 h-4 mr-0 xs:mr-1" />
-                        <span className="hidden xs:inline">Download</span>
+                        <span className="hidden xs:inline">{t("generate.download")}</span>
                       </Button>
                     </div>
                   )}
@@ -637,8 +640,8 @@ export default function GeneratePage() {
                 {generatedReadme ? (
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0">
                     <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="preview">Preview</TabsTrigger>
-                      <TabsTrigger value="code">Markdown</TabsTrigger>
+                      <TabsTrigger value="preview">{t("generate.preview")}</TabsTrigger>
+                      <TabsTrigger value="code">{t("generate.markdown")}</TabsTrigger>
                     </TabsList>
                     <TabsContent value="preview" className="mt-4 min-w-0">
                       <div className="prose dark:prose-invert max-w-full max-h-96 overflow-y-auto break-words prose-pre:overflow-x-auto">
@@ -661,7 +664,7 @@ export default function GeneratePage() {
                   <div className="flex items-center justify-center h-64 text-muted-foreground">
                     <div className="text-center">
                       <Github className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Your beautiful README will appear here</p>
+                      <p>{t("generate.emptyState")}</p>
                     </div>
                   </div>
                 )}
