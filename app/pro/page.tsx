@@ -30,14 +30,16 @@ export default function ProPage() {
   useEffect(() => {
     // Set session loaded to true immediately to allow clicks while checking auth
     setSessionLoaded(true)
+    let isMounted = true
 
     // Check current session
     const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
         const id = data.session?.user?.id || null
-        console.log("[v0] Session user ID:", id)
-        setUserId(id)
+        if (isMounted) {
+          setUserId(id)
+        }
       } catch (error) {
         console.error("[v0] Error getting session:", error)
       }
@@ -48,11 +50,13 @@ export default function ProPage() {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const id = session?.user?.id || null
-      console.log("[v0] Auth state changed, user ID:", id)
-      setUserId(id)
+      if (isMounted) {
+        setUserId(id)
+      }
     })
 
     return () => {
+      isMounted = false
       subscription?.unsubscribe()
     }
   }, [])
@@ -140,28 +144,9 @@ export default function ProPage() {
     
     setVerifyingPayment(true)
     try {
-      // Check if payment has been processed by calling the UPI success handler
-      const response = await fetch(`/api/upi/success?userId=${userId}&transactionRef=${upiDetails.transactionRef}&amount=${upiDetails.amount}`)
-      
-      if (response.ok) {
-        setPaymentVerified(true)
-        toast({ 
-          title: t("pro.paymentSuccess"), 
-          description: t("pro.paymentSuccessDesc"), 
-          variant: "default" 
-        })
-        
-        // Redirect to success page after a brief delay
-        setTimeout(() => {
-          router.push(`/pro/success?token=${upiDetails.transactionRef}&method=upi&amount=${upiDetails.amount}`)
-        }, 1500)
-      } else {
-        toast({
-          title: t("error.title"),
-          description: "Payment verification pending. Please try again.",
-          variant: "default"
-        })
-      }
+      // Verify payment by redirecting to the success handler
+      // This will process the payment and update the subscription status
+      window.location.href = `/api/upi/success?userId=${userId}&transactionRef=${upiDetails.transactionRef}&amount=${upiDetails.amount}`
     } catch (error) {
       console.error("[v0] Payment verification error:", error)
       toast({
@@ -169,7 +154,6 @@ export default function ProPage() {
         description: "Could not verify payment. Please try again.",
         variant: "destructive"
       })
-    } finally {
       setVerifyingPayment(false)
     }
   }
