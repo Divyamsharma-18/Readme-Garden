@@ -31,6 +31,7 @@ export default function ProPage() {
     // Set session loaded to true immediately to allow clicks while checking auth
     setSessionLoaded(true)
     let isMounted = true
+    let hasInitialized = false
 
     // Check current session
     const checkSession = async () => {
@@ -39,6 +40,7 @@ export default function ProPage() {
         const id = data.session?.user?.id || null
         if (isMounted) {
           setUserId(id)
+          hasInitialized = true
         }
       } catch (error) {
         console.error("[v0] Error getting session:", error)
@@ -47,12 +49,18 @@ export default function ProPage() {
 
     checkSession()
 
-    // Listen for auth state changes
+    // Listen for auth state changes - only update if session actually changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const id = session?.user?.id || null
-      if (isMounted) {
-        setUserId(id)
-      }
+      // Only update userId if it's actually different from current state
+      // This prevents unnecessary re-renders and state resets
+      setUserId((prevId) => {
+        const newId = session?.user?.id || null
+        // Only update if different
+        if (prevId !== newId && isMounted && hasInitialized) {
+          return newId
+        }
+        return prevId
+      })
     })
 
     return () => {
@@ -62,7 +70,8 @@ export default function ProPage() {
   }, [])
 
   const startPayPalCheckout = async () => {
-    if (!userId) {
+    const currentUserId = userId
+    if (!currentUserId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
@@ -71,7 +80,7 @@ export default function ProPage() {
       const res = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: currentUserId }),
       })
       const data = await res.json()
       if (!res.ok || !data.approvalUrl) {
@@ -94,18 +103,18 @@ export default function ProPage() {
         }
       }
     } catch (e) {
+      setLoading(false)
       toast({
         title: t("error.title"),
         description: e instanceof Error ? e.message : t("common.loading"),
         variant: "destructive",
       })
-    } finally {
-      setLoading(false)
     }
   }
 
   const startUPICheckout = async () => {
-    if (!userId) {
+    const currentUserId = userId
+    if (!currentUserId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
@@ -114,7 +123,7 @@ export default function ProPage() {
       const res = await fetch("/api/upi/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: currentUserId }),
       })
       const data = await res.json()
       if (!res.ok) {
