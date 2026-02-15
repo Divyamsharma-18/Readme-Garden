@@ -33,7 +33,7 @@ export default function ProPage() {
     setSessionLoaded(true)
     let isMounted = true
 
-    // Check current session
+    // Check current session once on mount
     const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
@@ -49,18 +49,8 @@ export default function ProPage() {
 
     checkSession()
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) return
-      
-      const newId = session?.user?.id || null
-      userIdRef.current = newId
-      setUserId(newId)
-    })
-
     return () => {
       isMounted = false
-      subscription?.unsubscribe()
     }
   }, [])
 
