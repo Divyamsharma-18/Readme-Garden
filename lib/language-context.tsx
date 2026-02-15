@@ -115,9 +115,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "pro.complete": "I've Completed Payment",
     "pro.cancel": "Cancel",
     "pro.scanQR": "Scan QR Code with any UPI app",
+    "pro.scanQRInstruction": "Scan the QR code with your UPI app and complete the payment",
     "pro.payManually": "Or pay manually:",
     "pro.amount": "Amount",
     "pro.ref": "Ref",
+    "pro.verifyPayment": "Verify Payment",
+    "pro.verifying": "Verifying...",
+    "pro.paymentSuccess": "Payment Successful!",
+    "pro.paymentSuccessDesc": "Your Pro upgrade is confirmed. Welcome!",
 
     // Auth
     "auth.signin": "Sign In",
@@ -313,9 +318,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "pro.complete": "Zahlung abgeschlossen",
     "pro.cancel": "Abbrechen",
     "pro.scanQR": "QR-Code mit einer beliebigen UPI-App scannen",
+    "pro.scanQRInstruction": "Scanne den QR-Code mit deiner UPI-App und vervollständige die Zahlung",
     "pro.payManually": "Oder manuell bezahlen:",
     "pro.amount": "Betrag",
     "pro.ref": "Referenz",
+    "pro.verifyPayment": "Zahlung überprüfen",
+    "pro.verifying": "Verifizierung läuft...",
+    "pro.paymentSuccess": "Zahlung erfolgreich!",
+    "pro.paymentSuccessDesc": "Dein Pro-Upgrade ist bestätigt. Willkommen!",
 
     // Auth
     "auth.signin": "Anmelden",

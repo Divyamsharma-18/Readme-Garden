@@ -24,6 +24,8 @@ export default function ProPage() {
   const [showQRModal, setShowQRModal] = useState(false)
   const [qrCode, setQRCode] = useState<string>("")
   const [upiDetails, setUpiDetails] = useState<any>(null)
+  const [verifyingPayment, setVerifyingPayment] = useState(false)
+  const [paymentVerified, setPaymentVerified] = useState(false)
 
   useEffect(() => {
     // Set session loaded to true immediately to allow clicks while checking auth
@@ -133,11 +135,48 @@ export default function ProPage() {
     }
   }
 
-  const confirmUPIPayment = async () => {
-    if (upiDetails?.paymentLink) {
-      setShowQRModal(false)
-      window.location.href = upiDetails.paymentLink
+  const verifyUPIPayment = async () => {
+    if (!upiDetails?.transactionRef || !userId) return
+    
+    setVerifyingPayment(true)
+    try {
+      // Check if payment has been processed by calling the UPI success handler
+      const response = await fetch(`/api/upi/success?userId=${userId}&transactionRef=${upiDetails.transactionRef}&amount=${upiDetails.amount}`)
+      
+      if (response.ok) {
+        setPaymentVerified(true)
+        toast({ 
+          title: t("pro.paymentSuccess"), 
+          description: t("pro.paymentSuccessDesc"), 
+          variant: "default" 
+        })
+        
+        // Redirect to success page after a brief delay
+        setTimeout(() => {
+          router.push(`/pro/success?token=${upiDetails.transactionRef}&method=upi&amount=${upiDetails.amount}`)
+        }, 1500)
+      } else {
+        toast({
+          title: t("error.title"),
+          description: "Payment verification pending. Please try again.",
+          variant: "default"
+        })
+      }
+    } catch (error) {
+      console.error("[v0] Payment verification error:", error)
+      toast({
+        title: t("error.title"),
+        description: "Could not verify payment. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setVerifyingPayment(false)
     }
+  }
+
+  const confirmUPIPayment = async () => {
+    // Just close the modal - user will click "Verify Payment" after completing UPI transaction
+    setShowQRModal(false)
   }
 
   const startCheckout = startPayPalCheckout; // Declare startCheckout variable
@@ -230,19 +269,36 @@ export default function ProPage() {
                 <p className="text-xs text-muted-foreground">{t("pro.ref")}: {upiDetails?.transactionRef}</p>
               </div>
 
-              <Button 
-                onClick={confirmUPIPayment}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                {t("pro.complete")}
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => setShowQRModal(false)}
-                className="w-full"
-              >
-                {t("pro.cancel")}
-              </Button>
+              {paymentVerified ? (
+                <div className="text-center py-4">
+                  <Check className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-green-600">{t("pro.paymentSuccess")}</p>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    onClick={verifyUPIPayment}
+                    disabled={verifyingPayment}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    {verifyingPayment ? t("pro.verifying") : t("pro.verifyPayment")}
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">
+                    {t("pro.scanQRInstruction")}
+                  </p>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setShowQRModal(false)
+                      setPaymentVerified(false)
+                    }}
+                    disabled={verifyingPayment}
+                    className="w-full"
+                  >
+                    {t("pro.cancel")}
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
