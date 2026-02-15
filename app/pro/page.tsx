@@ -26,12 +26,12 @@ export default function ProPage() {
   const [upiDetails, setUpiDetails] = useState<any>(null)
   const [verifyingPayment, setVerifyingPayment] = useState(false)
   const [paymentVerified, setPaymentVerified] = useState(false)
+  const [authInitialized, setAuthInitialized] = useState(false)
 
   useEffect(() => {
     // Set session loaded to true immediately to allow clicks while checking auth
     setSessionLoaded(true)
     let isMounted = true
-    let hasInitialized = false
 
     // Check current session
     const checkSession = async () => {
@@ -40,23 +40,26 @@ export default function ProPage() {
         const id = data.session?.user?.id || null
         if (isMounted) {
           setUserId(id)
-          hasInitialized = true
+          setAuthInitialized(true)
         }
       } catch (error) {
         console.error("[v0] Error getting session:", error)
+        if (isMounted) {
+          setAuthInitialized(true)
+        }
       }
     }
 
     checkSession()
 
-    // Listen for auth state changes - only update if session actually changes
+    // Listen for auth state changes - only after initial session check
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Only update userId if it's actually different from current state
-      // This prevents unnecessary re-renders and state resets
+      if (!isMounted) return
+      
+      const newId = session?.user?.id || null
       setUserId((prevId) => {
-        const newId = session?.user?.id || null
-        // Only update if different
-        if (prevId !== newId && isMounted && hasInitialized) {
+        // Only update if actually different to avoid unnecessary updates
+        if (prevId !== newId) {
           return newId
         }
         return prevId
@@ -68,6 +71,14 @@ export default function ProPage() {
       subscription?.unsubscribe()
     }
   }, [])
+
+  // Prevent checkout if not authenticated
+  useEffect(() => {
+    if (!authInitialized && !sessionLoaded) return
+    if (!userId && authInitialized) {
+      setLoading(false)
+    }
+  }, [authInitialized, userId])
 
   const startPayPalCheckout = async () => {
     const currentUserId = userId
@@ -81,13 +92,20 @@ export default function ProPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: currentUserId }),
+        credentials: "include",
       })
-      const data = await res.json()
-      if (!res.ok || !data.approvalUrl) {
+      
+      if (!res.ok) {
+        const data = await res.json()
         throw new Error(data.error || "Failed to start checkout")
       }
+      
+      const data = await res.json()
+      if (!data.approvalUrl) {
+        throw new Error("No approval URL received")
+      }
 
-      // Prefer opening PayPal in a new tab to avoid iframe/sandbox blocking in previews
+      // Prefer opening PayPal in a new tab to avoid iframe/sandbox blocking
       const win = window.open(data.approvalUrl, "_blank", "noopener,noreferrer")
       if (!win) {
         // Popup blocked; try top-level navigation as a fallback
@@ -102,11 +120,12 @@ export default function ProPage() {
           return
         }
       }
+      setLoading(false)
     } catch (e) {
       setLoading(false)
       toast({
         title: t("error.title"),
-        description: e instanceof Error ? e.message : t("common.loading"),
+        description: e instanceof Error ? e.message : "Failed to create PayPal order",
         variant: "destructive",
       })
     }
@@ -124,12 +143,15 @@ export default function ProPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: currentUserId }),
+        credentials: "include",
       })
-      const data = await res.json()
+      
       if (!res.ok) {
+        const data = await res.json()
         throw new Error(data.error || "Failed to create UPI payment")
       }
 
+      const data = await res.json()
       // Generate QR code for UPI
       const upiString = `upi://pay?pa=${data.upiId}&pn=ReadmeGarden&am=${data.amount}&tn=Pro%20Access&tr=${data.transactionRef}`
       const qr = await QRCode.toDataURL(upiString, { width: 300 })
@@ -137,14 +159,14 @@ export default function ProPage() {
       setUpiDetails(data)
       setQRCode(qr)
       setShowQRModal(true)
+      setLoading(false)
     } catch (e) {
+      setLoading(false)
       toast({
         title: t("error.title"),
-        description: e instanceof Error ? e.message : t("common.loading"),
+        description: e instanceof Error ? e.message : "Failed to create UPI payment",
         variant: "destructive",
       })
-    } finally {
-      setLoading(false)
     }
   }
 
