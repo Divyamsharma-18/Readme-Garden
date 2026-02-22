@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+
 import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -429,11 +429,7 @@ export default function GeneratePage() {
       {/* Header */}
       <header className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3"
-          >
+          <div className="flex items-center space-x-3">
             <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
               <Button variant="ghost" size="icon" className="rounded-full">
                 <ArrowLeft className="w-4 h-4" />
@@ -448,7 +444,7 @@ export default function GeneratePage() {
                 <p className="text-sm text-muted-foreground">{t("generate.growBeautiful")}</p>
               </div>
             </Link>
-          </motion.div>
+          </div>
 
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             <Badge variant="secondary" className="px-2 sm:px-3 py-1 shadow-sm flex text-xs">
@@ -502,12 +498,7 @@ export default function GeneratePage() {
       <main className="relative z-10 max-w-7xl mx-auto px-6 pb-12 flex-grow w-full">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="min-w-0"
-          >
+          <div className="min-w-0">
             <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl w-full">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -594,15 +585,10 @@ export default function GeneratePage() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Output */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="min-w-0"
-          >
+          <div className="min-w-0">
             <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl h-full w-full">
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -670,13 +656,13 @@ export default function GeneratePage() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </main>
 
       <Footer />
 
-      <AnimatePresence>{(isGenerating || isRewriting) && <LoadingAnimation />}</AnimatePresence>
+      {(isGenerating || isRewriting) && <LoadingAnimation />}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
     </div>
   )
