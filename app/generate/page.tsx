@@ -98,6 +98,29 @@ export default function GeneratePage() {
       const {
         data: { session },
       } = await supabase.auth.getSession()
+
+      // #region agent log
+      fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b9e52e",
+        },
+        body: JSON.stringify({
+          sessionId: "b9e52e",
+          runId: "pre-fix",
+          hypothesisId: "H1",
+          location: "app/generate/page.tsx:96",
+          message: "generate checkSession result",
+          data: {
+            hasSession: !!session,
+            userId: session?.user?.id || null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
+
       if (session?.user) {
         const username = session.user.user_metadata?.full_name || session.user.email || "User"
         const email = session.user.email || "user@example.com"

@@ -37,6 +37,29 @@ export default function ProPage() {
         const { data } = await supabase.auth.getSession()
         const id = data.session?.user?.id || null
         console.log("[v0] Session user ID:", id)
+
+        // #region agent log
+        fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "b9e52e",
+          },
+          body: JSON.stringify({
+            sessionId: "b9e52e",
+            runId: "pre-fix",
+            hypothesisId: "H1",
+            location: "app/pro/page.tsx:35",
+            message: "pro checkSession result",
+            data: {
+              hasSession: !!data.session,
+              userId: id,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {})
+        // #endregion
+
         setUserId(id)
       } catch (error) {
         console.error("[v0] Error getting session:", error)
@@ -58,6 +81,28 @@ export default function ProPage() {
   }, [])
 
   const startPayPalCheckout = async () => {
+    // #region agent log
+    fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "b9e52e",
+      },
+      body: JSON.stringify({
+        sessionId: "b9e52e",
+        runId: "pre-fix",
+        hypothesisId: "H2",
+        location: "app/pro/page.tsx:60",
+        message: "startPayPalCheckout clicked",
+        data: {
+          userId,
+          sessionLoaded,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
     if (!userId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
@@ -101,6 +146,28 @@ export default function ProPage() {
   }
 
   const startUPICheckout = async () => {
+    // #region agent log
+    fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "b9e52e",
+      },
+      body: JSON.stringify({
+        sessionId: "b9e52e",
+        runId: "pre-fix",
+        hypothesisId: "H2",
+        location: "app/pro/page.tsx:103",
+        message: "startUPICheckout clicked",
+        data: {
+          userId,
+          sessionLoaded,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
     if (!userId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
