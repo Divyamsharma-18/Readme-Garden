@@ -31,3 +31,26 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 // This prevents crashes in preview when env vars are not configured.
 export const supabase: SupabaseClient | any =
   supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : createMockSupabase()
+
+// #region agent log
+fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Debug-Session-Id": "b9e52e",
+  },
+  body: JSON.stringify({
+    sessionId: "b9e52e",
+    runId: "pre-fix",
+    hypothesisId: "H1",
+    location: "lib/supabase.ts:32",
+    message: "supabase client init",
+    data: {
+      hasUrl: !!supabaseUrl,
+      hasAnonKey: !!supabaseAnonKey,
+      isMock: !supabaseUrl || !supabaseAnonKey,
+    },
+    timestamp: Date.now(),
+  }),
+}).catch(() => {})
+// #endregion

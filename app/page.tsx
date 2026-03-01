@@ -37,6 +37,29 @@ export default function HomePage() {
       const {
         data: { session },
       } = await supabase.auth.getSession()
+
+      // #region agent log
+      fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b9e52e",
+        },
+        body: JSON.stringify({
+          sessionId: "b9e52e",
+          runId: "pre-fix",
+          hypothesisId: "H1",
+          location: "app/page.tsx:36",
+          message: "home checkSession result",
+          data: {
+            hasSession: !!session,
+            userId: session?.user?.id || null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
+
       if (session?.user) {
         setIsAuthenticated(true)
         setUserData({
