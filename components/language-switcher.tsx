@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
           size="sm"
           className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
         >
-          <Globe className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+          <Globe className="w-3 h-3 sm:w-4 sm:h-4 md:mr-1" />
           <span className="hidden xs:inline">{language.toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
