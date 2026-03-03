@@ -90,7 +90,7 @@ export default function MarketingPage({ onGetStarted }: MarketingPageProps) {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mb-8"
+              className="mb-8 mt-8 sm:mt-0"
             >
               <div className="flex items-center justify-center gap-4">
                 <motion.div
