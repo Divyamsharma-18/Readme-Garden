@@ -293,7 +293,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "cta.title1": "Bereit, dein",
     "cta.title2": "README Garden zu vergrößern?",
     "cta.description": "Tritt Tausenden von Entwicklern bei, die ihre GitHub-Präsenz transformiert haben. Beginne heute mit schöner Dokumentation.",
-    "cta.button": "Jetzt anfangen zu wachsen",
+    "cta.button": "Jetzt wachsen starten",
     "cta.tagline": "Keine Kreditkarte erforderlich • Kostenlos für immer • Dauert 10 Sekunden",
 
     // Footer
