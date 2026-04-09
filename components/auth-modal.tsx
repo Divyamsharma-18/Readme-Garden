@@ -8,12 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { supabase } from "@/lib/supabase"
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (userData: { id: string; email: string; name: string }) => void
+  onSuccess: (userData: { username: string; email: string }) => void
 }
 
 type AuthStep = "main" | "forgot-password" | "verify-otp"
@@ -33,65 +32,35 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
-      if (type === "signin") {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+      const endpoint = type === "signin" ? "/api/auth/signin" : "/api/auth/signup"
+      const body = type === "signin" ? { email, password } : { email, password, name }
 
-        if (error || !data.user) {
-          throw new Error(error?.message || "Authentication failed.")
-        }
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
 
-        const user = data.user
+      const data = await response.json()
 
-        toast({
-          title: "Welcome back! 🎉",
-          description: "You now have 5 README generations per day!",
-        })
-
-        onSuccess({
-          id: user.id,
-          email: user.email || email,
-          name: (user.user_metadata as any)?.full_name || user.email || "User",
-        })
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: name,
-            },
-          },
-        })
-
-        if (error || !data.user) {
-          throw new Error(error?.message || "Account creation failed. Please try again.")
-        }
-
-        const user = data.user
-
-        if (!data.session && !user.email_confirmed_at) {
-          toast({
-            title: "Account Created! 🎉",
-            description: "Please check your email to confirm your account before signing in.",
-            variant: "default",
-          })
-        } else {
-          toast({
-            title: "Welcome to README Garden! 🎉",
-            description: "You now have 5 README generations per day!",
-          })
-
-          onSuccess({
-            id: user.id,
-            email: user.email || email,
-            name: (user.user_metadata as any)?.full_name || user.email || "User",
-          })
-        }
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Authentication failed.")
       }
 
+      if (data.emailConfirmationRequired) {
+        toast({
+          title: "Account Created! 🎉",
+          description: "Please check your email to confirm your account before signing in.",
+          variant: "default",
+        })
+      } else {
+        toast({
+          title: `${type === "signin" ? "Welcome back!" : "Welcome to README Garden!"} 🎉`,
+          description: "You now have 5 README generations per day!",
+        })
+      }
+
+      onSuccess(data.user)
       setAuthStep("main")
       setEmail("")
       setPassword("")
@@ -129,15 +98,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: otpEmail,
-        options: {
-          shouldCreateUser: false,
-        },
+      const response = await fetch("/api/auth/request-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail }),
       })
 
-      if (error) {
-        throw error
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send OTP")
       }
 
       toast({
@@ -167,28 +137,24 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: otpEmail,
-        token: otp,
-        type: "email",
+      const response = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail, token: otp }),
       })
 
-      if (error || !data.user) {
-        throw new Error(error?.message || "OTP verification failed")
-      }
+      const data = await response.json()
 
-      const user = data.user
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "OTP verification failed")
+      }
 
       toast({
         title: "Welcome back! 🎉",
         description: "You are now signed in.",
       })
 
-      onSuccess({
-        id: user.id,
-        email: user.email || otpEmail,
-        name: (user.user_metadata as any)?.full_name || user.email || "User",
-      })
+      onSuccess(data.user)
       setAuthStep("main")
       setOtpEmail("")
       setOtp("")

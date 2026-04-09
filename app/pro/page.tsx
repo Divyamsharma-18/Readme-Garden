@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,41 +26,22 @@ export default function ProPage() {
   const [upiDetails, setUpiDetails] = useState<any>(null)
   const [verifyingPayment, setVerifyingPayment] = useState(false)
   const [paymentVerified, setPaymentVerified] = useState(false)
+  const userIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     // Set session loaded to true immediately to allow clicks while checking auth
     setSessionLoaded(true)
+    let isMounted = true
 
-    // Check current session
+    // Check current session once on mount
     const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession()
         const id = data.session?.user?.id || null
-        console.log("[v0] Session user ID:", id)
-
-        // #region agent log
-        fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "b9e52e",
-          },
-          body: JSON.stringify({
-            sessionId: "b9e52e",
-            runId: "pre-fix",
-            hypothesisId: "H1",
-            location: "app/pro/page.tsx:35",
-            message: "pro checkSession result",
-            data: {
-              hasSession: !!data.session,
-              userId: id,
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {})
-        // #endregion
-
-        setUserId(id)
+        if (isMounted) {
+          setUserId(id)
+          userIdRef.current = id
+        }
       } catch (error) {
         console.error("[v0] Error getting session:", error)
       }
@@ -68,42 +49,14 @@ export default function ProPage() {
 
     checkSession()
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const id = session?.user?.id || null
-      console.log("[v0] Auth state changed, user ID:", id)
-      setUserId(id)
-    })
-
     return () => {
-      subscription?.unsubscribe()
+      isMounted = false
     }
   }, [])
 
   const startPayPalCheckout = async () => {
-    // #region agent log
-    fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "b9e52e",
-      },
-      body: JSON.stringify({
-        sessionId: "b9e52e",
-        runId: "pre-fix",
-        hypothesisId: "H2",
-        location: "app/pro/page.tsx:60",
-        message: "startPayPalCheckout clicked",
-        data: {
-          userId,
-          sessionLoaded,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion
-
-    if (!userId) {
+    const currentUserId = userIdRef.current
+    if (!currentUserId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
@@ -112,32 +65,28 @@ export default function ProPage() {
       const res = await fetch("/api/paypal/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: currentUserId }),
       })
-      const data = await res.json()
-      if (!res.ok || !data.approvalUrl) {
+      
+      if (!res.ok) {
+        const data = await res.json()
         throw new Error(data.error || "Failed to start checkout")
       }
+      
+      const data = await res.json()
+      if (!data.approvalUrl) {
+        throw new Error("No approval URL received")
+      }
 
-      // Prefer opening PayPal in a new tab to avoid iframe/sandbox blocking in previews
+      // Open PayPal in new tab
       const win = window.open(data.approvalUrl, "_blank", "noopener,noreferrer")
       if (!win) {
-        // Popup blocked; try top-level navigation as a fallback
-        try {
-          if (window.top) {
-            window.top.location.href = data.approvalUrl
-            return
-          }
-        } catch {
-          // Cross-origin top navigation blocked; use current window
-          window.location.href = data.approvalUrl
-          return
-        }
+        window.location.href = data.approvalUrl
       }
     } catch (e) {
       toast({
         title: t("error.title"),
-        description: e instanceof Error ? e.message : t("common.loading"),
+        description: e instanceof Error ? e.message : "Failed to create PayPal order",
         variant: "destructive",
       })
     } finally {
@@ -146,29 +95,8 @@ export default function ProPage() {
   }
 
   const startUPICheckout = async () => {
-    // #region agent log
-    fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "b9e52e",
-      },
-      body: JSON.stringify({
-        sessionId: "b9e52e",
-        runId: "pre-fix",
-        hypothesisId: "H2",
-        location: "app/pro/page.tsx:103",
-        message: "startUPICheckout clicked",
-        data: {
-          userId,
-          sessionLoaded,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion
-
-    if (!userId) {
+    const currentUserId = userIdRef.current
+    if (!currentUserId) {
       toast({ title: t("pro.signIn"), description: t("pro.signInDesc"), variant: "destructive" })
       return
     }
@@ -177,13 +105,15 @@ export default function ProPage() {
       const res = await fetch("/api/upi/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: currentUserId }),
       })
-      const data = await res.json()
+      
       if (!res.ok) {
+        const data = await res.json()
         throw new Error(data.error || "Failed to create UPI payment")
       }
 
+      const data = await res.json()
       // Generate QR code for UPI
       const upiString = `upi://pay?pa=${data.upiId}&pn=ReadmeGarden&am=${data.amount}&tn=Pro%20Access&tr=${data.transactionRef}`
       const qr = await QRCode.toDataURL(upiString, { width: 300 })
@@ -194,7 +124,7 @@ export default function ProPage() {
     } catch (e) {
       toast({
         title: t("error.title"),
-        description: e instanceof Error ? e.message : t("common.loading"),
+        description: e instanceof Error ? e.message : "Failed to create UPI payment",
         variant: "destructive",
       })
     } finally {
@@ -207,28 +137,9 @@ export default function ProPage() {
     
     setVerifyingPayment(true)
     try {
-      // Check if payment has been processed by calling the UPI success handler
-      const response = await fetch(`/api/upi/success?userId=${userId}&transactionRef=${upiDetails.transactionRef}&amount=${upiDetails.amount}`)
-      
-      if (response.ok) {
-        setPaymentVerified(true)
-        toast({ 
-          title: t("pro.paymentSuccess"), 
-          description: t("pro.paymentSuccessDesc"), 
-          variant: "default" 
-        })
-        
-        // Redirect to success page after a brief delay
-        setTimeout(() => {
-          router.push(`/pro/success?token=${upiDetails.transactionRef}&method=upi&amount=${upiDetails.amount}`)
-        }, 1500)
-      } else {
-        toast({
-          title: t("error.title"),
-          description: "Payment verification pending. Please try again.",
-          variant: "default"
-        })
-      }
+      // Verify payment by redirecting to the success handler
+      // This will process the payment and update the subscription status
+      window.location.href = `/api/upi/success?userId=${userId}&transactionRef=${upiDetails.transactionRef}&amount=${upiDetails.amount}`
     } catch (error) {
       console.error("[v0] Payment verification error:", error)
       toast({
@@ -236,7 +147,6 @@ export default function ProPage() {
         description: "Could not verify payment. Please try again.",
         variant: "destructive"
       })
-    } finally {
       setVerifyingPayment(false)
     }
   }
