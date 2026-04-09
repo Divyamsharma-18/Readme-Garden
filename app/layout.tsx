@@ -2,11 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { LanguageProvider } from "@/lib/language-context"
-
-import { Analytics } from "@vercel/analytics/next";
+import { Providers } from "@/app/providers"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,7 +15,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.png",
   },
-    generator: 'Divyam Sharma'
+  generator: "Divyam Sharma",
 }
 
 export default function RootLayout({
@@ -29,12 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false}>
-          <LanguageProvider>
-            {children}
-            <Toaster />
-          </LanguageProvider>
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

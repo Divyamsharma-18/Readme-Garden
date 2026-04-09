@@ -37,29 +37,6 @@ export default function HomePage() {
       const {
         data: { session },
       } = await supabase.auth.getSession()
-
-      // #region agent log
-      fetch("http://127.0.0.1:7462/ingest/4ef844b8-558d-459d-a120-26dd1f6b2825", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "b9e52e",
-        },
-        body: JSON.stringify({
-          sessionId: "b9e52e",
-          runId: "pre-fix",
-          hypothesisId: "H1",
-          location: "app/page.tsx:36",
-          message: "home checkSession result",
-          data: {
-            hasSession: !!session,
-            userId: session?.user?.id || null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion
-
       if (session?.user) {
         setIsAuthenticated(true)
         setUserData({
@@ -212,9 +189,9 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     onClick={handleStarOnGitHub}
-                    className="rounded-full shadow-sm hover:shadow-md gap-1 transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
+                    className="rounded-full shadow-sm hover:shadow-md transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
                   >
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1 text-yellow-400" />
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-yellow-400" />
                     <span className="hidden xs:inline">
                       {t("header.github").split(" ").slice(0, 2).join(" ")}
                     </span>
