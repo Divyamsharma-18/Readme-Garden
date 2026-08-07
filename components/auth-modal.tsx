@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { isTempEmail } from "@/lib/temp-mail-domains"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -33,6 +34,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
+      // Block temporary / disposable email addresses immediately
+      if (isTempEmail(email)) {
+        toast({
+          title: "Temporary Email Not Allowed ❌",
+          description:
+            "Disposable or temporary email addresses are not permitted. Please use a real email address.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
       if (type === "signin") {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -129,6 +142,17 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
+      if (isTempEmail(otpEmail)) {
+        toast({
+          title: "Temporary Email Not Allowed ❌",
+          description:
+            "Disposable or temporary email addresses are not permitted. Please use a real email address.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email: otpEmail,
         options: {
