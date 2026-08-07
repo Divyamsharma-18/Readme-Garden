@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { isDisposableEmail, EMAIL_VALIDATION_ERRORS } from "@/lib/email-validation"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -33,6 +34,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setIsLoading(true)
 
     try {
+      // Block disposable/temporary emails on signup only.
+      // We skip this check on sign-in so existing accounts are never locked out.
+      if (type === "signup" && isDisposableEmail(email)) {
+        toast({
+          title: "Disposable Email Not Allowed ❌",
+          description: EMAIL_VALIDATION_ERRORS.DISPOSABLE_EMAIL,
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
       if (type === "signin") {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
