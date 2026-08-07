@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { isDisposableEmail, AUTHENTIC_EMAIL_ERROR_MESSAGE } from "@/lib/email-validation"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -30,6 +31,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const { toast } = useToast()
 
   const handleAuth = async (type: "signin" | "signup") => {
+    if (isDisposableEmail(email)) {
+      toast({
+        title: "Temporary Email Detected 🚫",
+        description: "Temporary / disposable email addresses are not allowed. Please use an authentic email address (e.g. Gmail, Outlook, Yahoo, or your personal/work email).",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -126,6 +136,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   }
 
   const handleRequestOTP = async () => {
+    if (isDisposableEmail(otpEmail)) {
+      toast({
+        title: "Temporary Email Detected 🚫",
+        description: "Temporary / disposable email addresses are not allowed. Please use an authentic email address to request an OTP.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -388,13 +407,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     <p className="text-sm text-muted-foreground">
                       Enter your email address and we'll send you an OTP to sign in.
                     </p>
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={otpEmail}
-                      onChange={(e) => setOtpEmail(e.target.value)}
-                      className="rounded-xl"
-                    />
+                    <div>
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        value={otpEmail}
+                        onChange={(e) => setOtpEmail(e.target.value)}
+                        className="rounded-xl"
+                      />
+                    </div>
                     <Button
                       onClick={handleRequestOTP}
                       disabled={isLoading || !otpEmail}
@@ -415,7 +436,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       placeholder="Enter 6-digit OTP"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      maxLength="6"
+                      maxLength={6}
                       className="rounded-xl text-center text-sm tracking-widest"
                     />
                     <Button

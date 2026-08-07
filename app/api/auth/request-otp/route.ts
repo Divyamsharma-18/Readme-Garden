@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { isDisposableEmail, AUTHENTIC_EMAIL_ERROR_MESSAGE } from "@/lib/email-validation"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -18,6 +19,10 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 })
+    }
+
+    if (isDisposableEmail(email)) {
+      return NextResponse.json({ error: AUTHENTIC_EMAIL_ERROR_MESSAGE }, { status: 400 })
     }
 
     console.log(`Attempting to send OTP to: ${email}`)

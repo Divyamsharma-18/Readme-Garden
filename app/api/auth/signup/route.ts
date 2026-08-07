@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { isDisposableEmail, AUTHENTIC_EMAIL_ERROR_MESSAGE } from "@/lib/email-validation"
 
 // Initialize Supabase client for server-side use
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -19,6 +20,10 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
+    }
+
+    if (isDisposableEmail(email)) {
+      return NextResponse.json({ error: AUTHENTIC_EMAIL_ERROR_MESSAGE }, { status: 400 })
     }
 
     const { data, error } = await supabaseServer.auth.signUp({
