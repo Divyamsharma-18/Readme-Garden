@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, User, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import { X, User, Eye, EyeOff, ArrowLeft, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/lib/supabase"
+import { isDisposableEmail, AUTHENTIC_EMAIL_ERROR_MESSAGE } from "@/lib/email-validation"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -30,6 +31,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const { toast } = useToast()
 
   const handleAuth = async (type: "signin" | "signup") => {
+    if (isDisposableEmail(email)) {
+      toast({
+        title: "Temporary Mail Not Allowed ⚠️",
+        description: AUTHENTIC_EMAIL_ERROR_MESSAGE,
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -126,6 +136,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   }
 
   const handleRequestOTP = async () => {
+    if (isDisposableEmail(otpEmail)) {
+      toast({
+        title: "Temporary Mail Not Allowed ⚠️",
+        description: AUTHENTIC_EMAIL_ERROR_MESSAGE,
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -279,6 +298,11 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="mb-4 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-amber-500" />
+                  <span>No temporary emails allowed. Only authentic email addresses are permitted for sign in / sign up.</span>
+                </div>
+
                 {authStep === "main" && (
                   <Tabs defaultValue="signin" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -294,8 +318,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                             placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="rounded-xl"
+                            className={`rounded-xl ${isDisposableEmail(email) ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                           />
+                          {isDisposableEmail(email) && (
+                            <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1.5">
+                              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                              <span>Temporary emails are not allowed. Only authentic emails permitted.</span>
+                            </p>
+                          )}
                         </div>
                         <div className="relative">
                           <Input
@@ -351,8 +381,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                             placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="rounded-xl"
+                            className={`rounded-xl ${isDisposableEmail(email) ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                           />
+                          {isDisposableEmail(email) && (
+                            <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1.5">
+                              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                              <span>Temporary emails are not allowed. Only authentic emails permitted.</span>
+                            </p>
+                          )}
                         </div>
                         <div className="relative">
                           <Input
@@ -388,13 +424,21 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     <p className="text-sm text-muted-foreground">
                       Enter your email address and we'll send you an OTP to sign in.
                     </p>
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={otpEmail}
-                      onChange={(e) => setOtpEmail(e.target.value)}
-                      className="rounded-xl"
-                    />
+                    <div>
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        value={otpEmail}
+                        onChange={(e) => setOtpEmail(e.target.value)}
+                        className={`rounded-xl ${isDisposableEmail(otpEmail) ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                      />
+                      {isDisposableEmail(otpEmail) && (
+                        <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1.5">
+                          <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                          <span>Temporary emails are not allowed. Only authentic emails permitted.</span>
+                        </p>
+                      )}
+                    </div>
                     <Button
                       onClick={handleRequestOTP}
                       disabled={isLoading || !otpEmail}
@@ -415,7 +459,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                       placeholder="Enter 6-digit OTP"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      maxLength="6"
+                      maxLength={6}
                       className="rounded-xl text-center text-sm tracking-widest"
                     />
                     <Button
