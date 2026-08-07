@@ -253,7 +253,7 @@ export default function ProPage() {
       <Card className="w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 border-0 shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">
-            {t("pro.title")} <Badge className="ml-2">5 {t("common.loading").toLowerCase()}</Badge>
+            {t("pro.title")} <Badge className="ml-2 bg-yellow-300">5 {t("common.loading").toLowerCase()}</Badge>
           </CardTitle>
           <p className="text-muted-foreground mt-2">{t("pro.description")}</p>
         </CardHeader>
@@ -281,7 +281,7 @@ export default function ProPage() {
             <Button 
               onClick={startPayPalCheckout} 
               disabled={loading} 
-              className="w-full sm:flex-1 rounded-xl"
+              className="w-full sm:flex-1 rounded-xl bg-yellow-500 hover:bg-yellow-300"
             >
               <CreditCard className="w-4 h-4 mr-2" />
               {loading ? t("pro.processing") : t("pro.paypal")}
@@ -289,7 +289,7 @@ export default function ProPage() {
             <Button 
               onClick={startUPICheckout} 
               disabled={loading} 
-              className="w-full sm:flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:flex-1 rounded-xl bg-yellow-300 hover:bg-yellow-500"
             >
               <CreditCard className="w-4 h-4 mr-2" />
               {loading ? t("pro.processing") : t("pro.upi")}
