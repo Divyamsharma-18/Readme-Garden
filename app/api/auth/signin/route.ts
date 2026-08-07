@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { isTempEmail } from "@/lib/temp-mail-domains"
+import { validateEmail, EMAIL_VALIDATION_ERRORS } from "@/lib/email-validation"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -21,21 +21,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
-    if (isTempEmail(email)) {
+    // ── Syntax-only validation on sign-in (no disposable check) ──────────
+    // We intentionally skip the disposable check here so that any user who
+    // already holds a legitimate account can always sign in regardless of
+    // whether their domain was later added to the blocklist.
+    const emailResult = validateEmail(email, { checkDisposable: false })
+    if (!emailResult.valid) {
       return NextResponse.json(
-        { error: "Temporary or disposable email addresses are not allowed. Please use a real email address." },
+        { error: EMAIL_VALIDATION_ERRORS[emailResult.error!] },
         { status: 400 },
       )
     }
+    const normalisedEmail = emailResult.normalised
+    // ──────────────────────────────────────────────────────────────────────
 
     const { data, error } = await supabaseServer.auth.signInWithPassword({
-      email,
+      email: normalisedEmail,
       password,
     })
 
     if (error) {
       let cleanErrorMessage = "Invalid login credentials"
-
       const errorText = error.message?.toLowerCase() || ""
 
       if (errorText.includes("email") && errorText.includes("not") && errorText.includes("confirmed")) {

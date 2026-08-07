@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { isTempEmail } from "@/lib/temp-mail-domains"
+import { validateEmail, EMAIL_VALIDATION_ERRORS } from "@/lib/email-validation"
 
 // Initialize Supabase client for server-side use
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -22,27 +22,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email, password, and name are required" }, { status: 400 })
     }
 
-    if (isTempEmail(email)) {
+    // ── Email validation (syntax + disposable check) ──────────────────────
+    const emailResult = validateEmail(email, { checkDisposable: true })
+    if (!emailResult.valid) {
       return NextResponse.json(
-        { error: "Temporary or disposable email addresses are not allowed. Please use a real email address." },
+        { error: EMAIL_VALIDATION_ERRORS[emailResult.error!] },
         { status: 400 },
       )
     }
+    // Use the normalised email for all downstream operations
+    const normalisedEmail = emailResult.normalised
+    // ──────────────────────────────────────────────────────────────────────
 
     const { data, error } = await supabaseServer.auth.signUp({
-      email,
+      email: normalisedEmail,
       password,
       options: {
         data: {
-          full_name: name, // Store the name in user_metadata
+          full_name: name,
         },
       },
     })
 
     if (error) {
-      // Return only clean, user-friendly error messages
       let cleanErrorMessage = "Account creation failed. Please try again."
-
       const errorText = error.message?.toLowerCase() || ""
 
       if (errorText.includes("user already registered") || errorText.includes("already registered")) {
