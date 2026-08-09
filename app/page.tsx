@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Star } from "lucide-react"
+import { Github, Star, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
@@ -219,6 +219,17 @@ export default function HomePage() {
                       {t("header.github").split(" ").slice(0, 2).join(" ")}
                     </span>
                     GitHub
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="rounded-full shadow-sm hover:shadow-md gap-1 transition-shadow bg-black/20 backdrop-blur-sm border-purple-600/30 text-purple-200 hover:bg-purple-900/20 text-xs sm:text-sm px-2 sm:px-3"
+                  >
+                    <a href="/docs">
+                      <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                      <span className="hidden xs:inline">Docs</span>
+                    </a>
                   </Button>
                 </div>
               </div>
