@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown } from "lucide-react"
+import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -488,6 +488,12 @@ export default function GeneratePage() {
                 </Button>
               </Link>
             )}
+            <Link href="/docs">
+              <Button variant="outline" size="sm" className="rounded-full bg-transparent hidden sm:flex gap-1.5 p-2">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Docs</span>
+              </Button>
+            </Link>
             <LanguageSwitcher />
             <Button
               variant="outline"

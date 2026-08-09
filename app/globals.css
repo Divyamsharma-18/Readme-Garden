@@ -204,3 +204,103 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Documentation styles
+   ───────────────────────────────────────────────────────────── */
+
+/* Typography helpers */
+.docs-overline {
+  @apply text-xs font-semibold uppercase tracking-wider text-purple-400 mb-2;
+}
+.docs-h1 {
+  @apply text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4;
+}
+.docs-lead {
+  @apply text-lg text-muted-foreground leading-relaxed;
+}
+
+/* Inline code */
+.docs-inline-code {
+  @apply rounded-md bg-muted/60 border border-border/40 px-1.5 py-0.5 font-mono text-[0.8em] text-foreground/90;
+}
+
+/* Links */
+.docs-link {
+  @apply text-purple-400 underline underline-offset-2 decoration-purple-400/40 hover:decoration-purple-400 transition-colors;
+}
+
+/* Callouts */
+.docs-callout {
+  @apply rounded-xl border px-4 py-3;
+}
+.docs-callout-tip {
+  @apply border-green-500/30 bg-green-500/5;
+}
+.docs-callout-note {
+  @apply border-blue-500/30 bg-blue-500/5;
+}
+.docs-callout-warning {
+  @apply border-amber-500/30 bg-amber-500/5;
+}
+.docs-callout-danger {
+  @apply border-red-500/30 bg-red-500/5;
+}
+
+/* Tables */
+.docs-table-wrapper {
+  @apply overflow-x-auto rounded-xl border border-border/60;
+}
+.docs-table {
+  @apply w-full text-sm border-collapse;
+}
+.docs-table thead tr {
+  @apply bg-muted/40;
+}
+.docs-table thead th {
+  @apply px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border/60;
+}
+.docs-table tbody tr {
+  @apply border-b border-border/40 last:border-0 transition-colors hover:bg-muted/20;
+}
+.docs-table tbody td {
+  @apply px-4 py-2.5 text-muted-foreground align-top;
+}
+.docs-table tbody td:first-child {
+  @apply text-foreground font-medium;
+}
+.docs-table code {
+  @apply rounded bg-muted/60 px-1 py-0.5 font-mono text-xs text-foreground/90;
+}
+
+/* Code blocks */
+.docs-code-block {
+  @apply rounded-xl border border-border/60 bg-[hsl(222.2,84%,3%)] overflow-hidden;
+}
+.dark .docs-code-block {
+  @apply bg-black/40;
+}
+.docs-code-header {
+  @apply flex items-center justify-between border-b border-border/40 px-4 py-2 text-xs text-muted-foreground;
+}
+.docs-code-pre {
+  @apply overflow-x-auto p-4 text-sm font-mono text-foreground/90 leading-relaxed;
+  scrollbar-width: thin;
+}
+.docs-code-pre code {
+  @apply bg-transparent p-0 text-sm font-mono;
+}
+
+/* Steps */
+.docs-step {
+  @apply flex gap-4;
+}
+.docs-step-number {
+  @apply flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-white text-sm font-bold;
+}
+.docs-step-content {
+  @apply flex-1 pb-8;
+}
+.docs-step-title {
+  @apply font-semibold text-foreground mb-2;
+}
