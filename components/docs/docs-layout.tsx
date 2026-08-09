@@ -8,6 +8,7 @@ import { useTheme } from "next-themes"
 import { DocsSidebar } from "./docs-sidebar"
 import { DocsBreadcrumb } from "./docs-breadcrumb"
 import { DocsSearch } from "./docs-search"
+import { DocsToC } from "./docs-toc"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -138,7 +139,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       )}
 
       {/* ── Main layout ─────────────────────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex gap-8 lg:gap-12">
 
           {/* ── Sidebar (desktop) ──────────────────────────────────────── */}
@@ -171,6 +172,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               </Link>
             </footer>
           </main>
+
+          {/* ── On this page (desktop xl+) ──────────────────────────────── */}
+          <DocsToC />
         </div>
       </div>
     </div>
