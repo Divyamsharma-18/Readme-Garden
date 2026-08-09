@@ -10,7 +10,7 @@ export default function HowItWorksPage() {
         <p className="docs-overline">Core Concepts</p>
         <h1 className="docs-h1">How It Works</h1>
         <p className="docs-lead">
-          From URL input to finished README — a walkthrough of the complete generation pipeline.
+          From URL input to finished README: a walkthrough of the complete generation pipeline.
         </p>
       </div>
 
@@ -193,7 +193,7 @@ temperature: 0.8`}</code></pre>
         <p className="text-muted-foreground text-sm mb-4">
           The server selects a prompt from a rotating array of 4 vibe-specific rewrite instructions using{" "}
           <code className="docs-inline-code">(rewriteCount - 1) % 4</code>. Each prompt in the array is fundamentally
-          different — for example, the <strong className="text-foreground">Professional</strong> vibe cycles through:
+          different, for example, the <strong className="text-foreground">Professional</strong> vibe cycles through:
           corporate enterprise document → technical specification → business proposal → government-style manual.
         </p>
         <p className="text-muted-foreground text-sm mb-4">

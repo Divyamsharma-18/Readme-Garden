@@ -72,7 +72,7 @@ export default function ApiReferencePage() {
       <div className="docs-callout docs-callout-note mb-10">
         <p className="text-sm">
           All endpoints return JSON. Error responses always include an{" "}
-          <code className="docs-inline-code">error</code> string. There is no API versioning — all routes are at root
+          <code className="docs-inline-code">error</code> string. There is no API versioning, all routes are at root
           path.
         </p>
       </div>
@@ -161,7 +161,7 @@ export default function ApiReferencePage() {
         <ApiEndpoint
           method="POST"
           path="/api/auth/request-otp"
-          description="Sends a 6-digit OTP to an existing account's email via Supabase Auth. shouldCreateUser is false — only pre-existing accounts can receive an OTP. Includes a 30-second timeout on the Supabase call."
+          description="Sends a 6-digit OTP to an existing account's email via Supabase Auth. shouldCreateUser is false, only pre-existing accounts can receive an OTP. Includes a 30-second timeout on the Supabase call."
           request={`{ email: string }`}
           response={`{ success: true, message: string }`}
         />
@@ -237,7 +237,7 @@ export default function ApiReferencePage() {
           description="Fetches the PayPal order to read custom_id (user ID), captures it if not already completed, then upserts the Supabase users row to activate a 30-day Pro subscription."
           request={`{ orderID: string }`}
           response={`{ success: true }`}
-          notes="Handles the ALREADY_CAPTURED PayPal error gracefully — idempotent on double-call."
+          notes="Handles the ALREADY_CAPTURED PayPal error gracefully idempotent on double-call."
         />
 
         <ApiEndpoint
@@ -257,7 +257,7 @@ export default function ApiReferencePage() {
         <ApiEndpoint
           method="POST"
           path="/api/upi/create-order"
-          description="Generates a transaction reference and returns UPI payment details. No external API call — the UPI ID is hard-coded in the route. The client uses the returned upiLink to generate a QR code."
+          description="Generates a transaction reference and returns UPI payment details. No external API call, the UPI ID is hard-coded in the route. The client uses the returned upiLink to generate a QR code."
           request={`{ userId: string }`}
           response={`{
   upiId: string,
@@ -274,7 +274,7 @@ export default function ApiReferencePage() {
           description="Activates a 30-day Pro subscription for the given user and redirects to /pro/success. Called by the Verify Payment button after the user completes a UPI transaction."
           request={`Query params: ?userId=&transactionRef=&amount=`}
           response={`302 redirect to /pro/success?token={transactionRef}&method=upi&amount={amount}`}
-          notes="Payment is not cryptographically verified — the endpoint trusts that the user completed the payment. For production use, replace with a proper UPI gateway webhook."
+          notes="Payment is not cryptographically verified, the endpoint trusts that the user completed the payment. For production use, replace with a proper UPI gateway webhook."
         />
       </section>
 
