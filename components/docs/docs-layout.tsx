@@ -1,15 +1,47 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Github, Menu, X, ArrowLeft, Sprout } from "lucide-react"
+import { Github, Menu, X, ArrowLeft, Sprout, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 import { DocsSidebar } from "./docs-sidebar"
 import { DocsBreadcrumb } from "./docs-breadcrumb"
 import { DocsSearch } from "./docs-search"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isDark = resolvedTheme === "dark"
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+    >
+      {/* Render a placeholder the same size during SSR to avoid layout shift */}
+      {mounted ? (
+        isDark ? (
+          <Sun className="h-4 w-4" />
+        ) : (
+          <Moon className="h-4 w-4" />
+        )
+      ) : (
+        <span className="h-4 w-4" />
+      )}
+    </Button>
+  )
+}
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -52,6 +84,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
           {/* Search */}
           <DocsSearch className="hidden sm:flex" />
+
+          {/* Theme toggle */}
+          <ThemeToggle />
 
           {/* GitHub */}
           <Button
@@ -111,7 +146,6 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             className={cn(
               "hidden lg:block w-56 xl:w-64 flex-shrink-0 py-8",
               "sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto",
-              // Custom scrollbar for sidebar
               "scrollbar-thin",
             )}
           >

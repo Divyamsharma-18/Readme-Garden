@@ -12,7 +12,7 @@ export function DocsSidebar({ onNavClick }: { onNavClick?: () => void }) {
     <nav className="space-y-6" aria-label="Documentation navigation">
       {docsNav.map((group) => (
         <div key={group.title}>
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+          <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
             {group.title}
           </p>
           <ul className="space-y-0.5">
