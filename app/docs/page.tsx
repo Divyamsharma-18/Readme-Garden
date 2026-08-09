@@ -65,7 +65,7 @@ export default function DocsIndexPage() {
         </h1>
         <p className="text-lg text-muted-foreground leading-relaxed">
           README Garden is an AI-powered documentation tool that generates beautiful, personality-driven GitHub README files
-          in seconds. Paste a GitHub repository URL, pick a vibe, and the AI does the rest — fetching real repo metadata,
+          in seconds. Paste a GitHub repository URL, pick a vibe, and the AI does the rest, fetching real repo metadata,
           parsing <code className="docs-inline-code">package.json</code>, scraping your live demo, and producing a polished
           Markdown document ready to copy or download.
         </p>
@@ -78,7 +78,7 @@ export default function DocsIndexPage() {
           <Link href="/docs/quick-start" className="docs-link font-medium">
             Quick Start guide
           </Link>{" "}
-          — you&apos;ll have a README generated in under a minute.
+          and you&apos;ll have a README generated in under a minute.
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default function DocsIndexPage() {
           GPT-4o model.
         </p>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          The output is a full Markdown README that matches your chosen <strong className="text-foreground">vibe</strong> —
+          The output is a full Markdown README that matches your chosen <strong className="text-foreground">vibe</strong>,
           six personality styles that range from a crisp corporate document to a humorous, emoji-filled write-up.
           Not happy with the first result? Hit{" "}
           <strong className="text-foreground">AI Rewrite</strong> for a completely different version.
@@ -136,20 +136,20 @@ export default function DocsIndexPage() {
         <h2 className="text-2xl font-semibold text-foreground mb-4">Key features</h2>
         <ul className="space-y-2 text-muted-foreground">
           {[
-            "GitHub API integration — fetches repo metadata, languages, topics, and existing README",
-            "package.json analysis — extracts name, description, keywords, scripts, and dependencies",
-            "Live demo scraping — reads the page title and meta description of your deployed app",
-            "Six vibe presets — Professional, Friendly, Humorous, Creative, Minimal, Detailed",
-            "AI Rewrite — generates a structurally different version on each attempt using rotating prompts",
-            "Live Markdown preview — rendered with react-markdown, remark-gfm, and rehype-highlight",
-            "Inline editing — edit the raw Markdown directly in the output panel",
-            "Copy & download — one click to clipboard or a .md file",
-            "OTP-based passwordless sign-in — no separate login page needed",
-            "Pro tier — $5 / 30 days via PayPal, ₹399 via UPI (QR code generation)",
-            "Usage quotas — 3 anonymous device uses, 5 per email+device for free accounts, 5/day for Pro",
-            "i18n — English and German UI via a custom React context",
-            "Dark / light theme — next-themes with default dark mode",
-            "Fully responsive — mobile-first layout throughout",
+            "GitHub API integration: fetches repo metadata, languages, topics, and existing README",
+            "package.json analysis: extracts name, description, keywords, scripts, and dependencies",
+            "Live demo scraping: reads the page title and meta description of your deployed app",
+            "Six vibe presets: Professional, Friendly, Humorous, Creative, Minimal, Detailed",
+            "AI Rewrite: generates a structurally different version on each attempt using rotating prompts",
+            "Live Markdown preview: rendered with react-markdown, remark-gfm, and rehype-highlight",
+            "Inline editing: edit the raw Markdown directly in the output panel",
+            "Copy & download: one click to clipboard or a .md file",
+            "OTP-based passwordless sign-in: no separate login page needed",
+            "Pro tier: $5 / 30 days via PayPal, ₹399 via UPI (QR code generation)",
+            "Usage quotas: 3 anonymous device uses, 5 per email+device for free accounts, 5/day for Pro",
+            "i18n: English and German UI via a custom React context",
+            "Dark / light theme: next-themes with default dark mode",
+            "Fully responsive: mobile-first layout throughout",
           ].map((f) => (
             <li key={f} className="flex items-start gap-2 text-sm">
               <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />

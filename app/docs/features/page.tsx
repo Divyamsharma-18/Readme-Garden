@@ -10,7 +10,7 @@ export default function FeaturesPage() {
         <p className="docs-overline">Core Concepts</p>
         <h1 className="docs-h1">Features</h1>
         <p className="docs-lead">
-          Every capability README Garden ships with — documented against the actual implementation.
+          Every capability README Garden ships with, documented against the actual implementation.
         </p>
       </div>
 
@@ -23,7 +23,7 @@ export default function FeaturesPage() {
         </p>
         <div className="docs-callout docs-callout-tip">
           <p className="text-sm">
-            The <strong>Project Purpose</strong> field is the highest-priority context in the prompt — if you fill it in,
+            The <strong>Project Purpose</strong> field is the highest-priority context in the prompt. If you fill it in,
             the model will use it over the GitHub description and any scraped metadata.
           </p>
         </div>
@@ -33,7 +33,7 @@ export default function FeaturesPage() {
         <h2 className="text-2xl font-semibold text-foreground mb-4">Six Vibe Presets</h2>
         <p className="text-sm text-muted-foreground mb-4">
           Each vibe is a distinct system-instruction block injected at the top of the prompt. The difference is not
-          just tone — structure, emoji usage, section names, and formality level all change.
+          just tone: structure, emoji usage, section names, and formality level all change.
         </p>
         <div className="space-y-4">
           {[
@@ -86,7 +86,7 @@ export default function FeaturesPage() {
           distinct document.
         </p>
         <p className="text-sm text-muted-foreground mb-4">
-          The version number is tracked in the output panel header — e.g.{" "}
+          The version number is tracked in the output panel header, e.g.{" "}
           <code className="docs-inline-code">Your README (v3)</code>. Each rewrite costs one usage quota unit.
         </p>
         <div className="docs-callout docs-callout-note">
@@ -107,14 +107,14 @@ export default function FeaturesPage() {
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
             <span>
-              <code className="docs-inline-code">remark-gfm</code> — GitHub Flavoured Markdown: tables, strikethrough,
+              <code className="docs-inline-code">remark-gfm</code>: GitHub Flavoured Markdown: tables, strikethrough,
               task lists, and autolinks.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
             <span>
-              <code className="docs-inline-code">rehype-highlight</code> — syntax highlighting for fenced code blocks
+              <code className="docs-inline-code">rehype-highlight</code>: syntax highlighting for fenced code blocks
               using highlight.js under the hood.
             </span>
           </li>
@@ -131,7 +131,7 @@ export default function FeaturesPage() {
         <p className="text-sm text-muted-foreground">
           Switching to the <strong className="text-foreground">Markdown</strong> tab reveals a full-height{" "}
           <code className="docs-inline-code">&lt;textarea&gt;</code> with the raw Markdown. Any changes you make are
-          stored in React state — the Preview tab will show the updated content when you switch back. Copy and
+          stored in React state, and the Preview tab will show the updated content when you switch back. Copy and
           Download always use the current state of the textarea, so edits are preserved in exports.
         </p>
       </section>
@@ -142,7 +142,7 @@ export default function FeaturesPage() {
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
             <span>
-              <strong className="text-foreground">Copy</strong> — Calls{" "}
+              <strong className="text-foreground">Copy</strong>: Calls{" "}
               <code className="docs-inline-code">navigator.clipboard.writeText()</code> with the full Markdown string.
               A toast notification confirms success.
             </span>
@@ -150,7 +150,7 @@ export default function FeaturesPage() {
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
             <span>
-              <strong className="text-foreground">Download</strong> — Creates a{" "}
+              <strong className="text-foreground">Download</strong>: Creates a{" "}
               <code className="docs-inline-code">Blob</code> with MIME type{" "}
               <code className="docs-inline-code">text/markdown</code>, creates a temporary anchor with an object URL,
               programmatically clicks it, then revokes the URL. The file is always named{" "}
@@ -165,7 +165,7 @@ export default function FeaturesPage() {
         <p className="text-sm text-muted-foreground mb-4">
           Theme is managed by <code className="docs-inline-code">next-themes</code> with{" "}
           <code className="docs-inline-code">defaultTheme="dark"</code> and{" "}
-          <code className="docs-inline-code">enableSystem={`{false}`}</code> — system preference is intentionally
+          <code className="docs-inline-code">enableSystem={`{false}`}</code>, so system preference is intentionally
           ignored. A toggle button in both headers switches between dark and light. The preference is persisted in
           localStorage by next-themes automatically.
         </p>

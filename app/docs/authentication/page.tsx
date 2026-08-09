@@ -18,7 +18,7 @@ export default function AuthenticationPage() {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Authentication is entirely optional — the app works for anonymous users up to the device usage limit.
+          Authentication is entirely optional, and the app works for anonymous users up to the device usage limit.
           Signing up unlocks the free tier (5 total uses per email + device pair) and is required before purchasing
           a Pro subscription.
         </p>
@@ -68,7 +68,7 @@ export default function AuthenticationPage() {
         <p className="text-sm text-muted-foreground mb-4">
           The sign-in tab in the auth modal calls{" "}
           <code className="docs-inline-code">supabase.auth.signInWithPassword()</code> directly. Error messages are
-          normalised to user-friendly strings — Supabase's raw error messages (which can be verbose or expose internal
+          normalised to user-friendly strings, as Supabase's raw error messages (which can be verbose or expose internal
           detail) are mapped to clean descriptions like "Invalid email or password".
         </p>
         <p className="text-sm text-muted-foreground">
@@ -91,7 +91,7 @@ export default function AuthenticationPage() {
               <p className="text-sm text-muted-foreground">
                 User enters their email. The client calls{" "}
                 <code className="docs-inline-code">supabase.auth.signInWithOtp()</code> with{" "}
-                <code className="docs-inline-code">shouldCreateUser: false</code> — only existing accounts can use OTP.
+                <code className="docs-inline-code">shouldCreateUser: false</code>  only existing accounts can use OTP.
                 Supabase sends a 6-digit code to the email address.
               </p>
             </div>
@@ -136,7 +136,7 @@ export default function AuthenticationPage() {
         <div className="docs-callout docs-callout-warning">
           <p className="text-sm">
             Supabase session tokens are stored by the Supabase SDK in localStorage (default). There is no
-            server-side session cookie for the Next.js layer — all auth state is client-managed.
+            server-side session cookie for the Next.js layer, all auth state is client-managed.
           </p>
         </div>
       </section>
@@ -153,7 +153,7 @@ export default function AuthenticationPage() {
             Check the domain against two blocklists: the{" "}
             <code className="docs-inline-code">disposable-email-domains-js</code> package (thousands of known
             disposable providers) plus a supplemental hand-curated blocklist in the same file. Subdomain traversal
-            is implemented — <code className="docs-inline-code">sub.mailinator.com</code> is caught even if only{" "}
+            is implemented like <code className="docs-inline-code">sub.mailinator.com</code> is caught even if only{" "}
             <code className="docs-inline-code">mailinator.com</code> is in the blocklist.
           </li>
         </ol>

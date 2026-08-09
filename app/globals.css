@@ -275,20 +275,23 @@
 
 /* Code blocks */
 .docs-code-block {
-  @apply rounded-xl border border-border/60 bg-[hsl(222.2,84%,3%)] overflow-hidden;
+  @apply rounded-xl border border-border/60 bg-muted/50 overflow-hidden;
 }
 .dark .docs-code-block {
-  @apply bg-black/40;
+  @apply bg-zinc-900/80;
 }
 .docs-code-header {
-  @apply flex items-center justify-between border-b border-border/40 px-4 py-2 text-xs text-muted-foreground;
+  @apply flex items-center justify-between border-b border-border/40 px-4 py-2 text-xs text-muted-foreground bg-muted/30;
+}
+.dark .docs-code-header {
+  @apply bg-zinc-800/50;
 }
 .docs-code-pre {
-  @apply overflow-x-auto p-4 text-sm font-mono text-foreground/90 leading-relaxed;
+  @apply overflow-x-auto p-4 text-sm font-mono text-foreground leading-relaxed;
   scrollbar-width: thin;
 }
 .docs-code-pre code {
-  @apply bg-transparent p-0 text-sm font-mono;
+  @apply bg-transparent p-0 text-sm font-mono text-foreground;
 }
 
 /* Steps */

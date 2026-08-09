@@ -51,7 +51,7 @@ export default function QuickStartPage() {
             </div>
             <p className="text-sm text-muted-foreground mt-3">
               The repository does <strong className="text-foreground">not</strong> need to be yours. Any public repo
-              works. Private repos are not supported — the GitHub API is called without authentication.
+              works. Private repos are not supported, as the GitHub API is called without authentication.
             </p>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function QuickStartPage() {
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
                 <span>
-                  <strong className="text-foreground">Live Demo URL</strong> — The server fetches this URL and extracts
+                  <strong className="text-foreground">Live Demo URL</strong>: The server fetches this URL and extracts
                   the page <code className="docs-inline-code">&lt;title&gt;</code> and{" "}
                   <code className="docs-inline-code">meta description</code> to enrich the prompt.
                 </span>
@@ -76,7 +76,7 @@ export default function QuickStartPage() {
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
                 <span>
-                  <strong className="text-foreground">Project Purpose / Description</strong> — A few sentences you write
+                  <strong className="text-foreground">Project Purpose / Description</strong>: A few sentences you write
                   yourself. The prompt treats this as the highest-priority context, overriding the GitHub description
                   when present.
                 </span>
@@ -147,14 +147,14 @@ export default function QuickStartPage() {
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>
-                  <strong className="text-foreground">Preview</strong> — Rendered Markdown with syntax-highlighted
+                  <strong className="text-foreground">Preview</strong>: Rendered Markdown with syntax-highlighted
                   code blocks, GFM tables, and task lists.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>
-                  <strong className="text-foreground">Markdown</strong> — Raw editable textarea. Changes here update
+                  <strong className="text-foreground">Markdown</strong>: Raw editable textarea. Changes here update
                   the preview in real time when you switch tabs.
                 </span>
               </li>
@@ -165,15 +165,15 @@ export default function QuickStartPage() {
             <ul className="space-y-1 text-sm text-muted-foreground mt-2">
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-                <span><strong className="text-foreground">AI Rewrite</strong> — Generates a completely structurally different version in the same vibe, using rotating prompt variations.</span>
+                <span><strong className="text-foreground">AI Rewrite</strong>: Generates a completely structurally different version in the same vibe, using rotating prompt variations.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-                <span><strong className="text-foreground">Copy</strong> — Writes the full Markdown to the clipboard.</span>
+                <span><strong className="text-foreground">Copy</strong>: Writes the full Markdown to the clipboard.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-                <span><strong className="text-foreground">Download</strong> — Triggers a browser download of <code className="docs-inline-code">README.md</code>.</span>
+                <span><strong className="text-foreground">Download</strong>: Triggers a browser download of <code className="docs-inline-code">README.md</code>.</span>
               </li>
             </ul>
           </div>
@@ -196,17 +196,17 @@ export default function QuickStartPage() {
               <tr>
                 <td>Anonymous (no account)</td>
                 <td>3 total per device</td>
-                <td>Never — stored in localStorage</td>
+                <td>Never (stored in localStorage)</td>
               </tr>
               <tr>
                 <td>Free (signed in)</td>
                 <td>5 total per email + device pair</td>
-                <td>Never — stored in localStorage</td>
+                <td>Never (stored in localStorage)</td>
               </tr>
               <tr>
                 <td>Pro</td>
                 <td>5 per day</td>
-                <td>Daily — tracked server-side in Supabase</td>
+                <td>Daily, tracked server-side in Supabase</td>
               </tr>
             </tbody>
           </table>

@@ -10,7 +10,7 @@ export default function ArchitecturePage() {
         <p className="docs-overline">Technical Reference</p>
         <h1 className="docs-h1">Architecture</h1>
         <p className="docs-lead">
-          A technical map of the application — request flows, data boundaries, and how the major
+          A technical map of the application : request flows, data boundaries, and how the major
           subsystems connect.
         </p>
       </div>
@@ -18,7 +18,7 @@ export default function ArchitecturePage() {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-foreground mb-4">High-level overview</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          README Garden is a monolithic Next.js 15 application. There is no separate backend service — the Next.js
+          README Garden is a monolithic Next.js 15 application. There is no separate backend service, the Next.js
           App Router serves both the React frontend and the API layer (Route Handlers) from a single deployment unit.
         </p>
         <div className="rounded-xl border border-border/60 bg-card/30 p-5 font-mono text-xs text-muted-foreground overflow-x-auto">

@@ -20,15 +20,15 @@ export default function ProAndPaymentsPage() {
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-            <span><strong className="text-foreground">5 generations per day</strong> — resets every calendar day, tracked server-side.</span>
+            <span><strong className="text-foreground">5 generations per day</strong> - resets every calendar day, tracked server-side.</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-            <span><strong className="text-foreground">30-day subscription window</strong> — after 30 days from purchase the subscription expires and the account reverts to the free tier.</span>
+            <span><strong className="text-foreground">30-day subscription window</strong> - after 30 days from purchase the subscription expires and the account reverts to the free tier.</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-400" />
-            <span><strong className="text-foreground">Server-side quota enforcement</strong> — unlike free tiers, Pro limits cannot be bypassed by clearing localStorage.</span>
+            <span><strong className="text-foreground">Server-side quota enforcement</strong> - unlike free tiers, Pro limits cannot be bypassed by clearing localStorage.</span>
           </li>
         </ul>
       </section>
@@ -160,7 +160,7 @@ Response: {
 
         <div className="docs-callout docs-callout-warning mt-4">
           <p className="text-sm">
-            The current UPI verify endpoint does not cryptographically verify the payment — it trusts that the user
+            The current UPI verify endpoint does not cryptographically verify the payment, it trusts that the user
             completed it. For a production deployment, integrate a proper UPI payment gateway (Razorpay, PhonePe
             Business, etc.) that provides server-side webhook confirmation.
           </p>
