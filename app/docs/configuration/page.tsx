@@ -78,15 +78,15 @@ export default function ConfigurationPage() {
           name="NEXT_PUBLIC_SUPABASE_ANON_KEY"
           required={true}
           description="The anon (public) API key for your Supabase project. This key has row-level-security (RLS) enforced and is safe to expose in the browser. Found under Settings → API → Project API keys."
-          example="NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          example="NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key"
           usedIn="lib/supabase.ts (client), app/api/auth/* routes"
         />
 
         <EnvVar
           name="SUPABASE_SERVICE_ROLE_KEY"
           required={true}
-          description="The service role (admin) key for your Supabase project. Bypasses Row Level Security — never expose this to the browser. Used only in server-side Route Handlers to write subscription data after payments."
-          example="SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description="The service role (admin) key for your Supabase project. Bypasses Row Level Security, never expose this to the browser. Used only in server-side Route Handlers to write subscription data after payments."
+          example="SUPABASE_SERVICE_ROLE_KEY=your-supabase-key"
           usedIn="lib/supabase-server.ts, app/api/usage/*, app/api/paypal/*, app/api/upi/*"
         />
 

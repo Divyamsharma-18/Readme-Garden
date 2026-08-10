@@ -52,7 +52,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-background text-foreground">
       {/* ── Top nav bar ────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 h-14 border-b border-border/60 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-full max-w-7xl items-center gap-3 px-4 sm:px-6">
+        <div className="flex h-full items-center gap-3 px-6">
 
           {/* Mobile: hamburger */}
           <button
@@ -139,7 +139,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       )}
 
       {/* ── Main layout ─────────────────────────────────────────────────── */}
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 lg:px-8">
         <div className="flex gap-8 lg:gap-12">
 
           {/* ── Sidebar (desktop) ──────────────────────────────────────── */}
