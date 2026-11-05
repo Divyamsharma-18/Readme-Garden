@@ -100,7 +100,7 @@ export default function TroubleshootingPage() {
 
         <Issue
           title="PayPal payment completes but Pro is not activated"
-          cause="The /pro/success page's capture call failed, or the custom_id in the PayPal order is missing."
+          cause="The /support/success page's capture call failed, or the custom_id in the PayPal order is missing."
           fix="Check server logs for the capture-order route. The custom_id is the user's Supabase ID — if the user wasn't signed in when they initiated checkout, it will be missing. Ensure the user is authenticated before clicking the PayPal button. The PayPal webhook (POST /api/paypal/webhook) serves as a backup — verify it is configured in your PayPal developer dashboard."
         />
 

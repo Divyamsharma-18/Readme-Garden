@@ -271,9 +271,9 @@ export default function ApiReferencePage() {
         <ApiEndpoint
           method="GET"
           path="/api/upi/success"
-          description="Activates a 30-day Pro subscription for the given user and redirects to /pro/success. Called by the Verify Payment button after the user completes a UPI transaction."
+          description="Activates a 30-day Pro subscription for the given user and redirects to /support/success. Called by the Verify Payment button after the user completes a UPI transaction."
           request={`Query params: ?userId=&transactionRef=&amount=`}
-          response={`302 redirect to /pro/success?token={transactionRef}&method=upi&amount={amount}`}
+          response={`302 redirect to /support/success?token={transactionRef}&method=upi&amount={amount}`}
           notes="Payment is not cryptographically verified, the endpoint trusts that the user completed the payment. For production use, replace with a proper UPI gateway webhook."
         />
       </section>

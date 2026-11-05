@@ -59,7 +59,7 @@ export default function SuccessPage() {
               <XCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
               <p className="text-red-500 mb-6">{error}</p>
               <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => router.push("/pro")} className="rounded-xl">
+                <Button variant="outline" onClick={() => router.push("/support")} className="rounded-xl">
                   Try Again
                 </Button>
                 <Button variant="outline" onClick={() => router.push("/generate")} className="rounded-xl">

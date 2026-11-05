@@ -68,7 +68,7 @@ export default function ProjectStructurePage() {
               <tr><td><code>paypal/capture-order/route.ts</code></td><td>POST</td><td>Capture PayPal order and activate Pro in Supabase.</td></tr>
               <tr><td><code>paypal/webhook/route.ts</code></td><td>POST</td><td>PayPal PAYMENT.CAPTURE.COMPLETED webhook handler.</td></tr>
               <tr><td><code>upi/create-order/route.ts</code></td><td>POST</td><td>Generate UPI payment details and transaction ref.</td></tr>
-              <tr><td><code>upi/success/route.ts</code></td><td>GET</td><td>Activate Pro in Supabase and redirect to /pro/success.</td></tr>
+              <tr><td><code>upi/success/route.ts</code></td><td>GET</td><td>Activate Pro in Supabase and redirect to /support/success.</td></tr>
             </tbody>
           </table>
         </div>

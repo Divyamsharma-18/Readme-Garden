@@ -18,7 +18,7 @@ export default function ProAndPaymentsPage() {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Buy Me a Coffee</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          The <strong>/pro</strong> page has been redesigned as a "Buy Me a Coffee" style donation page. 
+          The <strong>/support</strong> page has been redesigned as a donation page. 
           Instead of processing payments through payment gateways, it provides direct links to support
           the developer through personal UPI and PayPal accounts.
         </p>
@@ -69,7 +69,7 @@ export default function ProAndPaymentsPage() {
 
         <div className="docs-callout docs-callout-warning">
           <p className="text-sm">
-            The PayPal link needs to be configured in <code className="docs-inline-code">app/pro/page.tsx</code>.
+            The PayPal link needs to be configured in <code className="docs-inline-code">app/support/page.tsx</code>.
             Update the <code className="docs-inline-code">PAYPAL_LINK</code> constant with your PayPal.me URL
             or donation link once available.
           </p>

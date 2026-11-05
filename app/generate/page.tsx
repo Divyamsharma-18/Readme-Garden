@@ -481,7 +481,7 @@ export default function GeneratePage() {
               </span>
             </Badge>
             {!isPro && (
-              <Link href="/pro">
+              <Link href="/support">
                 <Button variant="outline" size="sm" className="rounded-full bg-transparent flex p-2">
                   <Coffee className="w-4 h-4 text-yellow-600" />
                   <span className="hidden lg:inline">{t("generate.goPro")}</span>
@@ -615,7 +615,7 @@ export default function GeneratePage() {
                 </Button>
                 {!isPro && (
                   <Link
-                    href="/pro"
+                    href="/support"
                     className="text-sm text-purple-600 dark:text-purple-300 underline underline-offset-4"
                   >
                     {t("generate.wantMore")}

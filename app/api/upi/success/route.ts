@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     // Redirect to success page
     return NextResponse.redirect(
       new URL(
-        `/pro/success?token=${transactionRef}&method=upi&amount=${amount}`,
+        `/support/success?token=${transactionRef}&method=upi&amount=${amount}`,
         request.url
       )
     )

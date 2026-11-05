@@ -52,8 +52,8 @@ export async function POST(request: Request) {
         application_context: {
           brand_name: "README Garden",
           user_action: "PAY_NOW",
-          return_url: `${origin}/pro/success?userId=${encodeURIComponent(userId)}`,
-          cancel_url: `${origin}/pro/cancel`,
+          return_url: `${origin}/support/success?userId=${encodeURIComponent(userId)}`,
+          cancel_url: `${origin}/support/cancel`,
         },
       }),
     })
