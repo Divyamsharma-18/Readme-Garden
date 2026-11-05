@@ -18,7 +18,29 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.png",
   },
-    generator: 'Divyam Sharma'
+  generator: 'Divyam Sharma',
+  openGraph: {
+    title: "README Garden - Grow Beautiful READMEs with AI",
+    description: "Create stunning GitHub README files with AI-powered generation. Choose your vibe and let our garden grow the perfect documentation for your projects.",
+    url: "https://readme-garden.vercel.app",
+    siteName: "README Garden",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "README Garden - AI-powered README generator",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "README Garden - Grow Beautiful READMEs with AI",
+    description: "Create stunning GitHub README files with AI-powered generation. Choose your vibe and let our garden grow the perfect documentation for your projects.",
+    images: ["/og-image.png"],
+  },
 }
 
 export default function RootLayout({
