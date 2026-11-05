@@ -43,10 +43,10 @@ export default function BuyMeCoffeePage() {
       <Card className="w-full max-w-xl bg-white dark:bg-gray-900 border shadow-sm">
         <CardHeader className="text-center pb-6 space-y-2">
           <CardTitle className="text-2xl font-semibold text-foreground">
-            Support README Garden
+            {t("support.title")}
           </CardTitle>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            README Garden is free to use. Your support helps cover infrastructure costs and fund continued development.
+            {t("support.description")}
           </p>
         </CardHeader>
 
@@ -54,14 +54,14 @@ export default function BuyMeCoffeePage() {
           {/* UPI Payment */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-foreground">UPI</h3>
+              <h3 className="text-sm font-medium text-foreground">{t("support.upiTitle")}</h3>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={copyUPIId}
                 className="h-7 text-xs"
               >
-                {copied ? <><Check className="w-3 h-3 mr-1" /> Copied</> : <><Copy className="w-3 h-3 mr-1" /> Copy</>}
+                {copied ? <><Check className="w-3 h-3 mr-1" /> {t("support.copied")}</> : <><Copy className="w-3 h-3 mr-1" /> {t("support.copy")}</>}
               </Button>
             </div>
             <code className="block text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
@@ -74,14 +74,14 @@ export default function BuyMeCoffeePage() {
                 size="sm"
                 className="flex-1"
               >
-                {showUPIQR ? "Hide QR" : "Show QR"}
+                {showUPIQR ? t("support.hideQR") : t("support.showQR")}
               </Button>
               <Button
                 onClick={() => window.open(`upi://pay?pa=${UPI_ID}&pn=README Garden`, "_blank")}
                 size="sm"
                 className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black"
               >
-                Pay via UPI
+                {t("support.payViaUPI")}
               </Button>
             </div>
             {showUPIQR && qrCode && (
@@ -96,24 +96,24 @@ export default function BuyMeCoffeePage() {
               <span className="w-full border-t border-gray-200 dark:border-gray-700" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white dark:bg-gray-900 px-2 text-muted-foreground">or</span>
+              <span className="bg-white dark:bg-gray-900 px-2 text-muted-foreground">{t("support.or")}</span>
             </div>
           </div>
 
           {/* PayPal Payment */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-foreground">PayPal</h3>
+            <h3 className="text-sm font-medium text-foreground">{t("support.paypalTitle")}</h3>
             {PAYPAL_LINK ? (
               <Button
                 onClick={() => window.open(PAYPAL_LINK, "_blank", "noopener,noreferrer")}
                 size="sm"
                 className="w-full bg-yellow-500 hover:bg-yellow-400 text-black"
               >
-                Donate via PayPal
+                {t("support.donatePayPal")}
               </Button>
             ) : (
               <p className="text-xs text-muted-foreground italic">
-                PayPal link will be added soon.
+                {t("support.paypalSoon")}
               </p>
             )}
           </div>
@@ -125,7 +125,7 @@ export default function BuyMeCoffeePage() {
               className="w-full"
               size="sm"
             >
-              Back to Generator
+              {t("support.backToGenerator")}
             </Button>
           </div>
         </CardContent>
@@ -133,6 +133,3 @@ export default function BuyMeCoffeePage() {
     </div>
   )
 }
-
-// Missing import
-import { Sparkles } from "lucide-react"

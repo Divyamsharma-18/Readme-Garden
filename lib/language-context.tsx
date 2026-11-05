@@ -124,6 +124,21 @@ export const translations: Record<Language, Record<string, string>> = {
     "pro.paymentSuccess": "Payment Successful!",
     "pro.paymentSuccessDesc": "Your Pro upgrade is confirmed. Welcome!",
 
+    // Support Page
+    "support.title": "Support README Garden",
+    "support.description": "README Garden is free to use. Your support helps cover infrastructure costs and fund continued development.",
+    "support.upiTitle": "UPI",
+    "support.paypalTitle": "PayPal",
+    "support.copy": "Copy",
+    "support.copied": "Copied",
+    "support.hideQR": "Hide QR",
+    "support.showQR": "Show QR",
+    "support.payViaUPI": "Pay via UPI",
+    "support.or": "or",
+    "support.donatePayPal": "Donate via PayPal",
+    "support.paypalSoon": "PayPal link will be added soon.",
+    "support.backToGenerator": "Back to Generator",
+
     // Auth
     "auth.signin": "Sign In",
     "auth.signup": "Sign Up",
@@ -139,6 +154,21 @@ export const translations: Record<Language, Record<string, string>> = {
     "auth.noAccount": "Don't have an account?",
     "auth.haveAccount": "Already have an account?",
     "auth.or": "or",
+
+    // Support Page
+    "support.title": "Support README Garden",
+    "support.description": "README Garden is free to use. Your support helps cover infrastructure costs and fund continued development.",
+    "support.upiTitle": "UPI",
+    "support.paypalTitle": "PayPal",
+    "support.copy": "Copy",
+    "support.copied": "Copied",
+    "support.hideQR": "Hide QR",
+    "support.showQR": "Show QR",
+    "support.payViaUPI": "Pay via UPI",
+    "support.or": "or",
+    "support.donatePayPal": "Donate via PayPal",
+    "support.paypalSoon": "PayPal link will be added soon.",
+    "support.backToGenerator": "Back to Generator",
 
     // Generate Page
     "generate.title": "Generate README",
@@ -326,6 +356,21 @@ export const translations: Record<Language, Record<string, string>> = {
     "pro.verifying": "Verifizierung läuft...",
     "pro.paymentSuccess": "Zahlung erfolgreich!",
     "pro.paymentSuccessDesc": "Dein Pro-Upgrade ist bestätigt. Willkommen!",
+
+    // Support Page
+    "support.title": "README Garden Unterstützen",
+    "support.description": "README Garden ist kostenlos nutzbar. Deine Unterstützung hilft, Infrastrukturkosten zu decken und die Weiterentwicklung zu finanzieren.",
+    "support.upiTitle": "UPI",
+    "support.paypalTitle": "PayPal",
+    "support.copy": "Kopieren",
+    "support.copied": "Kopiert",
+    "support.hideQR": "QR ausblenden",
+    "support.showQR": "QR anzeigen",
+    "support.payViaUPI": "Per UPI bezahlen",
+    "support.or": "oder",
+    "support.donatePayPal": "Per PayPal spenden",
+    "support.paypalSoon": "PayPal-Link wird bald hinzugefügt.",
+    "support.backToGenerator": "Zurück zum Generator",
 
     // Auth
     "auth.signin": "Anmelden",
