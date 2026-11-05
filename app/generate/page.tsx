@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown, BookOpen } from "lucide-react"
+import { Github, Sparkles, Moon, Sun, Copy, RefreshCw, Download, Wand2, User, ArrowLeft, Crown, BookOpen, Coffee } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -483,7 +483,7 @@ export default function GeneratePage() {
             {!isPro && (
               <Link href="/pro">
                 <Button variant="outline" size="sm" className="rounded-full bg-transparent flex p-2">
-                  <Crown className="w-4 h-4 text-yellow-500" />
+                  <Coffee className="w-4 h-4 text-yellow-600" />
                   <span className="hidden lg:inline">{t("generate.goPro")}</span>
                 </Button>
               </Link>
