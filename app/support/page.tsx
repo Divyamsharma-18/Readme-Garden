@@ -8,6 +8,7 @@ import { Copy, Check } from "lucide-react"
 import { useRouter } from "next/navigation"
 import QRCode from "qrcode"
 import { useLanguage } from "@/lib/language-context"
+import Image from "next/image"
 
 export default function BuyMeCoffeePage() {
   const { theme } = useTheme()
@@ -20,7 +21,6 @@ export default function BuyMeCoffeePage() {
   
   // UPI details - hardcoded
   const UPI_ID = "divyam18@ptaxis"
-  const PAYPAL_LINK = "" // Will be provided later
 
   useEffect(() => {
     // Generate UPI QR code on mount
@@ -103,19 +103,15 @@ export default function BuyMeCoffeePage() {
           {/* PayPal Payment */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-foreground">{t("support.paypalTitle")}</h3>
-            {PAYPAL_LINK ? (
-              <Button
-                onClick={() => window.open(PAYPAL_LINK, "_blank", "noopener,noreferrer")}
-                size="sm"
-                className="w-full bg-yellow-500 hover:bg-yellow-400 text-black"
-              >
-                {t("support.donatePayPal")}
-              </Button>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">
-                {t("support.paypalSoon")}
-              </p>
-            )}
+            <div className="flex justify-center">
+              <Image 
+                src="/qrcode.png" 
+                alt="PayPal QR Code" 
+                width={192}
+                height={192}
+                className="w-48 h-48 border border-gray-200 dark:border-gray-700 rounded" 
+              />
+            </div>
           </div>
 
           <div className="pt-4">
